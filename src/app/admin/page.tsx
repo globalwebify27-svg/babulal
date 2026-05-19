@@ -132,7 +132,7 @@ export default function AdminDashboard() {
                <tbody className="divide-y divide-surface-dim">
                   {data?.latestLeads?.length > 0 ? (
                     data.latestLeads.map((enq: any) => (
-                      <tr key={enq._id} className="group hover:bg-surface-dim/30 transition-all duration-300">
+                      <tr key={enq.id} className="group hover:bg-surface-dim/30 transition-all duration-300">
                          <td className="px-10 py-8">
                             <div className="flex items-center gap-3">
                                <div className="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary">

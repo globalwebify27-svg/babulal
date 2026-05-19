@@ -44,7 +44,7 @@ export default function VerticalsAdminPage() {
     try {
       const res = await fetch(`/api/admin/landing-content?vertical=${vId}`);
       const data = await res.json();
-      if (data._id) {
+      if (data.id) {
         setFormData(data);
       } else {
         setFormData({

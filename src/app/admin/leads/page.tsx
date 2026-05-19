@@ -51,7 +51,7 @@ export default function AdminLeadsPage() {
         body: JSON.stringify({ id, status: newStatus }),
       });
       if (res.ok) {
-        setLeads(leads.map(l => l._id === id ? { ...l, status: newStatus } : l));
+        setLeads(leads.map(l => l.id === id ? { ...l, status: newStatus } : l));
       }
     } catch (err) {
       console.error('Failed to update lead:', err);
@@ -124,7 +124,7 @@ export default function AdminLeadsPage() {
                  initial={{ opacity: 0, x: -10 }}
                  animate={{ opacity: 1, x: 0 }}
                  exit={{ opacity: 0, scale: 0.95 }}
-                 key={lead._id}
+                 key={lead.id}
                  className="bg-white p-6 rounded-2xl shadow-sm border border-primary/5 flex items-center justify-between group hover:border-accent/30 transition-all"
                >
                  <div className="flex items-center gap-6">
@@ -161,7 +161,7 @@ export default function AdminLeadsPage() {
                     <div className="flex items-center gap-2">
                        {lead.status !== 'CLOSED' && (
                          <button 
-                           onClick={() => updateStatus(lead._id, 'CLOSED')}
+                           onClick={() => updateStatus(lead.id, 'CLOSED')}
                            className="p-3 rounded-lg bg-surface-dim text-primary/30 hover:bg-green-500 hover:text-white transition-all shadow-sm"
                            title="Mark as Resolved"
                          >
@@ -170,7 +170,7 @@ export default function AdminLeadsPage() {
                        )}
                        {lead.status === 'NEW' && (
                          <button 
-                           onClick={() => updateStatus(lead._id, 'IN_PROGRESS')}
+                           onClick={() => updateStatus(lead.id, 'IN_PROGRESS')}
                            className="p-3 rounded-lg bg-surface-dim text-primary/30 hover:bg-primary hover:text-white transition-all shadow-sm"
                            title="Start Processing"
                          >

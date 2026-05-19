@@ -109,7 +109,7 @@ export default function BannersPage() {
     setIsSubmitting(true);
     try {
       const method = editingBanner ? 'PATCH' : 'POST';
-      const body = editingBanner ? { id: editingBanner._id, ...formData } : formData;
+      const body = editingBanner ? { id: editingBanner.id, ...formData } : formData;
       const res = await fetch('/api/admin/banners', {
         method,
         headers: { 'Content-Type': 'application/json' },
@@ -131,7 +131,7 @@ export default function BannersPage() {
     if (!confirm('Are you sure you want to delete this banner?')) return;
     try {
       const res = await fetch(`/api/admin/banners?id=${id}`, { method: 'DELETE' });
-      if (res.ok) setBanners(banners.filter(b => b._id !== id));
+      if (res.ok) setBanners(banners.filter(b => b.id !== id));
     } catch (err) {
       console.error('Delete error:', err);
     }
@@ -142,10 +142,10 @@ export default function BannersPage() {
       const res = await fetch('/api/admin/banners', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: banner._id, isActive: !banner.isActive }),
+        body: JSON.stringify({ id: banner.id, isActive: !banner.isActive }),
       });
       if (res.ok) {
-        setBanners(banners.map(b => b._id === banner._id ? { ...b, isActive: !b.isActive } : b));
+        setBanners(banners.map(b => b.id === banner.id ? { ...b, isActive: !b.isActive } : b));
       }
     } catch (err) {
       console.error('Toggle error:', err);
@@ -177,7 +177,7 @@ export default function BannersPage() {
               <span className="text-[10px] font-black uppercase tracking-widest italic">Synchronizing Assets...</span>
            </div>
          ) : banners.map((banner) => (
-           <div key={banner._id} className="bg-white rounded-3xl p-6 shadow-sm border border-[#d1d9e6] flex items-center gap-8 group hover:border-[#095181]/30 transition-all">
+           <div key={banner.id} className="bg-white rounded-3xl p-6 shadow-sm border border-[#d1d9e6] flex items-center gap-8 group hover:border-[#095181]/30 transition-all">
               <div className="w-48 h-28 bg-[#f8fafc] rounded-2xl flex flex-col items-center justify-center text-[#1a2b4b]/10 border border-[#d1d9e6] relative overflow-hidden">
                  {banner.image ? (
                    <img src={banner.image} className="w-full h-full object-cover" />
@@ -223,7 +223,7 @@ export default function BannersPage() {
                     </div>
                     <span className="text-[8px] font-black uppercase tracking-widest text-[#1a2b4b]/20">Edit</span>
                  </div>
-                 <div onClick={() => deleteBanner(banner._id)} className="flex flex-col items-center gap-1 group/btn cursor-pointer">
+                 <div onClick={() => deleteBanner(banner.id)} className="flex flex-col items-center gap-1 group/btn cursor-pointer">
                     <div className="p-3 bg-[#f8fafc] rounded-xl text-[#1a2b4b]/30 group-hover/btn:bg-accent group-hover/btn:text-white transition-all shadow-sm">
                        <Trash2 className="w-4 h-4" />
                     </div>
