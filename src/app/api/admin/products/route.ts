@@ -190,21 +190,28 @@ export async function PATCH(req: Request) {
 
     // Build standard MySQL update columns
     const cleanUpdates: any = {};
-    const keys = Object.keys(updates);
-    
-    for (const key of keys) {
-      if (key === 'images') {
-        cleanUpdates.images = JSON.stringify(updates.images);
-      } else if (key === 'attributes') {
-        cleanUpdates.attributes = JSON.stringify(updates.attributes);
-      } else if (key === 'seo') {
-        if (updates.seo.h1 !== undefined) cleanUpdates.h1 = updates.seo.h1;
-        if (updates.seo.metaTitle !== undefined) cleanUpdates.metaTitle = updates.seo.metaTitle;
-        if (updates.seo.metaDescription !== undefined) cleanUpdates.metaDescription = updates.seo.metaDescription;
-        if (updates.seo.altText !== undefined) cleanUpdates.altText = updates.seo.altText;
-      } else {
+    const ALLOWED_COLUMNS = [
+      'name', 'slug', 'businessVertical', 'category', 'subCategory', 
+      'description', 'videoUrl', 'brochureUrl', 'isFeatured', 'isActive'
+    ];
+
+    for (const key of ALLOWED_COLUMNS) {
+      if (updates[key] !== undefined) {
         cleanUpdates[key] = updates[key];
       }
+    }
+
+    if (updates.images !== undefined) {
+      cleanUpdates.images = JSON.stringify(updates.images);
+    }
+    if (updates.attributes !== undefined) {
+      cleanUpdates.attributes = JSON.stringify(updates.attributes);
+    }
+    if (updates.seo) {
+      if (updates.seo.h1 !== undefined) cleanUpdates.h1 = updates.seo.h1;
+      if (updates.seo.metaTitle !== undefined) cleanUpdates.metaTitle = updates.seo.metaTitle;
+      if (updates.seo.metaDescription !== undefined) cleanUpdates.metaDescription = updates.seo.metaDescription;
+      if (updates.seo.altText !== undefined) cleanUpdates.altText = updates.seo.altText;
     }
 
     const cleanKeys = Object.keys(cleanUpdates);
