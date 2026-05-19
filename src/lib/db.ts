@@ -148,6 +148,12 @@ export async function initDb() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
+    try {
+      await connection.query('ALTER TABLE landing_content ADD COLUMN marqueeTexts TEXT');
+    } catch (e) {
+      // Column might already exist
+    }
+
     console.log('✅ MySQL Database and Tables initialized successfully.');
   } catch (error) {
     console.error('❌ Error initializing MySQL Database:', error);

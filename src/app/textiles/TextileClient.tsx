@@ -131,6 +131,9 @@ export default function TextileClient({ initialCategories, initialProducts, init
   const [products] = useState<any[]>(initialProducts);
   // Only display categories toggled as 'Curated' in the Curated Collections section
   const curatedCategories = initialCategories.filter((cat: any) => cat.isCurated);
+  const kidsCategory = initialCategories.find(
+    (cat: any) => cat.slug === 'kids-collection' || cat.name.toLowerCase().includes('kids')
+  );
   const [banners] = useState<any[]>(initialBanners && initialBanners.length > 0 ? initialBanners : HERO_SLIDES);
   const [isLoading] = useState(false); // Never loading because data is SSR
 
@@ -408,7 +411,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
               },
               {
                 pre: "Inventory Scale",
-                stat: "TUPUDANA",
+                stat: "10K+ SKUS",
                 post: "Massive Warehousing Hub",
                 Icon: Factory
               }
@@ -882,7 +885,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
             {/* Left Pillar: The Cinematic Banner */}
             <div className="w-full lg:w-[450px] shrink-0 relative aspect-[3/4] lg:aspect-auto h-[600px] lg:h-[700px] overflow-hidden rounded-sm shadow-2xl group">
               <Image
-                src="/kids_boutique_yellow.png"
+                src={kidsCategory?.image || "/kids_boutique_yellow.png"}
                 alt="Kids Collection"
                 fill
                 sizes="(max-width: 1024px) 100vw, 450px"

@@ -13,7 +13,8 @@ function mapLandingContent(row: any) {
     facebookPixel: {
       id: row.facebookPixelId || '',
       enabled: !!row.facebookPixelEnabled
-    }
+    },
+    marqueeTexts: row.marqueeTexts ? JSON.parse(row.marqueeTexts) : []
   };
 }
 
@@ -58,11 +59,12 @@ export async function POST(req: Request) {
     const address = data.address || null;
     const facebookPixelId = data.facebookPixel?.id || null;
     const facebookPixelEnabled = data.facebookPixel?.enabled !== undefined ? !!data.facebookPixel.enabled : false;
+    const marqueeTexts = data.marqueeTexts ? JSON.stringify(data.marqueeTexts) : JSON.stringify([]);
 
     await pool.query(
       `INSERT INTO landing_content (
-        vertical, heroTitle, heroSubtitle, aboutTitle, aboutContent, features, contactEmail, contactPhone, address, facebookPixelId, facebookPixelEnabled
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        vertical, heroTitle, heroSubtitle, aboutTitle, aboutContent, features, contactEmail, contactPhone, address, facebookPixelId, facebookPixelEnabled, marqueeTexts
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE
         heroTitle = VALUES(heroTitle),
         heroSubtitle = VALUES(heroSubtitle),
@@ -73,9 +75,10 @@ export async function POST(req: Request) {
         contactPhone = VALUES(contactPhone),
         address = VALUES(address),
         facebookPixelId = VALUES(facebookPixelId),
-        facebookPixelEnabled = VALUES(facebookPixelEnabled)`,
+        facebookPixelEnabled = VALUES(facebookPixelEnabled),
+        marqueeTexts = VALUES(marqueeTexts)`,
       [
-        vertical, heroTitle, heroSubtitle, aboutTitle, aboutContent, features, contactEmail, contactPhone, address, facebookPixelId, facebookPixelEnabled
+        vertical, heroTitle, heroSubtitle, aboutTitle, aboutContent, features, contactEmail, contactPhone, address, facebookPixelId, facebookPixelEnabled, marqueeTexts
       ]
     );
 

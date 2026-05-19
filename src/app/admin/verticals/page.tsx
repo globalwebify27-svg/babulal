@@ -12,11 +12,15 @@ import {
   Mail,
   Loader2,
   CheckCircle2,
-  Globe
+  Globe,
+  Megaphone,
+  Plus,
+  Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const VERTICALS = [
+  { id: 'TEXTILES', name: 'Babulal Premkumar', color: '#095181' },
   { id: 'HONDA', name: 'Premsons Honda', color: '#E11B22' },
   { id: 'BAJAJ', name: 'Premsons Bajaj', color: '#00529B' },
   { id: 'TRUCKING', name: 'Commercial Vehicles', color: '#F26522' },
@@ -36,7 +40,8 @@ export default function VerticalsAdminPage() {
     contactEmail: '',
     contactPhone: '',
     address: '',
-    facebookPixel: { id: '', enabled: false }
+    facebookPixel: { id: '', enabled: false },
+    marqueeTexts: []
   });
 
   const fetchContent = async (vId: string) => {
@@ -45,7 +50,10 @@ export default function VerticalsAdminPage() {
       const res = await fetch(`/api/admin/landing-content?vertical=${vId}`);
       const data = await res.json();
       if (data.id) {
-        setFormData(data);
+        setFormData({
+          ...data,
+          marqueeTexts: data.marqueeTexts || []
+        });
       } else {
         setFormData({
           vertical: vId,
@@ -55,7 +63,12 @@ export default function VerticalsAdminPage() {
           contactEmail: '',
           contactPhone: '',
           address: '',
-          facebookPixel: { id: '', enabled: false }
+          facebookPixel: { id: '', enabled: false },
+          marqueeTexts: vId === 'TEXTILES' ? [
+            "Jharkhand's Leading Retail Textile Hub Since 1978",
+            "Global Shipping Now Available to 50+ Countries",
+            "New Bridal Collection 2026 Launching Soon"
+          ] : []
         });
       }
     } catch (err) {
@@ -176,6 +189,62 @@ export default function VerticalsAdminPage() {
                   </div>
                 </div>
               </section>
+
+              {/* ANNOUNCEMENT BAR (MARQUEE) - ONLY FOR TEXTILES */}
+              {activeVertical.id === 'TEXTILES' && (
+                <section className="bg-white p-10 rounded-[3rem] shadow-sm border border-primary/5">
+                  <div className="flex items-center gap-3 mb-10 pb-6 border-b border-primary/5">
+                     <div className="w-10 h-10 bg-primary/5 rounded-full flex items-center justify-center">
+                        <Megaphone className="w-5 h-5 text-primary" />
+                     </div>
+                     <div>
+                       <h3 className="text-[11px] font-black uppercase tracking-[.4em] text-primary/40 italic">Announcement Ticker</h3>
+                       <p className="text-[8px] font-bold text-primary/20 uppercase tracking-widest mt-1">Top Header Marquee Texts</p>
+                     </div>
+                  </div>
+                  <div className="space-y-4">
+                    {(formData.marqueeTexts || []).map((text: string, index: number) => (
+                      <div key={index} className="flex gap-3 items-center">
+                        <input
+                          type="text"
+                          className="flex-1 bg-surface-dim px-6 py-4 rounded-xl text-sm font-bold border-none outline-none focus:ring-4 focus:ring-primary/5 transition-all"
+                          value={text}
+                          onChange={(e) => {
+                            const newMarquees = [...formData.marqueeTexts];
+                            newMarquees[index] = e.target.value;
+                            setFormData({ ...formData, marqueeTexts: newMarquees });
+                          }}
+                          placeholder="Enter announcement text..."
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newMarquees = formData.marqueeTexts.filter((_: any, i: number) => i !== index);
+                            setFormData({ ...formData, marqueeTexts: newMarquees });
+                          }}
+                          className="w-12 h-12 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl flex items-center justify-center transition-all shrink-0"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    ))}
+                    
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          marqueeTexts: [...(formData.marqueeTexts || []), ""]
+                        });
+                      }}
+                      className="flex items-center gap-2 border-2 border-dashed border-primary/20 hover:border-primary text-primary px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all w-full justify-center"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Announcement
+                    </button>
+                  </div>
+                </section>
+              )}
 
               {/* ABOUT SECTION */}
               <section className="bg-white p-10 rounded-[3rem] shadow-sm border border-primary/5">
