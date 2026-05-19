@@ -3,8 +3,7 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import dbConnect from '@/lib/db';
-import Product from '@/models/Product';
+import pool, { initDb } from '@/lib/db';
 import { BUSINESS_VERTICALS, VerticalID } from '@/lib/constants';
 import ProductGallery from '@/components/ProductGallery';
 import InquiryForm from '@/components/InquiryForm';
@@ -16,13 +15,9 @@ import {
   ShieldCheck,
   Truck,
   Award,
-  MapPin,
-  Clock,
   ChevronRight,
   Share2,
-  Download,
-  Copy,
-  Plus
+  Download
 } from 'lucide-react';
 
 import SocialShare from '@/components/SocialShare';
@@ -34,14 +29,49 @@ interface ProductPageProps {
   };
 }
 
+function mapProduct(prod: any) {
+  if (!prod) return null;
+  return {
+    ...prod,
+    _id: prod.id.toString(),
+    images: prod.images ? JSON.parse(prod.images) : [],
+    attributes: prod.attributes ? JSON.parse(prod.attributes) : {},
+    isFeatured: !!prod.isFeatured,
+    isActive: !!prod.isActive,
+    seo: {
+      h1: prod.h1,
+      metaTitle: prod.metaTitle,
+      metaDescription: prod.metaDescription,
+      altText: prod.altText
+    }
+  };
+}
+
+function mapCategory(cat: any) {
+  if (!cat) return null;
+  return {
+    ...cat,
+    _id: cat.id.toString(),
+    order: cat.orderIndex,
+    showInHeader: !!cat.showInHeader,
+    topBusiness: !!cat.topBusiness,
+    isCurated: !!cat.isCurated
+  };
+}
+
 // ══ SEO & METADATA ══
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug, vertical: verticalSlug } = await params;
-  await dbConnect();
-  const product = await Product.findOne({ slug, businessVertical: verticalSlug });
+  await initDb();
+  
+  const [rows]: any = await pool.query(
+    'SELECT * FROM products WHERE slug = ? AND businessVertical = ? LIMIT 1',
+    [slug, verticalSlug]
+  );
 
-  if (!product) return { title: 'Product Not Found' };
-
+  if (rows.length === 0) return { title: 'Product Not Found' };
+  
+  const product = mapProduct(rows[0])!;
   const vertical = Object.values(BUSINESS_VERTICALS).find(v => v.slug === verticalSlug);
 
   return {
@@ -56,25 +86,39 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 export default async function SingleProductPage({ params }: ProductPageProps) {
   const { slug, vertical: verticalSlug } = await params;
 
-  await dbConnect();
-  const product = await Product.findOne({ slug, businessVertical: verticalSlug }).lean() as any;
+  await initDb();
+  
+  const [rows]: any = await pool.query(
+    'SELECT * FROM products WHERE slug = ? AND businessVertical = ? LIMIT 1',
+    [slug, verticalSlug]
+  );
 
-  if (!product) notFound();
+  if (rows.length === 0) notFound();
 
+  const product = mapProduct(rows[0])!;
   const vertical = Object.values(BUSINESS_VERTICALS).find(v => v.slug === verticalSlug);
 
   // Logic for Related Products
-  const relatedProducts = await Product.find({
-    businessVertical: verticalSlug,
-    category: product.category,
-    _id: { $ne: product._id }
-  }).limit(4).lean();
+  const [relatedRows]: any = await pool.query(
+    'SELECT * FROM products WHERE businessVertical = ? AND category = ? AND id != ? LIMIT 4',
+    [verticalSlug, product.category, product.id]
+  );
+  const relatedProducts = relatedRows.map(mapProduct);
 
   // Fetch Sub-Category Catalog if product doesn't have its own
   let subCategoryCatalog = null;
   if (product.subCategory) {
-    const SubCategory = (await import('@/models/SubCategory')).default;
-    subCategoryCatalog = await SubCategory.findOne({ name: product.subCategory }).lean();
+    const [subRows]: any = await pool.query(
+      'SELECT * FROM sub_categories WHERE name = ? LIMIT 1',
+      [product.subCategory]
+    );
+    if (subRows.length > 0) {
+      subCategoryCatalog = {
+        ...subRows[0],
+        _id: subRows[0].id.toString(),
+        order: subRows[0].orderIndex
+      };
+    }
   }
 
   const finalBrochureUrl = product.brochureUrl || subCategoryCatalog?.brochureUrl;
@@ -82,8 +126,10 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
   // Fetch all categories for the header if we are in textiles
   let navCategories: any[] = [];
   if (verticalSlug === 'textiles') {
-    const Category = (await import('@/models/Category')).default;
-    navCategories = await Category.find({ parentVertical: 'textiles' }).sort({ order: 1 }).lean();
+    const [catRows]: any = await pool.query(
+      "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
+    );
+    navCategories = catRows.map(mapCategory);
   }
 
   // JSON-LD Structured Data for SEO
@@ -308,7 +354,7 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10">
-                {relatedProducts.map((p) => (
+                {relatedProducts.map((p: any) => (
                   <Link key={p._id} href={`/${verticalSlug}/product/${p.slug}`} className="group block">
                     <div className="relative aspect-[3/4] rounded-3xl overflow-hidden bg-white shadow-2xl mb-8 border border-gray-100">
                       <Image

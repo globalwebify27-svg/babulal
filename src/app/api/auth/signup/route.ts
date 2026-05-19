@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import User from '@/models/User';
+import pool, { initDb } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 
 /**
@@ -9,7 +8,7 @@ import bcrypt from 'bcryptjs';
  */
 export async function POST(req: Request) {
   try {
-    await dbConnect();
+    await initDb();
     const { name, email, password, role } = await req.json();
 
     if (!name || !email || !password) {
@@ -20,8 +19,8 @@ export async function POST(req: Request) {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    const [existingUsers]: any = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (existingUsers.length > 0) {
       return NextResponse.json(
         { error: 'User with this email already exists' },
         { status: 400 }
@@ -32,15 +31,13 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create the user
-    const newUser = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role: role || 'STAFF',
-    });
+    const [result]: any = await pool.query(
+      'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
+      [name, email, hashedPassword, role || 'STAFF']
+    );
 
     return NextResponse.json(
-      { message: 'User created successfully', id: newUser._id },
+      { message: 'User created successfully', id: result.insertId },
       { status: 201 }
     );
   } catch (error: any) {

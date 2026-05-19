@@ -1,55 +1,160 @@
-import mongoose from 'mongoose';
+import mysql from 'mysql2/promise';
 
-const MONGODB_URI = process.env.MONGODB_URI || "";
+// Prevent multiple pools in development
+const pool = (global as any).mysqlPool || mysql.createPool({
+  host: process.env.DATABASE_HOST || 'localhost',
+  user: process.env.DATABASE_USER || 'root',
+  password: process.env.DATABASE_PASSWORD || '',
+  database: process.env.DATABASE_NAME || 'babulal_portal',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0
+});
 
-if (!MONGODB_URI) {
-  if (process.env.NODE_ENV === 'production') {
-    console.warn('⚠️ MONGODB_URI is not defined. Build will proceed with empty data for dynamic routes.');
-  } else {
-    // In dev, we still want to know immediately
-    console.warn('⚠️ MONGODB_URI is missing in .env.local');
-  }
+if (process.env.NODE_ENV !== 'production') {
+  (global as any).mysqlPool = pool;
 }
 
-/**
- * Global is used here to maintain a cached connection across hot reloads
- * in development. This prevents connections growing exponentially
- * during API Route usage.
- */
-
-let cached = (global as any).mongoose;
-
-if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null };
-}
-
-async function dbConnect() {
-  if (cached.conn) {
-    return cached.conn;
-  }
-
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-
-    if (!MONGODB_URI) {
-      return null;
-    }
-
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
-  }
-
+export async function initDb() {
+  const connection = await pool.getConnection();
   try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    throw e;
-  }
+    // 1. Create Users table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        role VARCHAR(50) DEFAULT 'STAFF',
+        verticals TEXT,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
 
-  return cached.conn;
+    // 2. Create Categories table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) NOT NULL UNIQUE,
+        image LONGTEXT,
+        subCategoryCount INT DEFAULT 0,
+        faqCount INT DEFAULT 0,
+        showInHeader BOOLEAN DEFAULT TRUE,
+        topBusiness BOOLEAN DEFAULT FALSE,
+        isCurated BOOLEAN DEFAULT FALSE,
+        orderIndex INT DEFAULT 0,
+        status VARCHAR(50) DEFAULT 'Active',
+        parentVertical VARCHAR(255) DEFAULT 'textiles',
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    // 3. Create Sub-Categories table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS sub_categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) NOT NULL,
+        categoryId INT NOT NULL,
+        status VARCHAR(50) DEFAULT 'Active',
+        orderIndex INT DEFAULT 0,
+        brochureUrl VARCHAR(500),
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (categoryId) REFERENCES categories(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    // 4. Create Products table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS products (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) NOT NULL UNIQUE,
+        businessVertical VARCHAR(255) NOT NULL,
+        category VARCHAR(255) NOT NULL,
+        subCategory VARCHAR(255),
+        description TEXT,
+        images LONGTEXT,
+        videoUrl VARCHAR(500),
+        brochureUrl VARCHAR(500),
+        attributes TEXT,
+        h1 VARCHAR(255),
+        metaTitle VARCHAR(255),
+        metaDescription TEXT,
+        altText VARCHAR(255),
+        isFeatured BOOLEAN DEFAULT FALSE,
+        isActive BOOLEAN DEFAULT TRUE,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    // 5. Create Leads table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS leads (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255),
+        mobile VARCHAR(50) NOT NULL,
+        city VARCHAR(255),
+        state VARCHAR(255),
+        interest VARCHAR(255),
+        businessVertical VARCHAR(255) NOT NULL,
+        source VARCHAR(50) DEFAULT 'FORM',
+        status VARCHAR(50) DEFAULT 'NEW',
+        notes TEXT,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    // 6. Create Banners table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS banners (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        subtitle VARCHAR(255),
+        image LONGTEXT NOT NULL,
+        vertical VARCHAR(255) NOT NULL DEFAULT 'HOME',
+        link VARCHAR(500),
+        orderIndex INT DEFAULT 0,
+        isActive BOOLEAN DEFAULT TRUE,
+        position VARCHAR(50) DEFAULT 'HOME_HERO',
+        alignment VARCHAR(50) DEFAULT 'center',
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    // 7. Create Landing Content table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS landing_content (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        vertical VARCHAR(255) NOT NULL UNIQUE,
+        heroTitle VARCHAR(255) NOT NULL,
+        heroSubtitle VARCHAR(255),
+        aboutTitle VARCHAR(255) DEFAULT 'Our Legacy',
+        aboutContent TEXT,
+        features TEXT,
+        contactEmail VARCHAR(255),
+        contactPhone VARCHAR(50),
+        address TEXT,
+        facebookPixelId VARCHAR(255),
+        facebookPixelEnabled BOOLEAN DEFAULT FALSE,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    console.log('✅ MySQL Database and Tables initialized successfully.');
+  } catch (error) {
+    console.error('❌ Error initializing MySQL Database:', error);
+    throw error;
+  } finally {
+    connection.release();
+  }
 }
 
-export default dbConnect;
+export default pool;

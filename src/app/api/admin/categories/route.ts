@@ -1,22 +1,25 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import Category from '@/models/Category';
+import pool, { initDb } from '@/lib/db';
 import { optimizeBase64Image } from '@/lib/image-utils';
 
-/**
- * GET - List all categories
- * POST - Create a new category
- */
+function mapCategory(cat: any) {
+  if (!cat) return null;
+  return {
+    ...cat,
+    _id: cat.id.toString(),
+    order: cat.orderIndex,
+    showInHeader: !!cat.showInHeader,
+    topBusiness: !!cat.topBusiness,
+    isCurated: !!cat.isCurated
+  };
+}
+
 export async function GET() {
   try {
-    await dbConnect();
-    const categories = await Category.find({})
-      .sort({ order: 1 })
-      .lean()
-      .allowDiskUse(true);
-    
-    console.log(`--- DB FETCH CATEGORIES --- COUNT: ${categories.length}`);
-    return NextResponse.json(categories);
+    await initDb();
+    const [rows]: any = await pool.query('SELECT * FROM categories ORDER BY orderIndex ASC');
+    console.log(`--- DB FETCH CATEGORIES --- COUNT: ${rows.length}`);
+    return NextResponse.json(rows.map(mapCategory));
   } catch (error: any) {
     console.error('FETCH CATEGORIES ERROR:', error);
     return NextResponse.json({ 
@@ -30,7 +33,7 @@ export async function POST(req: Request) {
   try {
     const data = await req.json();
     console.log('POST CATEGORY DATA:', data);
-    await dbConnect();
+    await initDb();
     
     // Auto-generate slug if not provided
     if (!data.slug) {
@@ -42,25 +45,44 @@ export async function POST(req: Request) {
       data.image = await optimizeBase64Image(data.image);
     }
 
-    const newCategory = await Category.create(data);
-    console.log('CREATED CATEGORY:', newCategory);
-    return NextResponse.json(newCategory, { status: 201 });
+    const [result]: any = await pool.query(
+      `INSERT INTO categories (name, slug, image, showInHeader, topBusiness, isCurated, orderIndex, status, parentVertical)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        data.name,
+        data.slug,
+        data.image || null,
+        data.showInHeader !== undefined ? !!data.showInHeader : true,
+        data.topBusiness !== undefined ? !!data.topBusiness : false,
+        data.isCurated !== undefined ? !!data.isCurated : false,
+        data.order !== undefined ? Number(data.order) : 0,
+        data.status || 'Active',
+        data.parentVertical || 'textiles'
+      ]
+    );
+
+    const [rows]: any = await pool.query('SELECT * FROM categories WHERE id = ?', [result.insertId]);
+    console.log('CREATED CATEGORY:', rows[0]);
+    return NextResponse.json(mapCategory(rows[0]), { status: 201 });
   } catch (error: any) {
-    if (error.code === 11000) {
+    console.error('Category Create Error:', error);
+    if (error.code === 'ER_DUP_ENTRY') {
       return NextResponse.json({ error: 'A category with this name already exists' }, { status: 400 });
     }
     return NextResponse.json({ error: 'Failed to create category' }, { status: 500 });
   }
 }
 
-/**
- * PATCH - Update category details (toggle status, etc)
- */
 export async function PATCH(req: Request) {
   try {
     const { id, ...updates } = await req.json();
     console.log('PATCH CATEGORY ATTEMPT:', { id, updates });
-    await dbConnect();
+    
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+    
+    await initDb();
     
     // Normalize properties for database durability
     const cleanUpdates: any = {};
@@ -69,45 +91,52 @@ export async function PATCH(req: Request) {
     if (updates.image !== undefined) {
       cleanUpdates.image = await optimizeBase64Image(updates.image);
     }
-    if (updates.showInHeader !== undefined) cleanUpdates.showInHeader = Boolean(updates.showInHeader);
-    if (updates.isCurated !== undefined) cleanUpdates.isCurated = Boolean(updates.isCurated);
+    if (updates.showInHeader !== undefined) cleanUpdates.showInHeader = !!updates.showInHeader;
+    if (updates.isCurated !== undefined) cleanUpdates.isCurated = !!updates.isCurated;
     if (updates.status) cleanUpdates.status = updates.status;
-    if (updates.order !== undefined) cleanUpdates.order = Number(updates.order);
+    if (updates.order !== undefined) cleanUpdates.orderIndex = Number(updates.order);
     if (updates.parentVertical) cleanUpdates.parentVertical = updates.parentVertical.toLowerCase();
 
-    // Use findOneAndUpdate with an atomic $set for 100% reliable persistence
-    const updatedCategory = await Category.findOneAndUpdate(
-      { _id: id },
-      { $set: cleanUpdates },
-      { new: true, runValidators: false }
-    );
+    const keys = Object.keys(cleanUpdates);
+    if (keys.length > 0) {
+      const setClause = keys.map(key => `${key} = ?`).join(', ');
+      const values = keys.map(key => cleanUpdates[key]);
+      values.push(id);
+      
+      await pool.query(`UPDATE categories SET ${setClause} WHERE id = ?`, values);
+    }
 
-    console.log('ATOMIC UPDATE RESULT:', updatedCategory);
+    const [rows]: any = await pool.query('SELECT * FROM categories WHERE id = ?', [id]);
+    console.log('ATOMIC UPDATE RESULT:', rows[0]);
     
-    if (!updatedCategory) {
+    if (rows.length === 0) {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 });
     }
     
-    return NextResponse.json(updatedCategory);
+    return NextResponse.json(mapCategory(rows[0]));
   } catch (error: any) {
     console.error('PATCH ERROR:', error);
     return NextResponse.json({ error: error.message || 'Failed to update category' }, { status: 500 });
   }
 }
 
-/**
- * DELETE - Remove category
- */
 export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
-    await dbConnect();
     
-    const deletedCategory = await Category.findByIdAndDelete(id);
-    if (!deletedCategory) {
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+    
+    await initDb();
+    
+    const [rows]: any = await pool.query('SELECT * FROM categories WHERE id = ?', [id]);
+    if (rows.length === 0) {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 });
     }
+    
+    await pool.query('DELETE FROM categories WHERE id = ?', [id]);
     
     return NextResponse.json({ message: 'Category deleted successfully' });
   } catch (error) {

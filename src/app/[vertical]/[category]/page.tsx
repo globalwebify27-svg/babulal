@@ -1,6 +1,5 @@
 import React from 'react';
-import dbConnect from '@/lib/db';
-import Product from '@/models/Product';
+import pool, { initDb } from '@/lib/db';
 import { BUSINESS_VERTICALS, VerticalID } from '@/lib/constants';
 import InquiryForm from '@/components/InquiryForm';
 import { PlayCircle, FileText, ArrowRight } from 'lucide-react';
@@ -13,6 +12,24 @@ interface CategoryPageProps {
   };
 }
 
+function mapProduct(prod: any) {
+  if (!prod) return null;
+  return {
+    ...prod,
+    _id: prod.id.toString(),
+    images: prod.images ? JSON.parse(prod.images) : [],
+    attributes: prod.attributes ? JSON.parse(prod.attributes) : {},
+    isFeatured: !!prod.isFeatured,
+    isActive: !!prod.isActive,
+    seo: {
+      h1: prod.h1,
+      metaTitle: prod.metaTitle,
+      metaDescription: prod.metaDescription,
+      altText: prod.altText
+    }
+  };
+}
+
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { vertical: verticalSlug, category: categorySlug } = await params;
   const vertical = Object.values(BUSINESS_VERTICALS).find(v => v.slug === verticalSlug);
@@ -20,16 +37,14 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   // Fetch products for this specific business and category
   // Using SEO-friendly ordering (Featured first)
-  let products = [];
+  let products: any[] = [];
   try {
-    const conn = await dbConnect();
-    if (conn) {
-      products = await Product.find({
-        businessVertical: verticalSlug,
-        category: new RegExp(`^${categoryName}$`, 'i'),
-        isActive: true
-      }).sort({ isFeatured: -1, createdAt: -1 });
-    }
+    await initDb();
+    const [rows]: any = await pool.query(
+      'SELECT * FROM products WHERE businessVertical = ? AND LOWER(category) = ? AND isActive = TRUE ORDER BY isFeatured DESC, createdAt DESC',
+      [verticalSlug, categoryName.toLowerCase()]
+    );
+    products = rows.map(mapProduct);
   } catch (error) {
     console.error('Database fetch error during build:', error);
   }
@@ -92,7 +107,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 <h3 className="text-primary text-xl font-bold tracking-tight mb-4">{product.name}</h3>
                 <table className="seo-table text-[12px] opacity-60">
                   <tbody>
-                    {product.attributes && Array.from((product.attributes as Map<string, string>).entries()).slice(0, 3).map(([key, val]: [string, string]) => (
+                    {product.attributes && Object.entries(product.attributes).slice(0, 3).map(([key, val]: [string, any]) => (
                       <tr key={key} className="border-b border-surface-dim">
                         <td className="py-2 font-bold uppercase tracking-widest text-[9px]">{key}</td>
                         <td className="py-2 text-right">{val}</td>

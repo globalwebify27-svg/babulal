@@ -1,15 +1,40 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import Product from '@/models/Product';
+import pool, { initDb } from '@/lib/db';
 import { optimizeBase64Image } from '@/lib/image-utils';
+
+function mapProduct(prod: any) {
+  if (!prod) return null;
+  return {
+    _id: prod.id.toString(), // Keep Mongoose frontend compatibility
+    id: prod.id,
+    name: prod.name,
+    slug: prod.slug,
+    businessVertical: prod.businessVertical,
+    category: prod.category,
+    subCategory: prod.subCategory,
+    description: prod.description,
+    images: prod.images ? JSON.parse(prod.images) : [],
+    videoUrl: prod.videoUrl,
+    brochureUrl: prod.brochureUrl,
+    attributes: prod.attributes ? JSON.parse(prod.attributes) : {},
+    seo: {
+      h1: prod.h1,
+      metaTitle: prod.metaTitle,
+      metaDescription: prod.metaDescription,
+      altText: prod.altText
+    },
+    isFeatured: !!prod.isFeatured,
+    isActive: !!prod.isActive,
+    createdAt: prod.createdAt
+  };
+}
 
 /**
  * GET /api/admin/products
- * Retrieves products across all business verticals. Supports filtering by vertical and status.
  */
 export async function GET(req: Request) {
   try {
-    await dbConnect();
+    await initDb();
     
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
@@ -19,22 +44,39 @@ export async function GET(req: Request) {
     
     // Fetch single product if ID is provided
     if (id) {
-      const product = await Product.findById(id);
-      if (!product) {
+      const [rows]: any = await pool.query('SELECT * FROM products WHERE id = ? LIMIT 1', [id]);
+      if (rows.length === 0) {
         return NextResponse.json({ error: 'Product not found' }, { status: 404 });
       }
-      return NextResponse.json(product, { status: 200 });
+      return NextResponse.json(mapProduct(rows[0]), { status: 200 });
     }
 
     // Construct dynamic query
-    const query: any = {};
-    if (vertical) query.businessVertical = vertical.toLowerCase();
-    if (category) query.category = category;
-    if (isActive !== null) query.isActive = isActive === 'true';
+    let query = 'SELECT * FROM products';
+    const conditions: string[] = [];
+    const params: any[] = [];
 
-    const products = await Product.find(query).sort({ createdAt: -1 });
+    if (vertical) {
+      conditions.push('businessVertical = ?');
+      params.push(vertical.toLowerCase());
+    }
+    if (category) {
+      conditions.push('category = ?');
+      params.push(category);
+    }
+    if (isActive !== null) {
+      conditions.push('isActive = ?');
+      params.push(isActive === 'true');
+    }
 
-    return NextResponse.json(products, { status: 200 });
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    query += ' ORDER BY createdAt DESC';
+
+    const [rows]: any = await pool.query(query, params);
+    return NextResponse.json(rows.map(mapProduct), { status: 200 });
   } catch (error: any) {
     console.error('Product Fetch Error:', error);
     return NextResponse.json(
@@ -46,11 +88,10 @@ export async function GET(req: Request) {
 
 /**
  * POST /api/admin/products
- * Universal Product Creation Endpoint for all 5 business verticals.
  */
 export async function POST(req: Request) {
   try {
-    await dbConnect();
+    await initDb();
     const data = await req.json();
 
     // Verification of core fields
@@ -69,22 +110,46 @@ export async function POST(req: Request) {
       data.images = await Promise.all(data.images.map((img: string) => optimizeBase64Image(img)));
     }
 
-    // Auto-formatting name & businessVertical
-    const formattedData = {
-      ...data,
-      businessVertical: data.businessVertical.toLowerCase(),
-      slug: data.slug.toLowerCase().replace(/\s+/g, '-'), // Basic slug verification
-    };
+    // Handle nested structures
+    const imagesVal = data.images ? JSON.stringify(data.images) : JSON.stringify([]);
+    const attributesVal = data.attributes ? JSON.stringify(data.attributes) : JSON.stringify({});
+    const h1Val = data.seo?.h1 || data.h1 || null;
+    const metaTitleVal = data.seo?.metaTitle || data.metaTitle || null;
+    const metaDescriptionVal = data.seo?.metaDescription || data.metaDescription || null;
+    const altTextVal = data.seo?.altText || data.altText || null;
 
-    const newProduct = await Product.create(formattedData);
+    const [result]: any = await pool.query(
+      `INSERT INTO products (
+        name, slug, businessVertical, category, subCategory, description, images, videoUrl, brochureUrl, attributes,
+        h1, metaTitle, metaDescription, altText, isFeatured, isActive
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        data.name,
+        data.slug.toLowerCase().replace(/\s+/g, '-'),
+        data.businessVertical.toLowerCase(),
+        data.category,
+        data.subCategory || null,
+        data.description || null,
+        imagesVal,
+        data.videoUrl || null,
+        data.brochureUrl || null,
+        attributesVal,
+        h1Val,
+        metaTitleVal,
+        metaDescriptionVal,
+        altTextVal,
+        data.isFeatured !== undefined ? !!data.isFeatured : false,
+        data.isActive !== undefined ? !!data.isActive : true
+      ]
+    );
 
     return NextResponse.json(
-      { message: 'Product created successfully', id: newProduct._id },
+      { message: 'Product created successfully', id: result.insertId },
       { status: 201 }
     );
   } catch (error: any) {
     console.error('Product Creation Error:', error);
-    if (error.code === 11000) {
+    if (error.code === 'ER_DUP_ENTRY') {
       return NextResponse.json({ error: 'Slug must be unique.' }, { status: 400 });
     }
     return NextResponse.json(
@@ -96,11 +161,10 @@ export async function POST(req: Request) {
 
 /**
  * PATCH /api/admin/products
- * Universal Product Update Endpoint.
  */
 export async function PATCH(req: Request) {
   try {
-    await dbConnect();
+    await initDb();
     const data = await req.json();
     const { id, ...updates } = data;
 
@@ -124,23 +188,46 @@ export async function PATCH(req: Request) {
       updates.images = await Promise.all(updates.images.map((img: string) => optimizeBase64Image(img)));
     }
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      id,
-      { $set: updates },
-      { new: true, runValidators: true }
-    );
+    // Build standard MySQL update columns
+    const cleanUpdates: any = {};
+    const keys = Object.keys(updates);
+    
+    for (const key of keys) {
+      if (key === 'images') {
+        cleanUpdates.images = JSON.stringify(updates.images);
+      } else if (key === 'attributes') {
+        cleanUpdates.attributes = JSON.stringify(updates.attributes);
+      } else if (key === 'seo') {
+        if (updates.seo.h1 !== undefined) cleanUpdates.h1 = updates.seo.h1;
+        if (updates.seo.metaTitle !== undefined) cleanUpdates.metaTitle = updates.seo.metaTitle;
+        if (updates.seo.metaDescription !== undefined) cleanUpdates.metaDescription = updates.seo.metaDescription;
+        if (updates.seo.altText !== undefined) cleanUpdates.altText = updates.seo.altText;
+      } else {
+        cleanUpdates[key] = updates[key];
+      }
+    }
 
-    if (!updatedProduct) {
+    const cleanKeys = Object.keys(cleanUpdates);
+    if (cleanKeys.length > 0) {
+      const setClause = cleanKeys.map(k => `${k} = ?`).join(', ');
+      const values = cleanKeys.map(k => cleanUpdates[k]);
+      values.push(id);
+      
+      await pool.query(`UPDATE products SET ${setClause} WHERE id = ?`, values);
+    }
+
+    const [rows]: any = await pool.query('SELECT * FROM products WHERE id = ? LIMIT 1', [id]);
+    if (rows.length === 0) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
     return NextResponse.json(
-      { message: 'Product updated successfully', product: updatedProduct },
+      { message: 'Product updated successfully', product: mapProduct(rows[0]) },
       { status: 200 }
     );
   } catch (error: any) {
     console.error('Product Update Error:', error);
-    if (error.code === 11000) {
+    if (error.code === 'ER_DUP_ENTRY') {
       return NextResponse.json({ error: 'Slug must be unique.' }, { status: 400 });
     }
     return NextResponse.json(
@@ -152,11 +239,10 @@ export async function PATCH(req: Request) {
 
 /**
  * DELETE /api/admin/products
- * Deletes a product by ID.
  */
 export async function DELETE(req: Request) {
   try {
-    await dbConnect();
+    await initDb();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 
@@ -164,11 +250,12 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
     }
 
-    const deletedProduct = await Product.findByIdAndDelete(id);
-
-    if (!deletedProduct) {
+    const [rows]: any = await pool.query('SELECT * FROM products WHERE id = ?', [id]);
+    if (rows.length === 0) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
+
+    await pool.query('DELETE FROM products WHERE id = ?', [id]);
 
     return NextResponse.json(
       { message: 'Product deleted successfully' },

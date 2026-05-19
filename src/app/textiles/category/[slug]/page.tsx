@@ -1,10 +1,9 @@
 import React from 'react';
 import { Metadata } from 'next';
 import CategoryContent from "./CategoryContent";
-import dbConnect from "@/lib/db";
-import mongoose from "mongoose";
+import pool, { initDb } from "@/lib/db";
 
-// CRITICAL: Prevent Next.js from caching the empty MongoDB response
+// CRITICAL: Prevent Next.js from caching the empty SQL response
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -12,59 +11,79 @@ export const revalidate = 0;
  * ═══ DATA RESOLVER (STREAMING DB ACCESS) ═══
  */
 async function fetchCategoryHeaderData(slug: string) {
-  await dbConnect();
-  const db = mongoose.connection.db;
-  if (!db) throw new Error("Database connection missing.");
-
-  const currentCat = await db.collection("categories").findOne({ 
-    slug: { $regex: new RegExp(`^${slug}$`, 'i') } 
-  });
+  await initDb();
+  const [rows]: any = await pool.query(
+    'SELECT * FROM categories WHERE LOWER(slug) = ? LIMIT 1',
+    [slug.toLowerCase()]
+  );
   
-  return currentCat ? JSON.parse(JSON.stringify(currentCat)) : { name: slug.toUpperCase(), image: "/bridal_luxury.png" };
-}
-
-// These are exported so they can be triggered without blocking the UI
-async function fetchSubCategoriesData(categoryId: string) {
-  await dbConnect();
-  const db = mongoose.connection.db;
-  if (!db) throw new Error("Database connection missing.");
-  
-  // Try to query by ObjectId first, then fallback to string
-  let query: any = { categoryId: categoryId };
-  if (mongoose.Types.ObjectId.isValid(categoryId)) {
-    query = { 
-      $or: [
-        { categoryId: categoryId }, 
-        { categoryId: new mongoose.Types.ObjectId(categoryId) }
-      ] 
-    };
+  if (rows.length === 0) {
+    return { name: slug.toUpperCase(), image: "/bridal_luxury.png" };
   }
 
-  const subs = await db.collection("subcategories").find(query).toArray();
-  return JSON.parse(JSON.stringify(subs));
+  const cat = rows[0];
+  return {
+    ...cat,
+    _id: cat.id.toString(),
+    order: cat.orderIndex,
+    showInHeader: !!cat.showInHeader,
+    topBusiness: !!cat.topBusiness,
+    isCurated: !!cat.isCurated
+  };
+}
+
+async function fetchSubCategoriesData(categoryId: string) {
+  await initDb();
+  
+  const [rows]: any = await pool.query(
+    'SELECT * FROM sub_categories WHERE categoryId = ? ORDER BY orderIndex ASC',
+    [Number(categoryId)]
+  );
+
+  return rows.map((sub: any) => ({
+    ...sub,
+    _id: sub.id.toString(),
+    category: sub.categoryId.toString(),
+    order: sub.orderIndex
+  }));
 }
 
 async function fetchProductsData() {
-  await dbConnect();
-  const db = mongoose.connection.db;
-  if (!db) throw new Error("Database connection missing.");
-  const products = await db.collection("products")
-    .find({ businessVertical: { $in: ["textiles", "TEXTILES", "Textiles"] } })
-    .sort({ createdAt: -1 })
-    .limit(150)
-    .toArray();
-  return JSON.parse(JSON.stringify(products));
+  await initDb();
+  const [rows]: any = await pool.query(
+    "SELECT * FROM products WHERE LOWER(businessVertical) = 'textiles' ORDER BY createdAt DESC LIMIT 150"
+  );
+  
+  return rows.map((prod: any) => ({
+    ...prod,
+    _id: prod.id.toString(),
+    images: prod.images ? JSON.parse(prod.images) : [],
+    attributes: prod.attributes ? JSON.parse(prod.attributes) : {},
+    isFeatured: !!prod.isFeatured,
+    isActive: !!prod.isActive,
+    seo: {
+      h1: prod.h1,
+      metaTitle: prod.metaTitle,
+      metaDescription: prod.metaDescription,
+      altText: prod.altText
+    }
+  }));
 }
 
 async function fetchAllCategoriesData() {
-  await dbConnect();
-  const db = mongoose.connection.db;
-  if (!db) throw new Error("Database connection missing.");
-  const categories = await db.collection("categories")
-    .find({ parentVertical: { $in: ["textiles", "TEXTILES"] } })
-    .sort({ order: 1 })
-    .toArray();
-  return JSON.parse(JSON.stringify(categories));
+  await initDb();
+  const [rows]: any = await pool.query(
+    "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
+  );
+
+  return rows.map((cat: any) => ({
+    ...cat,
+    _id: cat.id.toString(),
+    order: cat.orderIndex,
+    showInHeader: !!cat.showInHeader,
+    topBusiness: !!cat.topBusiness,
+    isCurated: !!cat.isCurated
+  }));
 }
 
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {

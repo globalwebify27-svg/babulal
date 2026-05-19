@@ -1,7 +1,6 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import dbConnect from '@/lib/db';
-import User from '@/models/User';
+import pool, { initDb } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 
 const handler = NextAuth({
@@ -17,14 +16,16 @@ const handler = NextAuth({
           throw new Error('Please enter an email and password');
         }
 
-        await dbConnect();
+        // Initialize DB if not done already
+        await initDb();
 
-        const user = await User.findOne({ email: credentials.email });
+        const [users]: any = await pool.query('SELECT * FROM users WHERE email = ?', [credentials.email]);
 
-        if (!user) {
+        if (users.length === 0) {
           throw new Error('No user found with this email');
         }
 
+        const user = users[0];
         const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
 
         if (!isPasswordMatch) {
@@ -32,7 +33,7 @@ const handler = NextAuth({
         }
 
         return {
-          id: user._id.toString(),
+          id: user.id.toString(),
           name: user.name,
           email: user.email,
           role: user.role,

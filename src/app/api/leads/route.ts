@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import Lead from '@/models/Lead';
+import pool, { initDb } from '@/lib/db';
 
 /**
  * POST /api/leads
@@ -11,7 +10,7 @@ import Lead from '@/models/Lead';
  */
 export async function POST(req: Request) {
   try {
-    await dbConnect();
+    await initDb();
     const data = await req.json();
 
     // Verification: Minimum required fields
@@ -22,22 +21,26 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create the lead in MongoDB
-    const newLead = await Lead.create({
-      name: data.name,
-      email: data.email || '',
-      mobile: data.mobile,
-      city: data.city || '',
-      state: data.state || '',
-      interest: data.interest || 'General Inquiry',
-      businessVertical: data.businessVertical.toLowerCase(),
-      source: data.source || 'FORM',
-      status: 'NEW',
-      notes: data.notes || '',
-    });
+    // Create the lead in MySQL
+    const [result]: any = await pool.query(
+      `INSERT INTO leads (name, email, mobile, city, state, interest, businessVertical, source, status, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        data.name,
+        data.email || null,
+        data.mobile,
+        data.city || null,
+        data.state || null,
+        data.interest || 'General Inquiry',
+        data.businessVertical.toLowerCase(),
+        data.source || 'FORM',
+        'NEW',
+        data.notes || null
+      ]
+    );
 
     return NextResponse.json(
-      { message: 'Lead captured successfully', id: newLead._id },
+      { message: 'Lead captured successfully', id: result.insertId },
       { status: 201 }
     );
   } catch (error: any) {

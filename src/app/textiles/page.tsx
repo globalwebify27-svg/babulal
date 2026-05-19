@@ -1,6 +1,5 @@
 import React from 'react';
-import dbConnect from "@/lib/db";
-import mongoose from "mongoose";
+import pool, { initDb } from "@/lib/db";
 import TextileClient from "./TextileClient";
 
 // CRITICAL: Enable Incremental Static Regeneration (ISR)
@@ -13,41 +12,60 @@ export const revalidate = 300;
  * Bypasses client-side rendering to eliminate loading screens.
  */
 async function fetchTextileCatalogData() {
-  await dbConnect();
-
-  const db = mongoose.connection.db;
-  if (!db) {
-    throw new Error("Database connection missing. Restart server.");
-  }
+  await initDb();
 
   // Execute all queries in parallel for maximum performance
-  // Using direct string matches instead of regex to leverage indexes
-  const [categories, products, banners] = await Promise.all([
-    db.collection("categories")
-      .find({ parentVertical: { $in: ["textiles", "TEXTILES"] } })
-      .sort({ order: 1 })
-      .toArray(),
-
-    db.collection("products")
-      .find({ businessVertical: { $in: ["textiles", "TEXTILES", "textile", "TEXTILE"] } })
-      .sort({ createdAt: -1 })
-      .limit(500) 
-      .toArray(),
-
-    db.collection("banners")
-      .find({ 
-        vertical: { $in: ["textiles", "TEXTILES"] }, 
-        position: 'HOME_HERO',
-        isActive: true 
-      })
-      .sort({ order: 1 })
-      .toArray()
+  const [
+    [categoriesRows],
+    [productsRows],
+    [bannersRows]
+  ]: any[] = await Promise.all([
+    pool.query(
+      "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
+    ),
+    pool.query(
+      "SELECT * FROM products WHERE LOWER(businessVertical) = 'textiles' ORDER BY createdAt DESC LIMIT 500"
+    ),
+    pool.query(
+      "SELECT * FROM banners WHERE LOWER(vertical) = 'textiles' AND position = 'HOME_HERO' AND isActive = TRUE ORDER BY orderIndex ASC"
+    )
   ]);
 
+  const categories = categoriesRows.map((cat: any) => ({
+    ...cat,
+    _id: cat.id.toString(),
+    order: cat.orderIndex,
+    showInHeader: !!cat.showInHeader,
+    topBusiness: !!cat.topBusiness,
+    isCurated: !!cat.isCurated
+  }));
+
+  const products = productsRows.map((prod: any) => ({
+    ...prod,
+    _id: prod.id.toString(),
+    images: prod.images ? JSON.parse(prod.images) : [],
+    attributes: prod.attributes ? JSON.parse(prod.attributes) : {},
+    isFeatured: !!prod.isFeatured,
+    isActive: !!prod.isActive,
+    seo: {
+      h1: prod.h1,
+      metaTitle: prod.metaTitle,
+      metaDescription: prod.metaDescription,
+      altText: prod.altText
+    }
+  }));
+
+  const banners = bannersRows.map((ban: any) => ({
+    ...ban,
+    _id: ban.id.toString(),
+    order: ban.orderIndex,
+    isActive: !!ban.isActive
+  }));
+
   return {
-    categories: JSON.parse(JSON.stringify(categories)),
-    products: JSON.parse(JSON.stringify(products)),
-    banners: JSON.parse(JSON.stringify(banners))
+    categories,
+    products,
+    banners
   };
 }
 

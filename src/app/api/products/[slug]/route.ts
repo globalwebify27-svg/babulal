@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import Product from '@/models/Product';
+import pool, { initDb } from '@/lib/db';
 
 /**
  * GET /api/products/[slug]
@@ -11,7 +10,7 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    await dbConnect();
+    await initDb();
     
     // params are now a promise in newer Next.js versions as per agents.md rule
     const { slug } = await params;
@@ -20,11 +19,27 @@ export async function GET(
       return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
     }
 
-    const product = await Product.findOne({ slug, isActive: true });
+    const [rows]: any = await pool.query(
+      'SELECT * FROM products WHERE slug = ? AND isActive = TRUE LIMIT 1',
+      [slug]
+    );
 
-    if (!product) {
+    if (rows.length === 0) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
+
+    const prod = rows[0];
+    const product = {
+      ...prod,
+      images: prod.images ? JSON.parse(prod.images) : [],
+      attributes: prod.attributes ? JSON.parse(prod.attributes) : {},
+      seo: {
+        h1: prod.h1,
+        metaTitle: prod.metaTitle,
+        metaDescription: prod.metaDescription,
+        altText: prod.altText
+      }
+    };
 
     return NextResponse.json(product, { status: 200 });
   } catch (error: any) {

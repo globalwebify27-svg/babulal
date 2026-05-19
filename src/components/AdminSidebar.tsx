@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -84,7 +85,10 @@ export default function AdminSidebar() {
           <ExternalLink className="w-4 h-4" />
           <span className="text-[10px] font-bold uppercase tracking-widest">Visit Site</span>
         </Link>
-        <button className="w-full flex items-center gap-3 px-4 py-3 text-accent hover:bg-accent/5 rounded-xl transition-all">
+        <button 
+          onClick={() => signOut({ callbackUrl: '/auth/login' })}
+          className="w-full flex items-center gap-3 px-4 py-3 text-accent hover:bg-accent/5 rounded-xl transition-all"
+        >
           <LogOut className="w-4 h-4" />
           <span className="text-[10px] font-bold uppercase tracking-widest">Secure Logout</span>
         </button>

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import Lead from '@/models/Lead';
+import pool, { initDb } from '@/lib/db';
 
 /**
  * GET /api/admin/leads
@@ -8,18 +7,33 @@ import Lead from '@/models/Lead';
  */
 export async function GET(req: Request) {
   try {
-    await dbConnect();
+    await initDb();
     
     // Simple query parsing for vertical and status
     const { searchParams } = new URL(req.url);
     const vertical = searchParams.get('vertical');
     const status = searchParams.get('status');
     
-    const query: any = {};
-    if (vertical) query.businessVertical = vertical;
-    if (status) query.status = status;
-
-    const leads = await Lead.find(query).sort({ createdAt: -1 });
+    let query = 'SELECT * FROM leads';
+    const params: any[] = [];
+    
+    const conditions: string[] = [];
+    if (vertical) {
+      conditions.push('businessVertical = ?');
+      params.push(vertical);
+    }
+    if (status) {
+      conditions.push('status = ?');
+      params.push(status);
+    }
+    
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    query += ' ORDER BY createdAt DESC';
+    
+    const [leads]: any = await pool.query(query, params);
 
     return NextResponse.json(leads, { status: 200 });
   } catch (error: any) {
@@ -37,7 +51,7 @@ export async function GET(req: Request) {
  */
 export async function PATCH(req: Request) {
   try {
-    await dbConnect();
+    await initDb();
     const data = await req.json();
     
     if (!data.id || !data.status) {
@@ -47,17 +61,18 @@ export async function PATCH(req: Request) {
       );
     }
 
-    const updatedLead = await Lead.findByIdAndUpdate(
-      data.id,
-      { status: data.status, notes: data.notes },
-      { new: true }
+    await pool.query(
+      'UPDATE leads SET status = ?, notes = ? WHERE id = ?',
+      [data.status, data.notes || null, data.id]
     );
 
-    if (!updatedLead) {
+    const [rows]: any = await pool.query('SELECT * FROM leads WHERE id = ?', [data.id]);
+    
+    if (rows.length === 0) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
     }
 
-    return NextResponse.json(updatedLead, { status: 200 });
+    return NextResponse.json(rows[0], { status: 200 });
   } catch (error: any) {
     console.error('Lead Update Error:', error);
     return NextResponse.json(

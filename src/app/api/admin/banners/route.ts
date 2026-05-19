@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import Banner from '@/models/Banner';
+import pool, { initDb } from '@/lib/db';
 import { optimizeBase64Image } from '@/lib/image-utils';
 
 export async function GET(req: Request) {
@@ -8,9 +7,19 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const vertical = searchParams.get('vertical');
     
-    await dbConnect();
-    const query = vertical ? { vertical: vertical.toUpperCase() } : {};
-    const banners = await Banner.find(query).sort({ order: 1 });
+    await initDb();
+    
+    let query = 'SELECT * FROM banners';
+    const params: any[] = [];
+    
+    if (vertical) {
+      query += ' WHERE UPPER(vertical) = ?';
+      params.push(vertical.toUpperCase());
+    }
+    
+    query += ' ORDER BY orderIndex ASC';
+    const [banners]: any = await pool.query(query, params);
+    
     return NextResponse.json(banners);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch banners' }, { status: 500 });
@@ -29,20 +38,29 @@ export async function POST(req: Request) {
       data.img = await optimizeBase64Image(data.img);
     }
     
-    await dbConnect();
-    const newBanner = await Banner.create(data);
+    await initDb();
     
-    return NextResponse.json(newBanner, { status: 201 });
+    const [result]: any = await pool.query(
+      `INSERT INTO banners (title, subtitle, image, vertical, link, orderIndex, isActive, position, alignment)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        data.title,
+        data.subtitle || null,
+        data.image || data.img,
+        data.vertical || 'HOME',
+        data.link || null,
+        data.order !== undefined ? data.order : (data.orderIndex !== undefined ? data.orderIndex : 0),
+        data.isActive !== undefined ? data.isActive : true,
+        data.position || 'HOME_HERO',
+        data.alignment || 'center'
+      ]
+    );
+    
+    const [newBannerRows]: any = await pool.query('SELECT * FROM banners WHERE id = ?', [result.insertId]);
+    
+    return NextResponse.json(newBannerRows[0], { status: 201 });
   } catch (error: any) {
     console.error('Banner Creation Error:', error);
-    
-    if (error.name === 'ValidationError') {
-      return NextResponse.json({ 
-        error: 'Validation Failed', 
-        details: Object.values(error.errors).map((err: any) => err.message) 
-      }, { status: 400 });
-    }
-
     return NextResponse.json({ 
       error: 'Failed to create banner', 
       details: error.message 
@@ -54,6 +72,10 @@ export async function PATCH(req: Request) {
   try {
     const { id, ...updates } = await req.json();
 
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+
     if (updates.image) {
       updates.image = await optimizeBase64Image(updates.image);
     }
@@ -61,10 +83,25 @@ export async function PATCH(req: Request) {
       updates.img = await optimizeBase64Image(updates.img);
     }
 
-    await dbConnect();
-    const updatedBanner = await Banner.findByIdAndUpdate(id, updates, { new: true });
-    return NextResponse.json(updatedBanner);
+    await initDb();
+    
+    const keys = Object.keys(updates);
+    if (keys.length > 0) {
+      const setClause = keys.map(key => {
+        if (key === 'order') return 'orderIndex = ?';
+        return `${key} = ?`;
+      }).join(', ');
+      
+      const values = keys.map(key => updates[key]);
+      values.push(id);
+      
+      await pool.query(`UPDATE banners SET ${setClause} WHERE id = ?`, values);
+    }
+    
+    const [updatedBannerRows]: any = await pool.query('SELECT * FROM banners WHERE id = ?', [id]);
+    return NextResponse.json(updatedBannerRows[0]);
   } catch (error) {
+    console.error('Banner Update Error:', error);
     return NextResponse.json({ error: 'Failed to update banner' }, { status: 500 });
   }
 }
@@ -73,8 +110,14 @@ export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
-    await dbConnect();
-    await Banner.findByIdAndDelete(id);
+    
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+    
+    await initDb();
+    await pool.query('DELETE FROM banners WHERE id = ?', [id]);
+    
     return NextResponse.json({ message: 'Banner deleted' });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete banner' }, { status: 500 });
