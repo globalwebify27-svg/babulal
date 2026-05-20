@@ -3,9 +3,8 @@ import pool, { initDb } from "@/lib/db";
 import TextileClient from "./TextileClient";
 
 // CRITICAL: Enable Incremental Static Regeneration (ISR)
-// This caches the page for 5 minutes, making loads nearly instant for subsequent users.
-export const dynamic = 'force-dynamic';
-export const revalidate = 300; 
+// This caches the page, making loads nearly instant for subsequent users.
+export const revalidate = 60; 
 
 /**
  * ═══ DATA RESOLVER (OPTIMIZED) ═══

@@ -3,9 +3,8 @@ import { Metadata } from 'next';
 import CategoryContent from "./CategoryContent";
 import pool, { initDb } from "@/lib/db";
 
-// CRITICAL: Prevent Next.js from caching the empty SQL response
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// CRITICAL: Enable Incremental Static Regeneration (ISR)
+export const revalidate = 60; 
 
 /**
  * ═══ DATA RESOLVER (STREAMING DB ACCESS) ═══
