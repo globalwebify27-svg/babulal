@@ -114,18 +114,18 @@ export default function TextileClient({ initialCategories, initialProducts, init
   const [currentSlide, setCurrentSlide] = useState(0);
   const sareeScrollRef = useRef<HTMLDivElement>(null);
   const suitScrollRef = useRef<HTMLDivElement>(null);
-  const kurtiScrollRef = useRef<HTMLDivElement>(null);
+  const lehengaScrollRef = useRef<HTMLDivElement>(null);
   const kidsScrollRef = useRef<HTMLDivElement>(null);
   const reelsScrollRef = useRef<HTMLDivElement>(null);
 
   // Exhibition State Management — The Interactive Layer
   const [sareeProgress, setSareeProgress] = useState(0);
   const [suitProgress, setSuitProgress] = useState(0);
-  const [kurtiProgress, setKurtiProgress] = useState(0);
+  const [lehengaProgress, setLehengaProgress] = useState(0);
   const [kidsProgress, setKidsProgress] = useState(0);
   const [isSareePaused, setIsSareePaused] = useState(false);
   const [isSuitPaused, setIsSuitPaused] = useState(false);
-  const [isKurtiPaused, setIsKurtiPaused] = useState(false);
+  const [isLehengaPaused, setIsLehengaPaused] = useState(false);
 
   // Dynamic Data States (Pre-populated from Server)
   const [products] = useState<any[]>(initialProducts);
@@ -190,17 +190,17 @@ export default function TextileClient({ initialCategories, initialProducts, init
   // Dynamic Data Sections - Robust Filtering for Variations
   const sarees = products.filter(p => {
     const cat = p.category?.toLowerCase() || '';
-    return cat === 'saree' || cat === 'sarees';
+    return cat.includes('saree') || cat.includes('sarees');
   }).slice(0, 10);
 
   const suits = products.filter(p => {
     const cat = p.category?.toLowerCase() || '';
-    return cat === 'suit' || cat === 'suits';
+    return cat.includes('suit') || cat.includes('suits') || cat.includes('suite') || cat.includes('suites');
   }).slice(0, 10);
 
-  const kurtis = products.filter(p => {
+  const lehengas = products.filter(p => {
     const cat = p.category?.toLowerCase() || '';
-    return cat === 'kurti' || cat === 'kurtis';
+    return cat.includes('lehenga') || cat.includes('lehengas');
   }).slice(0, 10);
 
   const kidsWear = products.filter(p => {
@@ -211,10 +211,10 @@ export default function TextileClient({ initialCategories, initialProducts, init
 
   // Removed activeImageIndex as part of modal cleanup
 
-  // Kurti Auto-Scroll Engine — With Smart Pause
+  // Lehenga Auto-Scroll Engine — With Smart Pause
   useEffect(() => {
-    const scrollContainer = kurtiScrollRef.current;
-    if (!scrollContainer || isKurtiPaused) return;
+    const scrollContainer = lehengaScrollRef.current;
+    if (!scrollContainer || isLehengaPaused) return;
 
     const autoScroll = setInterval(() => {
       if (scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth - 10) {
@@ -225,7 +225,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
     }, 5000);
 
     return () => clearInterval(autoScroll);
-  }, [isKurtiPaused]);
+  }, [isLehengaPaused]);
 
   // Kids Auto-Scroll Engine
   useEffect(() => {
@@ -249,7 +249,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
       <TextileHeader categories={initialCategories.filter(cat => cat.showInHeader)} />
 
       {/* ═══ HERO — THE BALANCED AWARD HERO ═══ */}
-      <section className="relative h-[85vh] min-h-[650px] overflow-hidden">
+      <section className="relative h-[60vh] md:h-[85vh] min-h-[420px] md:min-h-[650px] overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -667,27 +667,27 @@ export default function TextileClient({ initialCategories, initialProducts, init
         </div>
       </section>
 
-      {/* ═══ RANGE OF SAREES — THE BOUTIQUE EXHIBITION ═══ */}
-      <section className="relative py-20 bg-gray-50/30 overflow-hidden border-b border-gray-100">
+      {/* ═══ RANGE OF BRIDAL LEHENGAS — THE BOUTIQUE EXHIBITION ═══ */}
+      <section className="relative py-20 bg-white overflow-hidden border-b border-gray-100">
         <div className="max-w-[1700px] mx-auto px-5 sm:px-8 lg:px-24">
           <div className="text-center mb-20 px-4">
             <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-6 uppercase">
-              <span className="text-[#DA222A]">Range Of</span> <span className="text-[#0A5181]">Sarees</span>
+              <span className="text-[#DA222A]">Bridal</span> <span className="text-[#0A5181]">Lehengas</span>
             </h2>
             <p className="text-gray-400 text-sm md:text-base font-medium max-w-4xl mx-auto leading-relaxed tracking-tight">
-              Elevate Your Ethnic Elegance With Our Stunning Range Of Sarees. From Traditional Weaves To Contemporary Designs, Explore A Diverse Collection That Exudes Grace And Sophistication.
+              Discover The Epitome Of Bridal Grandeur With Our Exquisite Range Of Lehengas. Handcrafted Masterpieces Featuring Royal Zari Work, Luxurious Fabrics, And Breathtaking Designs For Your Special Day.
             </p>
             <div className="w-24 h-1 bg-[#DA222A]/20 mx-auto mt-8" />
           </div>
 
           <div
-            ref={sareeScrollRef}
-            onMouseEnter={() => setIsSareePaused(true)}
-            onMouseLeave={() => setIsSareePaused(false)}
-            onScroll={() => handleScrollSync(sareeScrollRef, setSareeProgress)}
+            ref={lehengaScrollRef}
+            onMouseEnter={() => setIsLehengaPaused(true)}
+            onMouseLeave={() => setIsLehengaPaused(false)}
+            onScroll={() => handleScrollSync(lehengaScrollRef, setLehengaProgress)}
             className="flex gap-6 overflow-x-auto no-scrollbar pb-8 snap-x snap-mandatory"
           >
-            {sarees.length > 0 ? sarees.map((p, i) => (
+            {lehengas.length > 0 ? lehengas.map((p, i) => (
               <Link
                 key={p._id}
                 href={`/textiles/product/${p.slug}`}
@@ -696,7 +696,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
               >
                 <div className="relative aspect-[3/4] overflow-hidden bg-white mb-6 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] group-hover:shadow-2xl transition-all duration-700">
                   <Image
-                    src={p.images?.[0] || "/saree_boutique_red.png"}
+                    src={p.images?.[0] || "/bridal_luxury.png"}
                     alt={p.name}
                     fill
                     sizes="(max-width: 1024px) 100vw, 33vw"
@@ -720,12 +720,12 @@ export default function TextileClient({ initialCategories, initialProducts, init
             )}
           </div>
 
-          {/* Institutional Progress Indicators — Saree Section */}
+          {/* Institutional Progress Indicators — Lehenga Section */}
           <div className="flex justify-center gap-2 mt-4">
             {[0, 1, 2, 3, 4].map((dot) => (
               <div
                 key={dot}
-                className={`h-1.5 rounded-full transition-all duration-500 ${Math.round(sareeProgress * 4) === dot ? 'bg-[#DA222A] w-8' : 'bg-gray-200 w-3'
+                className={`h-1.5 rounded-full transition-all duration-500 ${Math.round(lehengaProgress * 4) === dot ? 'bg-[#DA222A] w-8' : 'bg-gray-200 w-3'
                   }`}
               />
             ))}
@@ -799,27 +799,27 @@ export default function TextileClient({ initialCategories, initialProducts, init
         </div>
       </section>
 
-      {/* ═══ RANGE OF KURTIS — THE BOUTIQUE EXHIBITION ═══ */}
-      <section className="relative py-20 bg-white overflow-hidden">
+      {/* ═══ RANGE OF SAREES — THE BOUTIQUE EXHIBITION ═══ */}
+      <section className="relative py-20 bg-gray-50/30 overflow-hidden border-b border-gray-100">
         <div className="max-w-[1700px] mx-auto px-5 sm:px-8 lg:px-24">
           <div className="text-center mb-20 px-4">
             <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-6 uppercase">
-              <span className="text-[#DA222A]">Range Of</span> <span className="text-[#0A5181]">Kurtis</span>
+              <span className="text-[#DA222A]">Range Of</span> <span className="text-[#0A5181]">Sarees</span>
             </h2>
             <p className="text-gray-400 text-sm md:text-base font-medium max-w-4xl mx-auto leading-relaxed tracking-tight">
-              Experience Effortless Style And Comfort With Babulal Premkumar Limited&apos;s Diverse Range Of Kurtis. Explore Vibrant Colors, Intricate Designs, And Quality Fabrics That Redefine Contemporary Elegance.
+              Elevate Your Ethnic Elegance With Our Stunning Range Of Sarees. From Traditional Weaves To Contemporary Designs, Explore A Diverse Collection That Exudes Grace And Sophistication.
             </p>
             <div className="w-24 h-1 bg-[#DA222A]/20 mx-auto mt-8" />
           </div>
 
           <div
-            ref={kurtiScrollRef}
-            onMouseEnter={() => setIsKurtiPaused(true)}
-            onMouseLeave={() => setIsKurtiPaused(false)}
-            onScroll={() => handleScrollSync(kurtiScrollRef, setKurtiProgress)}
+            ref={sareeScrollRef}
+            onMouseEnter={() => setIsSareePaused(true)}
+            onMouseLeave={() => setIsSareePaused(false)}
+            onScroll={() => handleScrollSync(sareeScrollRef, setSareeProgress)}
             className="flex gap-6 overflow-x-auto no-scrollbar pb-8 snap-x snap-mandatory"
           >
-            {kurtis.length > 0 ? kurtis.map((p, i) => (
+            {sarees.length > 0 ? sarees.map((p, i) => (
               <Link
                 key={p._id}
                 href={`/textiles/product/${p.slug}`}
@@ -828,7 +828,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
               >
                 <div className="relative aspect-[3/4] overflow-hidden bg-white mb-6 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] group-hover:shadow-2xl transition-all duration-700">
                   <Image
-                    src={p.images?.[0] || "/kurti_boutique_yellow.png"}
+                    src={p.images?.[0] || "/saree_boutique_red.png"}
                     alt={p.name}
                     fill
                     sizes="(max-width: 1024px) 100vw, 33vw"
@@ -852,12 +852,12 @@ export default function TextileClient({ initialCategories, initialProducts, init
             )}
           </div>
 
-          {/* Institutional Progress Indicators — Kurti Section */}
+          {/* Institutional Progress Indicators — Saree Section */}
           <div className="flex justify-center gap-2 mt-4">
             {[0, 1, 2, 3, 4].map((dot) => (
               <div
                 key={dot}
-                className={`h-1.5 rounded-full transition-all duration-500 ${Math.round(kurtiProgress * 4) === dot ? 'bg-[#DA222A] w-8' : 'bg-gray-200 w-3'
+                className={`h-1.5 rounded-full transition-all duration-500 ${Math.round(sareeProgress * 4) === dot ? 'bg-[#DA222A] w-8' : 'bg-gray-200 w-3'
                   }`}
               />
             ))}
@@ -931,7 +931,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
             <div className="max-w-4xl">
               <h2 className="text-[#DA222A] text-3xl md:text-4xl font-black tracking-tight mb-4">Explore Our Latest Arrivals</h2>
               <p className="text-gray-500 text-sm md:text-base font-medium leading-relaxed">
-                Discover The Essence Of Elegance With Babulal Premkumar&apos;s Latest Collection. From Timeless Sarees To Trendy <br className="hidden lg:block" /> Lehengas, Exquisite Suits, And Stylish Kurtis, Our Selection Brings The Finest In Traditional And Contemporary <br className="hidden lg:block" /> Fashion. Whether It&apos;s Vibrant Prints, Intricate Embroidery, Or Luxurious Fabrics, Each Piece Is Crafted To Perfection. <br className="hidden lg:block" /> Refresh Your Wardrobe With Our Captivating Designs, Perfect For Every Occasion!
+                Discover The Essence Of Elegance With Babulal Premkumar&apos;s Latest Collection. From Timeless Sarees To Bridal <br className="hidden lg:block" /> Lehengas, Exquisite Suits, And Premium Apparel, Our Selection Brings The Finest In Traditional And Contemporary <br className="hidden lg:block" /> Fashion. Whether It&apos;s Vibrant Prints, Intricate Embroidery, Or Luxurious Fabrics, Each Piece Is Crafted To Perfection. <br className="hidden lg:block" /> Refresh Your Wardrobe With Our Captivating Designs, Perfect For Every Occasion!
               </p>
             </div>
             <button className="px-10 py-3 border-2 border-[#DA222A]/20 text-[#DA222A] text-[10px] font-black uppercase tracking-[.2em] rounded-sm hover:bg-[#DA222A] hover:text-white transition-all">
