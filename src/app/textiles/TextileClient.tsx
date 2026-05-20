@@ -291,7 +291,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
           <ChevronRight className="w-5 h-5 -rotate-45" />
         </button>
 
-        <div className="relative z-10 max-w-[1700px] mx-auto px-6 md:px-12 lg:px-32 h-full flex flex-col justify-center items-start text-left">
+        <div className="relative z-10 max-w-[1700px] mx-auto px-6 md:px-12 lg:px-32 h-full flex flex-col justify-center items-stretch text-left">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentSlide}
@@ -299,26 +299,72 @@ export default function TextileClient({ initialCategories, initialProducts, init
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 20, opacity: 0 }}
               transition={{ duration: 0.6 }}
-              className="max-w-4xl"
+              className="w-full flex flex-col lg:flex-row items-center justify-between gap-12 text-left"
             >
-              <div className="bg-white/10 backdrop-blur-md px-4 py-1.5 md:px-6 md:py-1.5 inline-block rounded-lg border border-white/40 text-white text-[9px] md:text-[10px] font-black uppercase tracking-[.4em] mb-4 md:mb-6 drop-shadow-md">
-                {banners[currentSlide].accent || "SEASONAL COLLECTION"}
+              {/* Left Column */}
+              <div className="max-w-4xl flex-1">
+                <div className="bg-white/10 backdrop-blur-md px-4 py-1.5 md:px-6 md:py-1.5 inline-block rounded-lg border border-white/40 text-white text-[9px] md:text-[10px] font-black uppercase tracking-[.4em] mb-4 md:mb-6 drop-shadow-md">
+                  {banners[currentSlide].accent || "SEASONAL COLLECTION"}
+                </div>
+
+                <h1 className="font-extrabold tracking-tighter leading-none mb-8 md:mb-10 drop-shadow-2xl">
+                  <span className="text-[#FFD700] block text-4xl md:text-6xl lg:text-8xl mb-2 md:mb-4 drop-shadow-2xl uppercase">{banners[currentSlide].title}</span>
+                  {banners[currentSlide].subtitle && (
+                    <span className="text-white block text-2xl md:text-3xl lg:text-5xl italic leading-tight drop-shadow-2xl mt-2">{banners[currentSlide].subtitle}</span>
+                  )}
+                </h1>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-start">
+                  <button
+                    onClick={() => Haptics.medium()}
+                    className="w-full sm:w-auto px-10 py-4 md:py-5 bg-red-600 text-white text-[10px] md:text-xs font-black uppercase tracking-widest rounded transition-all hover:bg-black shadow-2xl flex items-center justify-center gap-2"
+                  >
+                    Request Catalog <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
-              <h1 className="font-extrabold tracking-tighter leading-none mb-8 md:mb-10 drop-shadow-2xl">
-                <span className="text-[#FFD700] block text-4xl md:text-6xl lg:text-8xl mb-2 md:mb-4 drop-shadow-2xl uppercase">{banners[currentSlide].title}</span>
-                {banners[currentSlide].subtitle && (
-                  <span className="text-white block text-2xl md:text-3xl lg:text-5xl italic leading-tight drop-shadow-2xl mt-2">{banners[currentSlide].subtitle}</span>
-                )}
-              </h1>
+              {/* Right Column (USPs Card) */}
+              <div className="hidden lg:flex flex-col gap-6 p-8 bg-white/10 backdrop-blur-xl border border-white/20 rounded-[2rem] w-full max-w-sm shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] shrink-0">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                  </span>
+                  <span className="text-white text-[10px] font-black uppercase tracking-[0.25em]">Why Babulal Premkumar</span>
+                </div>
+                
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4 bg-white/5 hover:bg-white/10 p-4 rounded-xl border border-white/10 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-[#DA222A] flex items-center justify-center text-white shrink-0">
+                      <Star className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="text-white text-xs font-black uppercase tracking-wider">Fresh Stock Everyday</h4>
+                      <p className="text-white/60 text-[8px] uppercase font-bold mt-0.5 tracking-wider">New designs daily</p>
+                    </div>
+                  </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-start">
-                <button
-                  onClick={() => Haptics.medium()}
-                  className="w-full sm:w-auto px-10 py-4 md:py-5 bg-red-600 text-white text-[10px] md:text-xs font-black uppercase tracking-widest rounded transition-all hover:bg-black shadow-2xl flex items-center justify-center gap-2"
-                >
-                  Request Catalog <ArrowRight className="w-4 h-4" />
-                </button>
+                  <div className="flex items-center gap-4 bg-white/5 hover:bg-white/10 p-4 rounded-xl border border-white/10 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-[#FFD700] flex items-center justify-center text-black shrink-0">
+                      <TrendingUp className="w-4 h-4 text-black" />
+                    </div>
+                    <div>
+                      <h4 className="text-[#FFD700] text-xs font-black uppercase tracking-wider">365 Days Lowest Price</h4>
+                      <p className="text-white/60 text-[8px] uppercase font-bold mt-0.5 tracking-wider">Fair fixed rates always</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 bg-white/5 hover:bg-white/10 p-4 rounded-xl border border-white/10 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-[#38BDF8] flex items-center justify-center text-white shrink-0">
+                      <PackageCheck className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="text-white text-xs font-black uppercase tracking-wider">No Bundling</h4>
+                      <p className="text-white/60 text-[8px] uppercase font-bold mt-0.5 tracking-wider">Buy precisely what you need</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </AnimatePresence>
@@ -464,12 +510,69 @@ export default function TextileClient({ initialCategories, initialProducts, init
                 A cinematic showcase of Ranchi&apos;s finest textile engineering. <br className="hidden lg:block" /> Retail excellence for global partners.
               </p>
             </div>
-            <div className="flex items-center gap-10 text-[10px] font-black uppercase tracking-[.4em] text-gray-400">
-              <div className="flex items-center gap-2 group cursor-pointer hover:text-[#0A5181] transition-colors">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#DA222A]" /> Retail Excellence
+            <div className="w-full lg:max-w-md bg-white border-2 border-[#DA222A]/20 shadow-[0_20px_50px_rgba(218,34,42,0.06)] hover:border-[#DA222A] hover:shadow-[0_24px_60px_rgba(218,34,42,0.12)] rounded-3xl p-6 md:p-8 flex flex-col gap-6 transition-all duration-500">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DA222A] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#DA222A]"></span>
+                  </span>
+                  <h4 className="text-[#0A5181] text-xs font-black uppercase tracking-[0.2em]">Our Selling Pillars</h4>
+                </div>
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Est. 1978</span>
               </div>
-              <div className="flex items-center gap-2 group cursor-pointer hover:text-[#0A5181] transition-colors">
-                Global Exports
+              
+              <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#DA222A]/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <Star className="w-4 h-4 text-[#DA222A]" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Stock Update</span>
+                    <span className="text-[#0A5181] text-xs font-black uppercase tracking-tight mt-0.5 font-bold">Fresh Stock Everyday</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#0A5181]/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <TrendingUp className="w-4 h-4 text-[#0A5181]" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Price Guarantee</span>
+                    <span className="text-[#DA222A] text-xs font-black uppercase tracking-tight mt-0.5 font-bold">365 Days Lowest Price</span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#0A5181]/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <PackageCheck className="w-4 h-4 text-[#0A5181]" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Fulfillment</span>
+                    <span className="text-[#0A5181] text-xs font-black uppercase tracking-tight mt-0.5 font-bold">No Bundling Required</span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#DA222A]/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <Award className="w-4 h-4 text-[#DA222A]" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Legacy</span>
+                    <span className="text-[#0A5181] text-xs font-black uppercase tracking-tight mt-0.5 font-bold">Century of Trust</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-[1px] bg-gray-200/60 w-full" />
+
+              <div className="flex items-center justify-between text-[8px] md:text-[9px] font-black uppercase tracking-[0.25em] text-gray-400">
+                <div className="flex items-center gap-1.5 group cursor-pointer hover:text-[#0A5181] transition-colors">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#DA222A]" /> Retail Excellence
+                </div>
+                <div className="flex items-center gap-1.5 group cursor-pointer hover:text-[#0A5181] transition-colors">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#0A5181]" /> Global Exports
+                </div>
               </div>
             </div>
           </div>
