@@ -108,11 +108,13 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
                </div>
                 <button 
                   onClick={() => setIsCatalogModalOpen(true)}
-                  className="flex items-center justify-center gap-1.5 px-6 py-2.5 bg-[#0A5181] text-white text-[10px] md:text-[11px] font-black uppercase tracking-[0.1em] md:tracking-widest rounded-lg shadow-xl shadow-[#0A5181]/20 hover:bg-black transition-all active:scale-[0.96]"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#DA222A] text-white text-[10px] md:text-[11px] font-black uppercase tracking-[0.05em] md:tracking-widest rounded-lg shadow-xl shadow-[#DA222A]/20 hover:bg-black transition-all active:scale-[0.96] animate-blink"
                 >
-                  <Download className="w-4 h-4 md:w-5 md:h-5" /> 
-                  <span className="hidden sm:inline">Get Catalog</span>
-                  <span className="sm:hidden">Catalog</span>
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                  </span>
+                  <span>Lowest Rate 365 Days</span>
                 </button>
                <button 
                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
