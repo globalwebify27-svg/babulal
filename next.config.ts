@@ -22,6 +22,28 @@ const nextConfig: NextConfig = {
     ],
   },
   allowedDevOrigins: ['192.168.1.11'],
+  async headers() {
+    return [
+      {
+        source: "/admin/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+          },
+        ],
+      },
+      {
+        source: "/api/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
