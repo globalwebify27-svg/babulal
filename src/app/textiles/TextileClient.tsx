@@ -373,22 +373,22 @@ export default function TextileClient({ initialCategories, initialProducts, init
       </section>
 
       {/* ═══ INSTITUTIONAL VALUE PILLARS ═══ */}
-      <section className="bg-[#0A5181] py-8 md:py-12 border-b border-white/10">
-        <div className="max-w-[1700px] mx-auto px-6 md:px-12 lg:px-24">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+      <section className="bg-[#0A5181] py-6 md:py-10 border-b border-white/10">
+        <div className="max-w-[1700px] mx-auto px-4 sm:px-6 md:px-12 lg:px-24">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-12">
             {[
               { title: "Latest Collection", sub: "Fresh Seasonal Inventory", icon: Star },
               { title: "Lowest Rate 365 Days", sub: "No Sales, Just Honesty", icon: TrendingUp },
               { title: "No Bundling", sub: "Buy Precisely What You Need", icon: PackageCheck },
               { title: "Lowest Price 365 Days", sub: "Direct Retail Pricing", icon: ShoppingBag }
             ].map((pillar, i) => (
-              <div key={i} className="flex items-center gap-4 text-white group">
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-[#DA222A] transition-colors">
-                  <pillar.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              <div key={i} className="flex items-center gap-2 sm:gap-3 md:gap-4 text-white group min-w-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-[#DA222A] transition-colors">
+                  <pillar.icon className="w-4 h-4 sm:w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
-                <div>
-                  <h4 className="text-[10px] md:text-[13px] font-black uppercase tracking-widest">{pillar.title}</h4>
-                  <p className="text-white/40 text-[8px] md:text-[9px] font-bold uppercase tracking-widest mt-1">{pillar.sub}</p>
+                <div className="min-w-0">
+                  <h4 className="text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] xl:text-[13px] font-black uppercase tracking-wider sm:tracking-widest whitespace-nowrap overflow-hidden text-ellipsis">{pillar.title}</h4>
+                  <p className="text-white/40 text-[7px] sm:text-[8px] md:text-[9px] font-bold uppercase tracking-wider sm:tracking-widest mt-1 whitespace-nowrap overflow-hidden text-ellipsis">{pillar.sub}</p>
                 </div>
               </div>
             ))}

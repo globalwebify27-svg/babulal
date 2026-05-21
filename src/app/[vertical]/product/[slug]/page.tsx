@@ -313,51 +313,9 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
             </div>
           </div>
 
-          {/* ══ INQUIRY SECTION ══ */}
-          <section id="inquiry" className="mt-20 md:mt-32 bg-[#0A5181] rounded-[2rem] md:rounded-[3rem] px-5 py-12 md:p-12 lg:p-24 relative overflow-hidden">
-            {/* Decorative Background Element */}
-            <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
-              <Image src="/textile_factory.png" fill className="object-cover" alt="Background" />
-            </div>
-
-            <div className="relative grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-              <div className="space-y-8">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-[2px] bg-accent" />
-                  <span className="text-accent text-[11px] font-black uppercase tracking-[0.4em]">Wholesale & Retail</span>
-                </div>
-                <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white italic uppercase tracking-tighter leading-[0.95]">
-                  Direct <span className="text-white/20">Supply</span> Desk.
-                </h2>
-                <p className="text-white/40 max-w-md font-medium leading-relaxed italic">
-                  Get institutional pricing, custom catalogues, and logistics planning for your retail boutique or distribution network.
-                </p>
-
-                <div className="flex flex-wrap gap-10 pt-8">
-                  <div>
-                    <div className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-2">Available Reach</div>
-                    <div className="text-white font-black italic uppercase">Ranchi H.Q. Only</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-2">Lead Time</div>
-                    <div className="text-white font-black italic uppercase">Real-time Stock</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-2 sm:p-4 shadow-3xl">
-                <InquiryForm
-                  verticalId={verticalSlug?.toUpperCase() as VerticalID}
-                  interestDefault={`Order Inquiry: ${product.name}`}
-                  className="border-none shadow-none"
-                />
-              </div>
-            </div>
-          </section>
-
           {/* ══ RELATED PRODUCTS ══ */}
           {relatedProducts.length > 0 && (
-            <section className="mt-40">
+            <section className="mt-20 md:mt-32">
               <div className="flex flex-col md:flex-row justify-between items-baseline gap-4 mb-20">
                 <div className="space-y-2">
                   <span className="text-accent text-[11px] font-black uppercase tracking-[0.4em]">Curated Collection</span>
@@ -399,6 +357,48 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
               </div>
             </section>
           )}
+
+          {/* ══ INQUIRY SECTION ══ */}
+          <section id="inquiry" className="mt-40 bg-[#0A5181] rounded-[2rem] md:rounded-[3rem] px-5 py-12 md:p-12 lg:p-24 relative overflow-hidden">
+            {/* Decorative Background Element */}
+            <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
+              <Image src="/textile_factory.png" fill className="object-cover" alt="Background" />
+            </div>
+
+            <div className="relative grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+              <div className="space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-[2px] bg-accent" />
+                  <span className="text-accent text-[11px] font-black uppercase tracking-[0.4em]">Wholesale & Retail</span>
+                </div>
+                <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white italic uppercase tracking-tighter leading-[0.95]">
+                  Direct <span className="text-white/20">Supply</span> Desk.
+                </h2>
+                <p className="text-white/40 max-w-md font-medium leading-relaxed italic">
+                  Get institutional pricing, custom catalogues, and logistics planning for your retail boutique or distribution network.
+                </p>
+
+                <div className="flex flex-wrap gap-10 pt-8">
+                  <div>
+                    <div className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-2">Available Reach</div>
+                    <div className="text-white font-black italic uppercase">Ranchi H.Q. Only</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-2">Lead Time</div>
+                    <div className="text-white font-black italic uppercase">Real-time Stock</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-2 sm:p-4 shadow-3xl">
+                <InquiryForm
+                  verticalId={verticalSlug?.toUpperCase() as VerticalID}
+                  interestDefault={`Order Inquiry: ${product.name}`}
+                  className="border-none shadow-none"
+                />
+              </div>
+            </div>
+          </section>
 
         </div>
       </main>
