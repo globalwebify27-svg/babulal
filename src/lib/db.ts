@@ -125,6 +125,21 @@ export async function initDb() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
 
+      // 3.5. Create Sub-Sub-Categories table
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS sub_sub_categories (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          slug VARCHAR(255) NOT NULL,
+          subCategoryId INT NOT NULL,
+          status VARCHAR(50) DEFAULT 'Active',
+          orderIndex INT DEFAULT 0,
+          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          FOREIGN KEY (subCategoryId) REFERENCES sub_categories(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
       // 4. Create Products table
       await connection.query(`
         CREATE TABLE IF NOT EXISTS products (
@@ -134,6 +149,7 @@ export async function initDb() {
           businessVertical VARCHAR(255) NOT NULL,
           category VARCHAR(255) NOT NULL,
           subCategory VARCHAR(255),
+          subSubCategory VARCHAR(255),
           shortDescription TEXT,
           description TEXT,
           images LONGTEXT,
@@ -150,9 +166,14 @@ export async function initDb() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
 
-      // Migration: Add shortDescription to existing tables if missing
+      // Migration: Add shortDescription and subSubCategory to existing tables if missing
       try {
         await connection.query(`ALTER TABLE products ADD COLUMN shortDescription TEXT`);
+      } catch (err) {
+        // Column may already exist
+      }
+      try {
+        await connection.query(`ALTER TABLE products ADD COLUMN subSubCategory VARCHAR(255)`);
       } catch (err) {
         // Column may already exist
       }

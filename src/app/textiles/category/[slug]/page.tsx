@@ -104,6 +104,19 @@ async function fetchAllCategoriesData() {
   });
 }
 
+async function fetchSubSubCategoriesData() {
+  await initDb();
+  const [rows]: any = await pool.query(
+    "SELECT * FROM sub_sub_categories WHERE status = 'Active' ORDER BY orderIndex ASC"
+  );
+  return rows.map((subSub: any) => ({
+    ...subSub,
+    _id: subSub.id.toString(),
+    subCategoryId: subSub.subCategoryId.toString(),
+    order: subSub.orderIndex
+  }));
+}
+
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const params = await props.params;
   return { title: `${params?.slug?.toUpperCase() || "Category"} Collection` };
@@ -120,6 +133,7 @@ export default async function CategoryPage(props: { params: Promise<{ slug: stri
 
   // Do NOT await these! Trigger them in parallel to stream the promises down.
   const subCategoriesPromise = fetchSubCategoriesData(category._id ? category._id.toString() : "0");
+  const subSubCategoriesPromise = fetchSubSubCategoriesData();
   const productsPromise = fetchProductsData();
   const navCategoriesPromise = fetchAllCategoriesData();
 
@@ -127,6 +141,7 @@ export default async function CategoryPage(props: { params: Promise<{ slug: stri
     <CategoryContent 
       initialCategory={category}
       subCategoriesPromise={subCategoriesPromise}
+      subSubCategoriesPromise={subSubCategoriesPromise}
       productsPromise={productsPromise}
       navCategoriesPromise={navCategoriesPromise}
       slug={slug}

@@ -42,6 +42,7 @@ import TextileHeader from '@/components/TextileHeader';
 import Footer from '@/components/Footer';
 import InquiryForm from '@/components/InquiryForm';
 import { Haptics } from '@/lib/haptics';
+import MobileBottomMenu from '@/components/MobileBottomMenu';
 
 const HERO_SLIDES = [
   {
@@ -244,7 +245,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
   }, []);
 
   return (
-    <div className="bg-white min-h-screen pt-24 lg:pt-[140px]">
+    <div className="bg-white min-h-screen pt-24 lg:pt-[140px] pb-20 md:pb-0">
 
       <TextileHeader categories={initialCategories.filter(cat => cat.showInHeader)} />
 
@@ -1291,6 +1292,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
       </div>
 
       <Footer />
+      <MobileBottomMenu categories={initialCategories} />
 
       {/* Removed Inquiry Modal as per user request */}
     </div>

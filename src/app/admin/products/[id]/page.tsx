@@ -34,11 +34,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
   const [categories, setCategories] = useState<any[]>([]);
   const [dbSubCategories, setDbSubCategories] = useState<any[]>([]);
+  const [dbSubSubCategories, setDbSubSubCategories] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
     category: '',
     subCategory: '',
+    subSubCategory: '',
     businessVertical: 'TEXTILES',
     shortDescription: '',
     description: '',
@@ -88,6 +90,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               metaDescription: data.seo?.metaDescription || ''
             },
             subCategory: data.subCategory || '',
+            subSubCategory: data.subSubCategory || '',
             brochureUrl: data.brochureUrl || '',
             videoUrl: data.videoUrl || ''
           });
@@ -121,7 +124,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           // Only auto-select if subCategory is empty (e.g. during a category change, not initial load)
           // But actually for Edit page, we should preserve the loaded subCategory if it matches the category
           if (!formData.subCategory && data.length > 0) {
-            setFormData(prev => ({ ...prev, subCategory: data[0].name }));
+            setFormData(prev => ({ ...prev, subCategory: data[0].name, subSubCategory: '' }));
           }
         } catch (err) {
           console.error('Fetch subs error:', err);
@@ -132,6 +135,30 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     };
     if (activeCategories.length > 0) fetchSubs();
   }, [formData.category, formData.businessVertical, categories]);
+
+  // Fetch SubSubCategories when SubCategory Select changes
+  useEffect(() => {
+    const fetchSubSubs = async () => {
+      const selectedSub = dbSubCategories.find(s => s.name === formData.subCategory);
+      if (selectedSub) {
+        try {
+          const res = await fetch(`/api/admin/sub-sub-categories?subCategoryId=${selectedSub._id}`);
+          const data = await res.json();
+          setDbSubSubCategories(data);
+          
+          // Only auto-select if subSubCategory is empty
+          if (!formData.subSubCategory && data.length > 0) {
+            setFormData(prev => ({ ...prev, subSubCategory: data[0].name }));
+          }
+        } catch (err) {
+          console.error('Fetch sub-subs error:', err);
+        }
+      } else {
+        setDbSubSubCategories([]);
+      }
+    };
+    if (dbSubCategories.length > 0) fetchSubSubs();
+  }, [formData.subCategory, dbSubCategories]);
   
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
@@ -347,12 +374,29 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-[.2em] text-primary/60">Category Type</label>
+                    <label className="text-[10px] font-black uppercase tracking-[.2em] text-primary/60">Search-Engine Friendly Slug</label>
+                    <div className="flex items-center gap-4 bg-surface-dim px-6 rounded-2xl focus-within:ring-4 focus-within:ring-primary/5 transition-all">
+                       <span className="text-primary/20 text-[11px] font-black uppercase tracking-widest hidden md:block">babulal.group/</span>
+                       <input 
+                         type="text" 
+                         required
+                         className="flex-1 bg-transparent py-5 text-[13px] font-bold border-none outline-none text-primary"
+                         placeholder="loading-slug..."
+                         value={formData.slug}
+                         onChange={(e) => setFormData({...formData, slug: e.target.value})}
+                       />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-[.2em] text-primary/60">Category Node</label>
                     <div className="relative">
                       <select 
                         className="w-full bg-surface-dim px-6 py-5 rounded-2xl text-[13px] font-bold border-none outline-none focus:ring-4 focus:ring-primary/5 cursor-pointer appearance-none text-primary"
                         value={formData.category}
-                        onChange={(e) => setFormData({...formData, category: e.target.value, subCategory: ''})}
+                        onChange={(e) => setFormData({...formData, category: e.target.value, subCategory: '', subSubCategory: ''})}
                       >
                          <option value="">Select Category</option>
                          {activeCategories.map((cat: any) => (
@@ -368,7 +412,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                       <select 
                         className="w-full bg-surface-dim px-6 py-5 rounded-2xl text-[13px] font-bold border-none outline-none focus:ring-4 focus:ring-primary/5 cursor-pointer appearance-none text-primary"
                         value={formData.subCategory}
-                        onChange={(e) => setFormData({...formData, subCategory: e.target.value})}
+                        onChange={(e) => setFormData({...formData, subCategory: e.target.value, subSubCategory: ''})}
                       >
                          <option value="">No Sub-Category</option>
                          {dbSubCategories.map((sub: any) => (
@@ -378,20 +422,21 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                       <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/40 pointer-events-none" />
                     </div>
                   </div>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[.2em] text-primary/60">Search-Engine Friendly Slug</label>
-                  <div className="flex items-center gap-4 bg-surface-dim px-6 rounded-2xl focus-within:ring-4 focus-within:ring-primary/5 transition-all">
-                     <span className="text-primary/20 text-[11px] font-black uppercase tracking-widest hidden md:block">babulal.group/</span>
-                     <input 
-                       type="text" 
-                       required
-                       className="flex-1 bg-transparent py-5 text-[13px] font-bold border-none outline-none text-primary"
-                       placeholder="loading-slug..."
-                       value={formData.slug}
-                       onChange={(e) => setFormData({...formData, slug: e.target.value})}
-                     />
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-[.2em] text-primary/60">Sub-Sub-Category</label>
+                    <div className="relative">
+                      <select 
+                        className="w-full bg-surface-dim px-6 py-5 rounded-2xl text-[13px] font-bold border-none outline-none focus:ring-4 focus:ring-primary/5 cursor-pointer appearance-none text-primary"
+                        value={formData.subSubCategory}
+                        onChange={(e) => setFormData({...formData, subSubCategory: e.target.value})}
+                      >
+                         <option value="">No Sub-Sub-Category</option>
+                         {dbSubSubCategories.map((subSub: any) => (
+                           <option key={subSub._id} value={subSub.name}>{subSub.name}</option>
+                         ))}
+                      </select>
+                      <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/40 pointer-events-none" />
+                    </div>
                   </div>
                 </div>
 

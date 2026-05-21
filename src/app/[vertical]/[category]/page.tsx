@@ -9,6 +9,7 @@ import TextileHeader from '@/components/TextileHeader';
 import AutomotiveHeader from '@/components/AutomotiveHeader';
 import Image from 'next/image';
 import Footer from '@/components/Footer';
+import MobileBottomMenu from '@/components/MobileBottomMenu';
 
 interface CategoryPageProps {
   params: {
@@ -109,7 +110,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     : (categories.find(c => c.slug.toLowerCase() === categorySlug.toLowerCase())?.image || vertical.image || '/bridal_luxury.png');
 
   return (
-    <div className="bg-canvas min-h-screen">
+    <div className="bg-canvas min-h-screen pb-20 md:pb-0">
       {verticalSlug === 'textiles' && (
         <TextileHeader categories={categories.filter((c: any) => c.showInHeader)} />
       )}
@@ -194,6 +195,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
       {verticalSlug === 'textiles' && (
         <Footer />
+      )}
+      {verticalSlug === 'textiles' && (
+        <MobileBottomMenu categories={categories} />
       )}
     </div>
   );

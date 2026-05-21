@@ -10,17 +10,20 @@ import {
   ArrowLeft,
   CheckCircle,
   ChevronDown,
-  Clock
+  Clock,
+  FileText
 } from 'lucide-react';
 import TextileHeader from '@/components/TextileHeader';
 import Footer from '@/components/Footer';
 import StoreLocatorModal from '@/components/StoreLocatorModal';
 import { Haptics } from '@/lib/haptics';
 import { useSearchParams } from 'next/navigation';
+import MobileBottomMenu from '@/components/MobileBottomMenu';
 
 interface CategoryContentProps {
   initialCategory: any;
   subCategoriesPromise: Promise<any[]>;
+  subSubCategoriesPromise: Promise<any[]>;
   productsPromise: Promise<any[]>;
   navCategoriesPromise: Promise<any[]>;
   slug: string;
@@ -29,6 +32,7 @@ interface CategoryContentProps {
 export default function CategoryContent({ 
   initialCategory, 
   subCategoriesPromise, 
+  subSubCategoriesPromise,
   productsPromise, 
   navCategoriesPromise,
   slug 
@@ -36,8 +40,10 @@ export default function CategoryContent({
   const [isStoreModalOpen, setIsStoreModalOpen] = React.useState(false);
   const allCategories = React.use(navCategoriesPromise) as any[];
 
+
+
   return (
-    <div className="bg-white min-h-screen text-[#0A5181]">
+    <div className="bg-white min-h-screen text-[#0A5181] pb-20 md:pb-0">
       <TextileHeader categories={allCategories.filter((c: any) => c.showInHeader)} />
       
       <StoreLocatorModal 
@@ -101,6 +107,7 @@ export default function CategoryContent({
               <React.Suspense fallback={<ProductSectionSkeleton />}>
                  <AsyncProductSection 
                    subCategoriesPromise={subCategoriesPromise}
+                   subSubCategoriesPromise={subSubCategoriesPromise}
                    productsPromise={productsPromise}
                    initialCategory={initialCategory}
                    setIsStoreModalOpen={setIsStoreModalOpen}
@@ -112,19 +119,21 @@ export default function CategoryContent({
       </main>
 
       <Footer />
+      <MobileBottomMenu categories={allCategories} />
     </div>
   );
 }
 
-// ══ ASYNC INNER COMPONENT ══
-function AsyncProductSection({ subCategoriesPromise, productsPromise, initialCategory, setIsStoreModalOpen }: any) {
+function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, productsPromise, initialCategory, setIsStoreModalOpen }: any) {
   // Wait for the data to stream in
-  const dbSubCategories = React.use(subCategoriesPromise) as any[];
-  const dbProducts = React.use(productsPromise) as any[];
+  const dbSubCategories = subCategoriesPromise ? (React.use(subCategoriesPromise) as any[]) : [];
+  const dbSubSubCategories = subSubCategoriesPromise ? (React.use(subSubCategoriesPromise) as any[]) : [];
+  const dbProducts = productsPromise ? (React.use(productsPromise) as any[]) : [];
   
   const searchParams = useSearchParams();
   const subParam = searchParams ? searchParams.get('sub') : null;
   const [selectedSubs, setSelectedSubs] = React.useState<string[]>([]);
+  const [selectedSubSubs, setSelectedSubSubs] = React.useState<string[]>([]);
 
   // Dynamic Sub-category Extraction (Fallback if subcategories collection is empty)
   const productsInCategory = React.useMemo(() => {
@@ -168,18 +177,35 @@ function AsyncProductSection({ subCategoriesPromise, productsPromise, initialCat
     }
   }, [subParam, displaySubCategories, selectedSubs]);
 
-  const handleSubToggle = (subName: string) => {
+  const handleSubToggle = (subName: string, subId: string) => {
     Haptics.light();
-    setSelectedSubs(prev => 
-      prev.includes(subName) 
-        ? prev.filter(s => s !== subName) 
-        : [...prev, subName]
+    setSelectedSubs(prev => {
+      const exists = prev.includes(subName);
+      if (exists) {
+        // Clear sub-subcategories of this sub
+        const subSubsForThisSub = dbSubSubCategories.filter((ss: any) => ss.subCategoryId === subId);
+        const subSubNames = subSubsForThisSub.map((ss: any) => ss.name);
+        setSelectedSubSubs(prevSubSubs => prevSubSubs.filter(name => !subSubNames.includes(name)));
+        return prev.filter(s => s !== subName);
+      } else {
+        return [...prev, subName];
+      }
+    });
+  };
+
+  const handleSubSubToggle = (subSubName: string) => {
+    Haptics.light();
+    setSelectedSubSubs(prev => 
+      prev.includes(subSubName)
+        ? prev.filter(ss => ss !== subSubName)
+        : [...prev, subSubName]
     );
   };
 
   const handleReset = () => {
     Haptics.medium();
     setSelectedSubs([]);
+    setSelectedSubSubs([]);
   };
   
   const finalProducts = productsInCategory.filter((p: any) => {
@@ -189,7 +215,21 @@ function AsyncProductSection({ subCategoriesPromise, productsPromise, initialCat
     if (selectedSubs.length === 0) return true;
     
     const pSub = normalize(p.subCategory);
-    return selectedSubs.some(s => normalize(s) === pSub);
+    const matchesSub = selectedSubs.some(s => normalize(s) === pSub);
+    if (!matchesSub) return false;
+    
+    const selectedParentSub = displaySubCategories.find(s => normalize(s.name) === pSub);
+    if (selectedParentSub) {
+      const subSubsForThisSub = dbSubSubCategories.filter((ss: any) => ss.subCategoryId === selectedParentSub._id);
+      const activeSubSubsForThisSub = subSubsForThisSub.filter((ss: any) => selectedSubSubs.includes(ss.name));
+      
+      if (activeSubSubsForThisSub.length > 0) {
+        const pSubSub = normalize(p.subSubCategory);
+        return activeSubSubsForThisSub.some(ss => normalize(ss.name) === pSubSub);
+      }
+    }
+    
+    return true;
   });
 
   return (
@@ -209,8 +249,10 @@ function AsyncProductSection({ subCategoriesPromise, productsPromise, initialCat
                    </li>
                    {displaySubCategories.map((sub: any) => {
                       const isActive = selectedSubs.some(s => s.toLowerCase().trim() === sub.name.toLowerCase().trim());
+                      const subSubsForThisSub = dbSubSubCategories.filter((ss: any) => ss.subCategoryId === sub._id);
+                      
                       return (
-                        <li key={sub._id}>
+                        <li key={sub._id} className="space-y-2">
                            <label className="flex items-center gap-3 cursor-pointer group">
                               <div className={`w-4 h-4 border-2 rounded-sm flex items-center justify-center transition-all ${isActive ? 'bg-[#DA222A] border-[#DA222A]' : 'border-gray-200 group-hover:border-[#DA222A]'}`}>
                                  {isActive && (
@@ -223,12 +265,43 @@ function AsyncProductSection({ subCategoriesPromise, productsPromise, initialCat
                                 type="checkbox" 
                                 className="hidden"
                                 checked={isActive}
-                                onChange={() => handleSubToggle(sub.name)}
+                                onChange={() => handleSubToggle(sub.name, sub._id)}
                               />
                               <span className={`text-[11px] font-bold uppercase transition-colors tracking-tight ${isActive ? 'text-[#DA222A]' : 'text-gray-400 group-hover:text-[#0A5181]'}`}>
                                  {sub.name}
                               </span>
                            </label>
+                           
+                           {/* Nested Sub-Sub-Categories */}
+                           {isActive && subSubsForThisSub.length > 0 && (
+                             <ul className="pl-6 pt-1 space-y-2 border-l border-gray-100 ml-2 animate-in fade-in slide-in-from-top-1">
+                               {subSubsForThisSub.map((subSub: any) => {
+                                 const isSubSubActive = selectedSubSubs.includes(subSub.name);
+                                 return (
+                                   <li key={subSub._id}>
+                                     <label className="flex items-center gap-2 cursor-pointer group/subsub">
+                                       <div className={`w-3.5 h-3.5 border rounded-sm flex items-center justify-center transition-all ${isSubSubActive ? 'bg-[#0A5181] border-[#0A5181]' : 'border-gray-200 group-hover/subsub:border-[#0A5181]'}`}>
+                                         {isSubSubActive && (
+                                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" className="w-2.5 h-2.5 text-white">
+                                             <polyline points="20 6 9 17 4 12" />
+                                           </svg>
+                                         )}
+                                       </div>
+                                       <input 
+                                         type="checkbox" 
+                                         className="hidden"
+                                         checked={isSubSubActive}
+                                         onChange={() => handleSubSubToggle(subSub.name)}
+                                       />
+                                       <span className={`text-[10px] font-semibold uppercase tracking-tight transition-colors ${isSubSubActive ? 'text-[#0A5181]' : 'text-gray-400 group-hover/subsub:text-[#0A5181]'}`}>
+                                         {subSub.name}
+                                       </span>
+                                     </label>
+                                   </li>
+                                 );
+                               })}
+                             </ul>
+                           )}
                         </li>
                       );
                    })}
@@ -255,31 +328,82 @@ function AsyncProductSection({ subCategoriesPromise, productsPromise, initialCat
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
              {finalProducts.length > 0 ? (
                finalProducts.map((item: any) => (
-                  <div key={item._id} className="group border border-gray-100 bg-white hover:border-[#DA222A] transition-all flex flex-col">
-                     <Link href={`/textiles/product/${item.slug}`} className="block">
-                        <div className="relative aspect-[3/4] overflow-hidden bg-gray-50">
-                           <Image 
-                             src={item.images?.[0] || "/latest_arrivals_saree.png"} 
-                             alt={item.name} 
-                             fill 
-                             className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  <div key={item._id} className="group relative flex flex-col bg-white border border-gray-100 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500">
+                     {/* Image Showcase */}
+                     <div className="relative aspect-[3/4] overflow-hidden bg-primary/5">
+                        {item.images?.[0] ? (
+                           <Image
+                             src={item.images[0]}
+                             alt={item.name}
+                             fill
+                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                             className="object-cover group-hover:scale-105 transition-transform duration-1000"
                            />
+                        ) : (
+                           <div className="absolute inset-0 flex items-center justify-center bg-gray-50 text-[10px] font-black uppercase tracking-widest text-primary/20">
+                             No Media
+                           </div>
+                        )}
+
+                        {item.isFeatured && (
+                           <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-accent text-white text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-lg sm:rounded-xl shadow-lg">
+                             Exclusive Design
+                           </div>
+                        )}
+                     </div>
+
+                     {/* Details Section */}
+                     <div className="p-3 sm:p-5 md:p-6 flex flex-col flex-1 justify-between min-h-[140px] sm:min-h-[180px]">
+                        <div>
+                           <div className="flex justify-between items-start gap-2 mb-1 sm:mb-2">
+                             <span className="text-[#DA222A] text-[8px] font-black uppercase tracking-widest">
+                               {item.category}
+                             </span>
+                             <div className="flex gap-1.5 items-center">
+                               {item.subCategory && (
+                                 <span className="text-[#0A5181]/40 text-[8px] font-bold uppercase tracking-widest hidden sm:inline">
+                                   {item.subCategory}
+                                 </span>
+                               )}
+                               {item.subSubCategory && (
+                                 <>
+                                   <span className="text-[#0A5181]/20 text-[8px] font-bold hidden sm:inline">•</span>
+                                   <span className="text-[#0A5181]/60 text-[8px] font-bold uppercase tracking-widest hidden sm:inline">
+                                     {item.subSubCategory}
+                                   </span>
+                                 </>
+                               )}
+                             </div>
+                           </div>
+                           <h3 className="text-[#0A5181] text-xs sm:text-base font-black uppercase tracking-tight italic line-clamp-2 mb-2 sm:mb-4 group-hover:text-accent transition-colors">
+                             {item.name}
+                           </h3>
+
+                           {/* Technical Specifications Table */}
+                           {item.attributes && Object.keys(item.attributes).length > 0 && (
+                             <table className="w-full text-[8px] sm:text-[10px] border-t border-primary/5 pt-1.5 sm:pt-2">
+                               <tbody>
+                                 {Object.entries(item.attributes).slice(0, 3).map(([key, val]) => (
+                                   <tr key={key} className="border-b border-gray-50 last:border-none">
+                                     <td className="py-1 sm:py-1.5 font-bold uppercase text-[#0A5181]/40 tracking-wider">{key}</td>
+                                     <td className="py-1 sm:py-1.5 text-right font-black text-[#0A5181] uppercase truncate max-w-[80px] sm:max-w-[120px]">{String(val)}</td>
+                                   </tr>
+                                 ))}
+                               </tbody>
+                             </table>
+                           )}
                         </div>
-                     </Link>
-                     <div className="p-5 flex flex-col flex-1">
-                        <Link href={`/textiles/product/${item.slug}`} className="hover:text-[#DA222A] transition-colors">
-                           <h4 className="text-[11px] font-black text-[#0A5181] uppercase tracking-tight mb-2 h-8 line-clamp-2">{item.name}</h4>
-                        </Link>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6 italic">{item.attributes?.fabric || 'Premium Quality'}</p>
-                        <Link 
-                           href={`/textiles/product/${item.slug}`}
-                           onClick={() => {
-                             Haptics.medium();
-                           }}
-                           className="w-full bg-[#DA222A] text-white py-4 text-[11px] font-black uppercase tracking-[0.16em] leading-none hover:bg-[#0A5181] transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#DA222A]/15 active:scale-[0.97]"
-                        >
-                           <MessageCircle className="w-4 h-4 mb-0.5" /> View Details
-                        </Link>
+
+                        {/* Actions Grid */}
+                        <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-primary/5">
+                           <Link
+                             href={`/textiles/product/${item.slug}`}
+                             onClick={() => Haptics.medium()}
+                             className="w-full py-2.5 sm:py-3.5 bg-[#DA222A] text-white text-[9px] sm:text-[11px] font-black uppercase tracking-[0.1em] sm:tracking-[0.16em] flex items-center justify-center gap-2 hover:bg-[#0A5181] transition-all rounded-xl shadow-lg shadow-[#DA222A]/10 active:scale-[0.98] whitespace-nowrap"
+                           >
+                             <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> View Details
+                           </Link>
+                        </div>
                      </div>
                   </div>
                ))

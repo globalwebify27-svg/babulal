@@ -101,17 +101,6 @@ export default function InteractiveCatalog({
     setSearchQuery('');
   };
 
-  const handleGetQuote = (productName: string) => {
-    const inquirySection = document.getElementById('inquiry-form-section');
-    if (inquirySection) {
-      inquirySection.scrollIntoView({ behavior: 'smooth' });
-      // Pre-fill fields if possible
-      const messageTextarea = document.querySelector('textarea[name="message"]') as HTMLTextAreaElement;
-      if (messageTextarea) {
-        messageTextarea.value = `I am interested in bulk wholesale orders for: ${productName}. Please share pricing and catalog details.`;
-      }
-    }
-  };
 
   return (
     <div className="space-y-12">
@@ -294,18 +283,12 @@ export default function InteractiveCatalog({
                   </div>
 
                   {/* Actions Grid */}
-                  <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-primary/5">
-                    <button
-                      onClick={() => handleGetQuote(product.name)}
-                      className="w-full sm:flex-1 py-2 sm:py-3 bg-[#DA222A] text-white text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-1 hover:opacity-90 transition-opacity rounded-lg"
-                    >
-                      Get Quote
-                    </button>
+                  <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-primary/5">
                     <Link
                       href={`/${verticalSlug}/product/${product.slug}`}
-                      className="w-full sm:flex-1 py-2 sm:py-3 bg-primary/5 text-[#0A5181] text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-1 hover:bg-[#0A5181] hover:text-white transition-colors rounded-lg"
+                      className="w-full py-2.5 sm:py-3.5 bg-[#DA222A] text-white text-[9px] sm:text-[11px] font-black uppercase tracking-[0.1em] sm:tracking-[0.16em] flex items-center justify-center gap-2 hover:bg-[#0A5181] transition-all rounded-xl shadow-lg shadow-[#DA222A]/10 active:scale-[0.98] whitespace-nowrap"
                     >
-                      <FileText className="w-3.5 h-3.5 hidden sm:inline" /> Details
+                      <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> View Details
                     </Link>
                   </div>
                 </div>

@@ -47,9 +47,77 @@ export default function ManageCategoriesPage() {
   const [newSubBrochureUrl, setNewSubBrochureUrl] = useState('');
   const [isSubmittingSub, setIsSubmittingSub] = useState(false);
 
+  // Sub-Sub-Category States
+  const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
+  const [subSubCategories, setSubSubCategories] = useState<any[]>([]);
+  const [subSubCategoriesLoading, setSubSubCategoriesLoading] = useState(false);
+  const [newSubSubName, setNewSubSubName] = useState('');
+  const [isSubmittingSubSub, setIsSubmittingSubSub] = useState(false);
+
+  const toggleSubSubExpanded = async (subId: string) => {
+    if (expandedSubId === subId) {
+      setExpandedSubId(null);
+    } else {
+      setExpandedSubId(subId);
+      setNewSubSubName('');
+      await fetchSubSubCategories(subId);
+    }
+  };
+
+  const fetchSubSubCategories = async (subId: string) => {
+    setSubSubCategoriesLoading(true);
+    try {
+      const res = await fetch(`/api/admin/sub-sub-categories?subCategoryId=${subId}`);
+      const data = await res.json();
+      setSubSubCategories(data);
+    } catch (err) {
+      console.error('Failed to fetch sub-subs:', err);
+    } finally {
+      setSubSubCategoriesLoading(false);
+    }
+  };
+
+  const handleAddSubSubCategory = async (subId: string) => {
+    if (!newSubSubName) return;
+    setIsSubmittingSubSub(true);
+    try {
+      const res = await fetch('/api/admin/sub-sub-categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newSubSubName,
+          subCategoryId: subId
+        })
+      });
+      if (res.ok) {
+        setNewSubSubName('');
+        await fetchSubSubCategories(subId);
+      }
+    } catch (err) {
+      console.error('Add sub-sub error:', err);
+    } finally {
+      setIsSubmittingSubSub(false);
+    }
+  };
+
+  const handleDeleteSubSub = async (id: string) => {
+    if (!confirm('Delete this sub-sub-node?')) return;
+    try {
+      const res = await fetch(`/api/admin/sub-sub-categories?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        if (expandedSubId) {
+          await fetchSubSubCategories(expandedSubId);
+        }
+      }
+    } catch (err) {
+      console.error('Delete sub-sub error:', err);
+    }
+  };
+
   // Open Sub-Node Manager
   const openSubManager = async (category: any) => {
     setActiveParentNode(category);
+    setExpandedSubId(null);
     setIsSubModalOpen(true);
     fetchSubCategories(category._id);
   };
@@ -614,24 +682,93 @@ export default function ManageCategoriesPage() {
                       </div>
                     ) : (
                       subCategories.map((sub, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-4 bg-white rounded-xl border border-[#f0f3f8] hover:border-primary/20 transition-all group">
-                           <div className="flex items-center gap-4">
-                              <span className="text-[10px] font-bold text-[#1a2b4b]/20">{idx + 1}.</span>
-                              <h4 className="text-xs font-black text-[#1a2b4b] uppercase tracking-tight">{sub.name}</h4>
+                        <div key={idx} className="border border-[#f0f3f8] bg-white rounded-xl overflow-hidden hover:border-primary/20 transition-all">
+                           <div className="flex items-center justify-between p-4 hover:bg-gray-50/50 transition-colors">
+                              <div className="flex items-center gap-4">
+                                 <span className="text-[10px] font-bold text-[#1a2b4b]/20">{idx + 1}.</span>
+                                 <h4 className="text-xs font-black text-[#1a2b4b] uppercase tracking-tight">{sub.name}</h4>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                 <button
+                                   type="button"
+                                   onClick={() => toggleSubSubExpanded(sub._id)}
+                                   className={cn(
+                                     "text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded transition-all flex items-center gap-1.5",
+                                     expandedSubId === sub._id 
+                                       ? "bg-accent text-white" 
+                                       : "bg-gray-50 text-gray-500 hover:bg-primary/10 hover:text-primary"
+                                   )}
+                                 >
+                                   Sub-Sub-Nodes
+                                   <span className="text-[8px] opacity-80">{expandedSubId === sub._id ? "▲" : "▼"}</span>
+                                 </button>
+                                 <label className={cn(
+                                   "w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-all",
+                                   sub.brochureUrl ? "bg-green-100 text-green-600" : "bg-gray-50 text-gray-300 hover:bg-primary/10 hover:text-primary"
+                                 )}>
+                                    <FileText className="w-4 h-4" />
+                                    <input type="file" className="hidden" accept=".pdf" onChange={(e) => handleSubBrochureUpload(e, sub._id)} />
+                                 </label>
+                                 <Trash2 
+                                   onClick={() => handleDeleteSub(sub._id)}
+                                   className="w-3.5 h-3.5 text-[#1a2b4b]/20 hover:text-accent cursor-pointer transition-all" 
+                                 />
+                              </div>
                            </div>
-                           <div className="flex items-center gap-3">
-                              <label className={cn(
-                                "w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-all",
-                                sub.brochureUrl ? "bg-green-100 text-green-600" : "bg-gray-50 text-gray-300 hover:bg-primary/10 hover:text-primary"
-                              )}>
-                                 <FileText className="w-4 h-4" />
-                                 <input type="file" className="hidden" accept=".pdf" onChange={(e) => handleSubBrochureUpload(e, sub._id)} />
-                              </label>
-                              <Trash2 
-                                onClick={() => handleDeleteSub(sub._id)}
-                                className="w-3.5 h-3.5 text-[#1a2b4b]/20 hover:text-accent cursor-pointer transition-all" 
-                              />
-                           </div>
+                           
+                           {/* Expanded Sub-Sub-Categories Area */}
+                           {expandedSubId === sub._id && (
+                             <div className="p-4 bg-gray-50 border-t border-[#f0f3f8] space-y-4">
+                               <div className="flex items-center justify-between">
+                                 <h5 className="text-[9px] font-black uppercase tracking-widest text-[#1a2b4b]/50">Sub-Sub-Nodes of {sub.name}</h5>
+                               </div>
+                               
+                               {/* List of Sub-subcategories */}
+                               <div className="space-y-2">
+                                 {subSubCategoriesLoading ? (
+                                   <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest py-1">
+                                     <Loader2 className="w-3.5 h-3.5 animate-spin text-accent" /> Loading Sub-Sub-Nodes...
+                                   </div>
+                                 ) : subSubCategories.length === 0 ? (
+                                   <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest italic py-1">No sub-sub-nodes defined yet.</p>
+                                 ) : (
+                                   <div className="flex flex-wrap gap-2">
+                                     {subSubCategories.map((subSub) => (
+                                       <div key={subSub._id} className="flex items-center gap-1.5 bg-white border border-gray-100 rounded-lg pl-3 pr-2 py-1.5 shadow-sm text-xs font-semibold text-[#1a2b4b] uppercase tracking-wide">
+                                         <span>{subSub.name}</span>
+                                         <button 
+                                           type="button"
+                                           onClick={() => handleDeleteSubSub(subSub._id)}
+                                           className="text-gray-300 hover:text-red-500 font-bold transition-colors ml-1 p-0.5"
+                                         >
+                                           ×
+                                         </button>
+                                       </div>
+                                     ))}
+                                   </div>
+                                 )}
+                               </div>
+                               
+                               {/* Add new Sub-subcategory form */}
+                               <div className="flex gap-2">
+                                 <input 
+                                   type="text"
+                                   placeholder="New Sub-Sub-Node name (e.g. Lehenga)"
+                                   className="flex-1 px-4 py-2 bg-white border border-[#d1d9e6] rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-primary/10 text-primary"
+                                   value={newSubSubName}
+                                   onChange={(e) => setNewSubSubName(e.target.value)}
+                                 />
+                                 <button
+                                   type="button"
+                                   onClick={() => handleAddSubSubCategory(sub._id)}
+                                   disabled={isSubmittingSubSub || !newSubSubName}
+                                   className="bg-[#095181] text-white px-5 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-1 hover:bg-[#DA222A] transition-all disabled:opacity-50"
+                                 >
+                                   Add
+                                 </button>
+                               </div>
+                             </div>
+                           )}
                         </div>
                       ))
                     )}
