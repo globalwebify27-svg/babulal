@@ -649,8 +649,8 @@ export default function TextileClient({ initialCategories, initialProducts, init
             )}
 
             {/* View More Institutional Card */}
-            <div className="lg:translate-y-12 flex flex-col">
-              <div className="flex-1 bg-gray-50 border-2 border-dashed border-gray-100 rounded-2xl flex flex-col items-center justify-center p-12 text-center group hover:bg-[#0A5181]/5 hover:border-[#0A5181]/20 transition-all cursor-not-allowed min-h-[500px]">
+            <Link href="/textiles/all" className="lg:translate-y-12 flex flex-col group">
+              <div className="flex-1 bg-gray-50 border-2 border-dashed border-gray-100 rounded-2xl flex flex-col items-center justify-center p-12 text-center hover:bg-[#0A5181]/5 hover:border-[#0A5181]/20 transition-all min-h-[500px] cursor-pointer">
                 <div className="w-20 h-20 rounded-full bg-white shadow-xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                   <ShoppingBag className="w-8 h-8 text-[#0A5181]" />
                 </div>
@@ -659,10 +659,10 @@ export default function TextileClient({ initialCategories, initialProducts, init
                   Access our complete 2026 line sheet and technical specifications.
                 </p>
                 <div className="flex items-center gap-2 text-[#DA222A] text-[10px] font-black uppercase tracking-widest">
-                  Coming Soon <ArrowRight className="w-4 h-4" />
+                  Explore Now <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
