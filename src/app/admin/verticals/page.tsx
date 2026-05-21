@@ -52,6 +52,19 @@ export default function VerticalsAdminPage() {
       if (data.id) {
         setFormData({
           ...data,
+          heroTitle: data.heroTitle || '',
+          heroSubtitle: data.heroSubtitle || '',
+          aboutSection: {
+            title: data.aboutSection?.title || 'Our Legacy',
+            content: data.aboutSection?.content || ''
+          },
+          contactEmail: data.contactEmail || '',
+          contactPhone: data.contactPhone || '',
+          address: data.address || '',
+          facebookPixel: {
+            id: data.facebookPixel?.id || '',
+            enabled: data.facebookPixel?.enabled || false
+          },
           marqueeTexts: data.marqueeTexts || []
         });
       } else {

@@ -98,6 +98,36 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
   const product = mapProduct(rows[0])!;
   const vertical = Object.values(BUSINESS_VERTICALS).find(v => v.slug === verticalSlug);
 
+  // Split description into short and long
+  let shortDesc = '';
+  let longDesc = '';
+  
+  if (product.shortDescription && product.shortDescription.trim()) {
+    shortDesc = product.shortDescription.trim();
+    longDesc = product.description || '';
+  } else if (product.description) {
+    const desc = product.description.trim();
+    if (desc.includes('---')) {
+      const parts = desc.split('---');
+      shortDesc = parts[0].trim();
+      longDesc = parts.slice(1).join('---').trim();
+    } else if (desc.includes('\n\n')) {
+      const parts = desc.split('\n\n');
+      shortDesc = parts[0].trim();
+      longDesc = desc; // keep full description as longDesc
+    } else {
+      // Sentences split fallback
+      const sentences = desc.match(/[^.!?]+[.!?]+/g) || [desc];
+      if (sentences.length > 1) {
+        shortDesc = sentences[0].trim();
+        longDesc = desc;
+      } else {
+        shortDesc = desc;
+        longDesc = '';
+      }
+    }
+  }
+
   // Logic for Related Products
   const [relatedRows]: any = await pool.query(
     'SELECT * FROM products WHERE businessVertical = ? AND category = ? AND id != ? LIMIT 4',
@@ -210,7 +240,7 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
           <div className="grid lg:grid-cols-12 gap-16 lg:gap-24 items-start">
 
             {/* ══ LEFT: INTERACTIVE GALLERY ══ */}
-            <div className="lg:col-span-7">
+            <div className="lg:col-span-7 space-y-12">
               <div className="sticky top-40">
                 <ProductGallery
                   images={product.images}
@@ -218,6 +248,16 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
                   videoUrl={product.videoUrl}
                 />
               </div>
+
+              {/* Product Story / Long Description (shows in the blank space below the gallery) */}
+              {longDesc && (
+                <div className="bg-white rounded-[2rem] p-6 sm:p-10 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.05)] border border-primary/5 space-y-6">
+                  <h3 className="text-[11px] font-black uppercase tracking-widest text-[#0A5181] italic">Details & Highlights</h3>
+                  <p className="text-primary/70 text-sm leading-relaxed whitespace-pre-line">
+                    {longDesc}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* ══ RIGHT: PRODUCT DETAILS ══ */}
@@ -237,7 +277,7 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
                 </h1>
 
                 <p className="text-lg text-primary/60 font-medium leading-relaxed italic">
-                  {product.description || `Premium wholesale supply of ${product.name}. Direct from Babulal Premkumar, Ranchi's leading textile distributor since 1978.`}
+                  {shortDesc || product.description || `Premium wholesale supply of ${product.name}. Direct from Babulal Premkumar, Ranchi's leading textile distributor since 1978.`}
                 </p>
 
                 <ProductActionButtons

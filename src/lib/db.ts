@@ -10,8 +10,57 @@ const pool = (global as any).mysqlPool || mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   enableKeepAlive: true,
-  keepAliveInitialDelay: 0
+  keepAliveInitialDelay: 10000, // 10 seconds
+  idleTimeout: 30000,           // Close connections that are idle for more than 30 seconds
+  maxIdle: 10
 });
+
+// Intercept and wrap query methods to handle connection resets gracefully
+const originalQuery = pool.query.bind(pool);
+pool.query = async function (sql: any, values: any) {
+  try {
+    return await originalQuery(sql, values);
+  } catch (error: any) {
+    if (error.code === 'ECONNRESET' || error.code === 'PROTOCOL_CONNECTION_LOST') {
+      console.warn(`⚠️ Database connection lost (${error.code}). Retrying query...`);
+      return await originalQuery(sql, values);
+    }
+    throw error;
+  }
+} as any;
+
+const originalExecute = pool.execute?.bind(pool);
+if (originalExecute) {
+  pool.execute = async function (sql: any, values: any) {
+    try {
+      return await originalExecute(sql, values);
+    } catch (error: any) {
+      if (error.code === 'ECONNRESET' || error.code === 'PROTOCOL_CONNECTION_LOST') {
+        console.warn(`⚠️ Database connection lost (${error.code}). Retrying query...`);
+        return await originalExecute(sql, values);
+      }
+      throw error;
+    }
+  } as any;
+}
+
+const originalGetConnection = pool.getConnection.bind(pool);
+pool.getConnection = async function () {
+  try {
+    const conn = await originalGetConnection();
+    // Verify connection is alive
+    await conn.query('SELECT 1');
+    return conn;
+  } catch (error: any) {
+    if (error.code === 'ECONNRESET' || error.code === 'PROTOCOL_CONNECTION_LOST') {
+      console.warn(`⚠️ Connection lost during getConnection (${error.code}). Retrying...`);
+      const conn = await originalGetConnection();
+      await conn.query('SELECT 1');
+      return conn;
+    }
+    throw error;
+  }
+} as any;
 
 if (process.env.NODE_ENV !== 'production') {
   (global as any).mysqlPool = pool;
@@ -85,6 +134,7 @@ export async function initDb() {
           businessVertical VARCHAR(255) NOT NULL,
           category VARCHAR(255) NOT NULL,
           subCategory VARCHAR(255),
+          shortDescription TEXT,
           description TEXT,
           images LONGTEXT,
           videoUrl VARCHAR(500),
@@ -99,6 +149,13 @@ export async function initDb() {
           createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
+
+      // Migration: Add shortDescription to existing tables if missing
+      try {
+        await connection.query(`ALTER TABLE products ADD COLUMN shortDescription TEXT`);
+      } catch (err) {
+        // Column may already exist
+      }
 
       // 5. Create Leads table
       await connection.query(`

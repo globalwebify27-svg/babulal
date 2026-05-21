@@ -37,6 +37,7 @@ export default function NewProductPage() {
     category: '',
     subCategory: '',
     businessVertical: 'TEXTILES',
+    shortDescription: '',
     description: '',
     images: [''],
     attributes: {} as any,
@@ -357,6 +358,17 @@ export default function NewProductPage() {
                 </div>
 
                 <div className="space-y-3">
+                   <label className="text-[10px] font-black uppercase tracking-[.2em] text-primary/60">Short Description</label>
+                   <textarea 
+                     rows={3}
+                     className="w-full bg-surface-dim px-6 py-5 rounded-2xl text-[13px] font-semibold border-none outline-none focus:ring-4 focus:ring-primary/5 transition-all text-primary resize-none placeholder:text-primary/20"
+                     placeholder="Brief 1-2 sentence overview shown below the product name..."
+                     value={formData.shortDescription}
+                     onChange={(e) => setFormData({...formData, shortDescription: e.target.value})}
+                   />
+                 </div>
+
+                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-[.2em] text-primary/60">Public Description</label>
                   <textarea 
                     rows={6}

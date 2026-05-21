@@ -17,8 +17,8 @@ export default function ProductGallery({ images, productName, videoUrl }: Produc
   const [isZoomed, setIsZoomed] = useState(false);
 
   // Combine images and video into items list
-  // We place video as the first item if it exists
-  const items = videoUrl ? [{ type: 'video', url: videoUrl }, ...images.map(img => ({ type: 'image', url: img }))] : images.map(img => ({ type: 'image', url: img }));
+  // Place video as the last item if it exists
+  const items = videoUrl ? [...images.map(img => ({ type: 'image', url: img })), { type: 'video', url: videoUrl }] : images.map(img => ({ type: 'image', url: img }));
 
   const next = () => setActiveIndex((prev) => (prev + 1) % items.length);
   const prev = () => setActiveIndex((prev) => (prev - 1 + items.length) % items.length);

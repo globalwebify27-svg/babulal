@@ -40,6 +40,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     category: '',
     subCategory: '',
     businessVertical: 'TEXTILES',
+    shortDescription: '',
     description: '',
     images: [''],
     isActive: true,
@@ -75,9 +76,17 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           const data = await res.json();
           setFormData({
             ...data,
-            businessVertical: data.businessVertical.toUpperCase(),
+            name: data.name || '',
+            slug: data.slug || '',
+            category: data.category || '',
+            businessVertical: data.businessVertical ? data.businessVertical.toUpperCase() : 'TEXTILES',
+            shortDescription: data.shortDescription || '',
+            description: data.description || '',
             images: data.images?.length > 0 ? data.images : [''],
-            seo: data.seo || { metaTitle: '', metaDescription: '' },
+            seo: {
+              metaTitle: data.seo?.metaTitle || '',
+              metaDescription: data.seo?.metaDescription || ''
+            },
             subCategory: data.subCategory || '',
             brochureUrl: data.brochureUrl || '',
             videoUrl: data.videoUrl || ''
@@ -384,6 +393,17 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                        onChange={(e) => setFormData({...formData, slug: e.target.value})}
                      />
                   </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-[.2em] text-primary/60">Short Description</label>
+                  <textarea 
+                    rows={3}
+                    className="w-full bg-surface-dim px-6 py-5 rounded-2xl text-[13px] font-semibold border-none outline-none focus:ring-4 focus:ring-primary/5 transition-all text-primary resize-none placeholder:text-primary/20"
+                    placeholder="Brief 1-2 sentence overview shown below the product name..."
+                    value={formData.shortDescription}
+                    onChange={(e) => setFormData({...formData, shortDescription: e.target.value})}
+                  />
                 </div>
 
                 <div className="space-y-3">

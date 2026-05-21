@@ -12,6 +12,7 @@ function mapProduct(prod: any) {
     businessVertical: prod.businessVertical,
     category: prod.category,
     subCategory: prod.subCategory,
+    shortDescription: prod.shortDescription || '',
     description: prod.description,
     images: prod.images ? JSON.parse(prod.images) : [],
     videoUrl: prod.videoUrl,
@@ -120,15 +121,16 @@ export async function POST(req: Request) {
 
     const [result]: any = await pool.query(
       `INSERT INTO products (
-        name, slug, businessVertical, category, subCategory, description, images, videoUrl, brochureUrl, attributes,
+        name, slug, businessVertical, category, subCategory, shortDescription, description, images, videoUrl, brochureUrl, attributes,
         h1, metaTitle, metaDescription, altText, isFeatured, isActive
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.name,
         data.slug.toLowerCase().replace(/\s+/g, '-'),
         data.businessVertical.toLowerCase(),
         data.category,
         data.subCategory || null,
+        data.shortDescription || null,
         data.description || null,
         imagesVal,
         data.videoUrl || null,
@@ -192,7 +194,7 @@ export async function PATCH(req: Request) {
     const cleanUpdates: any = {};
     const ALLOWED_COLUMNS = [
       'name', 'slug', 'businessVertical', 'category', 'subCategory', 
-      'description', 'videoUrl', 'brochureUrl', 'isFeatured', 'isActive'
+      'shortDescription', 'description', 'videoUrl', 'brochureUrl', 'isFeatured', 'isActive'
     ];
 
     for (const key of ALLOWED_COLUMNS) {
