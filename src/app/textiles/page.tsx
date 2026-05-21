@@ -16,11 +16,15 @@ async function fetchTextileCatalogData() {
   // Execute all queries in parallel for maximum performance
   const [
     [categoriesRows],
+    [subCategoriesRows],
     [productsRows],
     [bannersRows]
   ]: any[] = await Promise.all([
     pool.query(
       "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
+    ),
+    pool.query(
+      "SELECT * FROM sub_categories WHERE status = 'Active' ORDER BY orderIndex ASC"
     ),
     pool.query(
       "SELECT * FROM products WHERE LOWER(businessVertical) = 'textiles' ORDER BY createdAt DESC LIMIT 500"
@@ -30,14 +34,25 @@ async function fetchTextileCatalogData() {
     )
   ]);
 
-  const categories = categoriesRows.map((cat: any) => ({
-    ...cat,
-    _id: cat.id.toString(),
-    order: cat.orderIndex,
-    showInHeader: !!cat.showInHeader,
-    topBusiness: !!cat.topBusiness,
-    isCurated: !!cat.isCurated
+  const subCategories = subCategoriesRows.map((sub: any) => ({
+    ...sub,
+    _id: sub.id.toString(),
+    categoryId: sub.categoryId.toString(),
+    order: sub.orderIndex
   }));
+
+  const categories = categoriesRows.map((cat: any) => {
+    const catIdStr = cat.id.toString();
+    return {
+      ...cat,
+      _id: catIdStr,
+      order: cat.orderIndex,
+      showInHeader: !!cat.showInHeader,
+      topBusiness: !!cat.topBusiness,
+      isCurated: !!cat.isCurated,
+      subcategories: subCategories.filter((sub: any) => sub.categoryId === catIdStr)
+    };
+  });
 
   const products = productsRows.map((prod: any) => ({
     ...prod,

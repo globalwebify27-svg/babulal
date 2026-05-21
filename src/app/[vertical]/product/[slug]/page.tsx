@@ -126,10 +126,30 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
   // Fetch all categories for the header if we are in textiles
   let navCategories: any[] = [];
   if (verticalSlug === 'textiles') {
-    const [catRows]: any = await pool.query(
-      "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
-    );
-    navCategories = catRows.map(mapCategory);
+    const [
+      [catRows],
+      [subRows]
+    ]: any[] = await Promise.all([
+      pool.query(
+        "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
+      ),
+      pool.query(
+        "SELECT * FROM sub_categories WHERE status = 'Active' ORDER BY orderIndex ASC"
+      )
+    ]);
+    const subCategories = subRows.map((sub: any) => ({
+      ...sub,
+      _id: sub.id.toString(),
+      categoryId: sub.categoryId.toString(),
+      order: sub.orderIndex
+    }));
+    navCategories = catRows.map((cat: any) => {
+      const catIdStr = cat.id.toString();
+      return {
+        ...mapCategory(cat),
+        subcategories: subCategories.filter((sub: any) => sub.categoryId === catIdStr)
+      };
+    });
   }
 
   // JSON-LD Structured Data for SEO

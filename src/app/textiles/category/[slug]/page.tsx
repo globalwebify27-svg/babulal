@@ -71,18 +71,37 @@ async function fetchProductsData() {
 
 async function fetchAllCategoriesData() {
   await initDb();
-  const [rows]: any = await pool.query(
-    "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
-  );
+  const [
+    [categoriesRows],
+    [subCategoriesRows]
+  ]: any[] = await Promise.all([
+    pool.query(
+      "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
+    ),
+    pool.query(
+      "SELECT * FROM sub_categories WHERE status = 'Active' ORDER BY orderIndex ASC"
+    )
+  ]);
 
-  return rows.map((cat: any) => ({
-    ...cat,
-    _id: cat.id.toString(),
-    order: cat.orderIndex,
-    showInHeader: !!cat.showInHeader,
-    topBusiness: !!cat.topBusiness,
-    isCurated: !!cat.isCurated
+  const subCategories = subCategoriesRows.map((sub: any) => ({
+    ...sub,
+    _id: sub.id.toString(),
+    categoryId: sub.categoryId.toString(),
+    order: sub.orderIndex
   }));
+
+  return categoriesRows.map((cat: any) => {
+    const catIdStr = cat.id.toString();
+    return {
+      ...cat,
+      _id: catIdStr,
+      order: cat.orderIndex,
+      showInHeader: !!cat.showInHeader,
+      topBusiness: !!cat.topBusiness,
+      isCurated: !!cat.isCurated,
+      subcategories: subCategories.filter((sub: any) => sub.categoryId === catIdStr)
+    };
+  });
 }
 
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {

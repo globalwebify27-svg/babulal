@@ -32,11 +32,16 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [marqueeTexts, setMarqueeTexts] = useState<string[]>([
     "Jharkhand's Leading Retail Textile Hub Since 1978",
     "Global Shipping Now Available to 50+ Countries",
     "New Bridal Collection 2026 Launching Soon"
   ]);
+
+  const toggleCategory = (slug: string) => {
+    setExpandedCategory(expandedCategory === slug ? null : slug);
+  };
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 80);
@@ -130,8 +135,8 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
 
       {/* ═══ TIER 3: THE PERMANENT STICKY NAV ═══ */}
       <div className={`bg-white border-b border-gray-100 shadow-sm transition-all duration-300 hidden lg:block ${isScrolled ? 'shadow-xl bg-white/95 backdrop-blur-xl' : ''}`}>
-        <div className="max-w-[1700px] mx-auto px-4 md:px-12">
-          <nav className="flex items-center justify-start lg:justify-between gap-1 py-1 overflow-x-auto no-scrollbar snap-x">
+        <div className="max-w-[1400px] mx-auto px-8 relative">
+          <nav className="flex items-center justify-center gap-3 py-1 lg:overflow-visible overflow-x-auto no-scrollbar snap-x">
             {/* DYNAMIC HEADER CATEGORIES */}
             {(categories.length > 0 ? categories : [
               { name: "Sarees", slug: "sarees" },
@@ -142,16 +147,40 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
               { name: "Home Furnishing", slug: "home-furnishings" },
               { name: "Mens Wear", slug: "mens-wear" },
               { name: "Uniforms", slug: "uniforms" }
-            ]).map((cat) => (
-              <Link 
-                key={cat.slug} 
-                href={`/textiles/category/${cat.slug}`} 
-                className="relative px-4 md:px-5 py-3 md:py-4 text-[10px] md:text-[12px] font-black uppercase tracking-[.2em] text-gray-700 hover:text-red-600 transition-colors group shrink-0 snap-start"
-              >
-                {cat.name}
-                <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-red-600 transition-all duration-300 group-hover:w-full" />
-              </Link>
-            ))}
+            ]).map((cat) => {
+              const hasSubs = cat.subcategories && cat.subcategories.length > 0;
+              return (
+                <div key={cat.slug} className="group relative shrink-0 snap-start">
+                  <Link 
+                    href={`/textiles/category/${cat.slug}`} 
+                    className="relative flex items-center gap-1 px-4 py-3.5 md:py-4.5 text-[10px] md:text-[11.5px] font-black uppercase tracking-[.18em] text-gray-700 hover:text-red-600 transition-colors"
+                  >
+                    {cat.name}
+                    {hasSubs && (
+                      <ChevronDown className="w-3 h-3 text-gray-400 group-hover:text-red-600 group-hover:rotate-180 transition-all duration-300" />
+                    )}
+                    <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-red-600 transition-all duration-300 group-hover:w-full" />
+                  </Link>
+
+                  {hasSubs && (
+                    <div className="absolute left-0 top-full pt-1 opacity-0 translate-y-3 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out z-[150] w-[240px]">
+                      <div className="bg-white border border-gray-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] overflow-hidden py-2 backdrop-blur-md">
+                        {cat.subcategories.map((sub: any) => (
+                          <Link
+                            key={sub.slug}
+                            href={`/textiles/category/${cat.slug}?sub=${sub.slug}`}
+                            className="flex items-center justify-between px-5 py-3 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:text-red-600 hover:bg-gray-50/50 hover:pl-7 transition-all duration-200 group/item"
+                          >
+                            <span>{sub.name}</span>
+                            <ChevronDown className="w-3.5 h-3.5 -rotate-90 opacity-0 group-hover/item:opacity-100 text-red-600 transition-all duration-200" />
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </nav>
         </div>
       </div>
@@ -189,34 +218,62 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
             <nav className="flex flex-col">
               {/* Combine dynamic categories and static utility links */}
               {[
-                { name: "Home", slug: "home", type: 'utility' },
+                { name: "Home", slug: "home", type: 'utility', href: '/textiles' },
                 ...(categories.length > 0 
-                  ? categories.map(c => ({ name: c.name, slug: c.slug, type: 'category' }))
+                  ? categories.map(c => ({ name: c.name, slug: c.slug, type: 'category', subcategories: c.subcategories }))
                   : [
-                      { name: "Saree", slug: "sarees", type: 'category' },
-                      { name: "Suit", slug: "suits", type: 'category' },
-                      { name: "Kurti", slug: "kurtis", type: 'category' },
-                      { name: "Kids Wear", slug: "kids-wear", type: 'category' },
-                      { name: "Lehenga", slug: "lehenga", type: 'category' },
+                      { name: "Saree", slug: "sarees", type: 'category', subcategories: [] },
+                      { name: "Suit", slug: "suits", type: 'category', subcategories: [] },
+                      { name: "Kurti", slug: "kurtis", type: 'category', subcategories: [] },
+                      { name: "Kids Wear", slug: "kids-wear", type: 'category', subcategories: [] },
+                      { name: "Lehenga", slug: "lehenga", type: 'category', subcategories: [] },
                     ]
                 ),
-                { name: "Retail Hub", slug: "sarees", type: 'utility' },
-                { name: "Blog", slug: "blog", type: 'utility' },
-                { name: "Contact Us", slug: "contact", type: 'utility' },
-              ].map((item, i) => {
+                { name: "Retail Hub", slug: "sarees", type: 'utility', href: '/textiles/category/sarees' },
+                { name: "Blog", slug: "blog", type: 'utility', href: '#blog' },
+                { name: "Contact Us", slug: "contact", type: 'utility', href: '#contact' },
+              ].map((item: any, i) => {
                 const isCategory = item.type === 'category';
+                const hasSubs = isCategory && item.subcategories && item.subcategories.length > 0;
+                
                 return (
-                  <Link 
-                    key={i}
-                    href={isCategory ? `/textiles/category/${item.slug}` : (item.slug === 'home' ? '/textiles' : `#${item.slug}`)}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-between px-8 py-5 border-b border-gray-100 group active:bg-gray-50 transition-colors"
-                  >
-                    <span className="text-[#DA222A] text-lg font-bold tracking-tight group-hover:translate-x-1 transition-transform">
-                      {item.name}
-                    </span>
-                    <ChevronDown className="w-6 h-6 text-[#DA222A]/40 group-hover:text-[#DA222A] transition-colors" />
-                  </Link>
+                  <div key={i} className="border-b border-gray-100 flex flex-col">
+                    <div className="flex items-center justify-between">
+                      <Link 
+                        href={isCategory ? `/textiles/category/${item.slug}` : (item.href || `#${item.slug}`)}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex-1 px-8 py-5 text-[#DA222A] text-lg font-bold tracking-tight group active:bg-gray-50 transition-colors"
+                      >
+                        {item.name}
+                      </Link>
+                      {hasSubs && (
+                        <button
+                          onClick={() => toggleCategory(item.slug)}
+                          className="px-6 py-5 text-[#DA222A] hover:bg-gray-50 transition-colors"
+                        >
+                          <ChevronDown className={`w-6 h-6 transform transition-transform duration-300 ${expandedCategory === item.slug ? 'rotate-180 text-red-600' : ''}`} />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Subcategories Accordion */}
+                    {hasSubs && (
+                      <div className={`overflow-hidden transition-all duration-300 bg-gray-50/50 ${expandedCategory === item.slug ? 'max-h-[300px] border-t border-gray-50' : 'max-h-0'}`}>
+                        <div className="pl-12 pr-8 py-3 flex flex-col gap-4">
+                          {item.subcategories.map((sub: any) => (
+                            <Link
+                              key={sub.slug}
+                              href={`/textiles/category/${item.slug}?sub=${sub.slug}`}
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="text-[12px] font-black uppercase tracking-widest text-gray-500 hover:text-[#DA222A] py-1 transition-colors"
+                            >
+                              • {sub.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </nav>

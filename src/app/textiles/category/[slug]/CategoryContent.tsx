@@ -16,6 +16,7 @@ import TextileHeader from '@/components/TextileHeader';
 import Footer from '@/components/Footer';
 import StoreLocatorModal from '@/components/StoreLocatorModal';
 import { Haptics } from '@/lib/haptics';
+import { useSearchParams } from 'next/navigation';
 
 interface CategoryContentProps {
   initialCategory: any;
@@ -121,7 +122,51 @@ function AsyncProductSection({ subCategoriesPromise, productsPromise, initialCat
   const dbSubCategories = React.use(subCategoriesPromise) as any[];
   const dbProducts = React.use(productsPromise) as any[];
   
+  const searchParams = useSearchParams();
+  const subParam = searchParams ? searchParams.get('sub') : null;
   const [selectedSubs, setSelectedSubs] = React.useState<string[]>([]);
+
+  // Dynamic Sub-category Extraction (Fallback if subcategories collection is empty)
+  const productsInCategory = React.useMemo(() => {
+    return dbProducts.filter((p: any) => {
+      const normalize = (s: string) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+      const pCat = normalize(p.category);
+      const cName = normalize(initialCategory?.name);
+      const cSlug = normalize(initialCategory?.slug);
+      return pCat === cName || pCat === cSlug || cName.includes(pCat) || pCat.includes(cSlug);
+    });
+  }, [dbProducts, initialCategory]);
+
+  const derivedSubTypes = React.useMemo(() => {
+    return Array.from(new Set(
+      productsInCategory.map((p: any) => p.subCategory).filter(Boolean)
+    )).map(name => ({ name, _id: name, slug: name.toLowerCase().replace(/\s+/g, '-') }));
+  }, [productsInCategory]);
+
+  const displaySubCategories = React.useMemo(() => {
+    return dbSubCategories.length > 0 ? dbSubCategories : derivedSubTypes;
+  }, [dbSubCategories, derivedSubTypes]);
+
+  React.useEffect(() => {
+    if (subParam) {
+      const matchedSub = displaySubCategories.find(
+        (s: any) => s.slug === subParam || s.name.toLowerCase() === subParam.toLowerCase() || (s.slug && s.slug.replace(/\s+/g, '-').toLowerCase() === subParam.toLowerCase())
+      );
+      if (matchedSub) {
+        if (selectedSubs.length !== 1 || selectedSubs[0] !== matchedSub.name) {
+          setSelectedSubs([matchedSub.name]);
+        }
+      } else {
+        if (selectedSubs.length !== 0) {
+          setSelectedSubs([]);
+        }
+      }
+    } else {
+      if (selectedSubs.length !== 0) {
+        setSelectedSubs([]);
+      }
+    }
+  }, [subParam, displaySubCategories, selectedSubs]);
 
   const handleSubToggle = (subName: string) => {
     Haptics.light();
@@ -136,21 +181,6 @@ function AsyncProductSection({ subCategoriesPromise, productsPromise, initialCat
     Haptics.medium();
     setSelectedSubs([]);
   };
-  
-  // Dynamic Sub-category Extraction (Fallback if subcategories collection is empty)
-  const productsInCategory = dbProducts.filter((p: any) => {
-    const normalize = (s: string) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-    const pCat = normalize(p.category);
-    const cName = normalize(initialCategory?.name);
-    const cSlug = normalize(initialCategory?.slug);
-    return pCat === cName || pCat === cSlug || cName.includes(pCat) || pCat.includes(cSlug);
-  });
-
-  const derivedSubTypes = Array.from(new Set(
-    productsInCategory.map((p: any) => p.subCategory).filter(Boolean)
-  )).map(name => ({ name, _id: name }));
-
-  const displaySubCategories = dbSubCategories.length > 0 ? dbSubCategories : derivedSubTypes;
   
   const finalProducts = productsInCategory.filter((p: any) => {
     const normalize = (s: string) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, '').trim();
