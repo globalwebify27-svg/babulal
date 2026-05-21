@@ -233,6 +233,37 @@ export async function initDb() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
 
+      // 8. Create Reels table
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS reels (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          instagramId VARCHAR(255) NOT NULL,
+          title VARCHAR(255),
+          category VARCHAR(255),
+          orderIndex INT DEFAULT 0,
+          status VARCHAR(50) DEFAULT 'Active',
+          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      // Seed Reels if table is empty
+      try {
+        const [reelsCount]: any = await connection.query('SELECT COUNT(*) as count FROM reels');
+        if (reelsCount[0].count === 0) {
+          await connection.query(`
+            INSERT INTO reels (instagramId, title, category, orderIndex) VALUES
+            ('DVxuBIWEZOC', 'Royal Wedding Collection', 'Handloom Silk', 1),
+            ('DTiK-Z6Ed8U', 'Handcrafted Luxury', 'Bespoke Suiting', 2),
+            ('DTSqfNBkZVy', 'Textile Heritage Show', 'Legacy Collection', 3),
+            ('DTC2iElEcQ0', 'New Arrival Exhibit', 'Modern Ethnic', 4),
+            ('DRPEMCeEZ1A', 'Editorial Showcase', 'Corporate Wear', 5),
+            ('DQ_iBc5EqHZ', 'Bridal Masterpiece', 'Wedding Special', 6)
+          `);
+        }
+      } catch (err) {
+        console.error('Failed to seed reels:', err);
+      }
+
       try {
         await connection.query('ALTER TABLE landing_content ADD COLUMN marqueeTexts TEXT');
       } catch (e) {

@@ -18,7 +18,8 @@ async function fetchTextileCatalogData() {
     [categoriesRows],
     [subCategoriesRows],
     [productsRows],
-    [bannersRows]
+    [bannersRows],
+    [reelsRows]
   ]: any[] = await Promise.all([
     pool.query(
       "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
@@ -31,6 +32,9 @@ async function fetchTextileCatalogData() {
     ),
     pool.query(
       "SELECT * FROM banners WHERE LOWER(vertical) = 'textiles' AND position = 'HOME_HERO' AND isActive = TRUE ORDER BY orderIndex ASC"
+    ),
+    pool.query(
+      "SELECT * FROM reels WHERE status = 'Active' ORDER BY orderIndex ASC, id DESC"
     )
   ]);
 
@@ -76,21 +80,31 @@ async function fetchTextileCatalogData() {
     isActive: !!ban.isActive
   }));
 
+  const reels = reelsRows.map((reel: any) => ({
+    ...reel,
+    _id: reel.id.toString(),
+    id: reel.instagramId,
+    instagramId: reel.instagramId,
+    order: reel.orderIndex
+  }));
+
   return {
     categories,
     products,
-    banners
+    banners,
+    reels
   };
 }
 
 export default async function TextileVerticalPage() {
-  const { categories, products, banners } = await fetchTextileCatalogData();
+  const { categories, products, banners, reels } = await fetchTextileCatalogData();
 
   return (
     <TextileClient 
       initialCategories={categories}
       initialProducts={products}
       initialBanners={banners}
+      initialReels={reels}
     />
   );
 }

@@ -18,7 +18,8 @@ import {
   ImageIcon,
   FileText,
   MapPin,
-  Globe
+  Globe,
+  Video
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -30,6 +31,7 @@ const MENU_ITEMS = [
   { name: 'Manage Enquiry', icon: Users, href: '/admin/leads' },
   { name: 'Manage Banners', icon: ImageIcon, href: '/admin/banners' },
   { name: 'Manage Verticals', icon: Globe, href: '/admin/verticals' },
+  { name: 'Instagram Reels', icon: Video, href: '/admin/reels' },
   { name: 'Manage Blog Article', icon: FileText, href: '/admin/blogs' },
   { name: 'Manage Locations', icon: MapPin, href: '/admin/locations' },
 ];

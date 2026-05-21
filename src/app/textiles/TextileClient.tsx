@@ -109,9 +109,19 @@ interface TextileClientProps {
   initialCategories: any[];
   initialProducts: any[];
   initialBanners?: any[];
+  initialReels?: any[];
 }
 
-export default function TextileClient({ initialCategories, initialProducts, initialBanners }: TextileClientProps) {
+const DEFAULT_REELS = [
+  { id: "DVxuBIWEZOC", title: "Royal Wedding Collection", category: "Handloom Silk", img: "/reels/wedding.png" },
+  { id: "DTiK-Z6Ed8U", title: "Handcrafted Luxury", category: "Bespoke Suiting", img: "/reels/suits.png" },
+  { id: "DTSqfNBkZVy", title: "Textile Heritage Show", category: "Legacy Collection", img: "/reels/heritage.png" },
+  { id: "DTC2iElEcQ0", title: "New Arrival Exhibit", category: "Modern Ethnic", img: "/reels/ethnic.png" },
+  { id: "DRPEMCeEZ1A", title: "Editorial Showcase", category: "Corporate Wear", img: "/reels/corporate.png" },
+  { id: "DQ_iBc5EqHZ", title: "Bridal Masterpiece", category: "Wedding Special", img: "/reels/bridal.png" }
+];
+
+export default function TextileClient({ initialCategories, initialProducts, initialBanners, initialReels }: TextileClientProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const sareeScrollRef = useRef<HTMLDivElement>(null);
   const suitScrollRef = useRef<HTMLDivElement>(null);
@@ -136,6 +146,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
     (cat: any) => cat.slug === 'kids-collection' || cat.name.toLowerCase().includes('kids')
   );
   const [banners] = useState<any[]>(initialBanners && initialBanners.length > 0 ? initialBanners : HERO_SLIDES);
+  const [reels] = useState<any[]>(initialReels && initialReels.length > 0 ? initialReels : DEFAULT_REELS);
   const [isLoading] = useState(false); // Never loading because data is SSR
 
   // Removed Inquiry Modal state to favor direct product page navigation as per user request
@@ -1182,14 +1193,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {[
-              { id: "DVxuBIWEZOC", title: "Royal Wedding Collection", category: "Handloom Silk", img: "/reels/wedding.png" },
-              { id: "DTiK-Z6Ed8U", title: "Handcrafted Luxury", category: "Bespoke Suiting", img: "/reels/suits.png" },
-              { id: "DTSqfNBkZVy", title: "Textile Heritage Show", category: "Legacy Collection", img: "/reels/heritage.png" },
-              { id: "DTC2iElEcQ0", title: "New Arrival Exhibit", category: "Modern Ethnic", img: "/reels/ethnic.png" },
-              { id: "DRPEMCeEZ1A", title: "Editorial Showcase", category: "Corporate Wear", img: "/reels/corporate.png" },
-              { id: "DQ_iBc5EqHZ", title: "Bridal Masterpiece", category: "Wedding Special", img: "/reels/bridal.png" }
-            ].map((reel, i) => (
+            {reels.map((reel, i) => (
               <ReelCard key={reel.id} reel={reel} index={i} />
             ))}
           </div>
