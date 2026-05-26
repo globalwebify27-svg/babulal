@@ -165,9 +165,9 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
                   {hasSubs && (
                     <div className="absolute left-0 top-full pt-1 opacity-0 translate-y-3 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out z-[150] w-[240px]">
                       <div className="bg-white border border-gray-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] overflow-hidden py-2 backdrop-blur-md">
-                        {cat.subcategories.map((sub: any) => (
+                        {cat.subcategories.map((sub: any, idx: number) => (
                           <Link
-                            key={sub.slug}
+                            key={`${sub.slug}-${idx}`}
                             href={`/textiles/category/${cat.slug}?sub=${sub.slug}`}
                             className="flex items-center justify-between px-5 py-3 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:text-red-600 hover:bg-gray-50/50 hover:pl-7 transition-all duration-200 group/item"
                           >
@@ -260,9 +260,9 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
                     {hasSubs && (
                       <div className={`overflow-hidden transition-all duration-300 bg-gray-50/50 ${expandedCategory === item.slug ? 'max-h-[300px] border-t border-gray-50' : 'max-h-0'}`}>
                         <div className="pl-12 pr-8 py-3 flex flex-col gap-4">
-                          {item.subcategories.map((sub: any) => (
+                          {item.subcategories.map((sub: any, idx: number) => (
                             <Link
-                              key={sub.slug}
+                              key={`${sub.slug}-${idx}`}
                               href={`/textiles/category/${item.slug}?sub=${sub.slug}`}
                               onClick={() => setIsMobileMenuOpen(false)}
                               className="text-[12px] font-black uppercase tracking-widest text-gray-500 hover:text-[#DA222A] py-1 transition-colors"

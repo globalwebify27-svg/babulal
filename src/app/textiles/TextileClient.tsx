@@ -278,8 +278,8 @@ export default function TextileClient({ initialCategories, initialProducts, init
               sizes="100vw"
               className={cn(
                 "object-cover opacity-90 transition-all duration-700",
-                banners[currentSlide].alignment === 'top' ? "object-top" : 
-                banners[currentSlide].alignment === 'bottom' ? "object-bottom" : "object-center"
+                banners[currentSlide].alignment === 'top' ? "object-top" :
+                  banners[currentSlide].alignment === 'bottom' ? "object-bottom" : "object-center"
               )}
               priority
             />
@@ -345,7 +345,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
                   </span>
                   <span className="text-white text-[10px] font-black uppercase tracking-[0.25em]">Why Babulal Premkumar</span>
                 </div>
-                
+
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-4 bg-white/5 hover:bg-white/10 p-4 rounded-xl border border-white/10 transition-colors">
                     <div className="w-8 h-8 rounded-lg bg-[#DA222A] flex items-center justify-center text-white shrink-0">
@@ -443,7 +443,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
               ))}
             </div>
             <p className="text-gray-500 text-base md:text-xl lg:text-2xl font-medium max-w-4xl mx-auto italic leading-relaxed">
-              We define industry standards with a fixed-pricing strategy. From Sri Hanumanbux Poddar to the 5th generation leadership, <br className="hidden lg:block" /> we service 2000+ partners across 6 states from our Tupudana supply hub.
+              We define industry standards with a fixed-pricing strategy. From Sri Hanumanbux Ji Poddar to the 5th generation leadership, <br className="hidden lg:block" /> we service 2000+ partners across 6 states.
             </p>
           </div>
 
@@ -531,9 +531,9 @@ export default function TextileClient({ initialCategories, initialProducts, init
                   </span>
                   <h4 className="text-[#0A5181] text-xs font-black uppercase tracking-[0.2em]">Our Selling Pillars</h4>
                 </div>
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Est. 1978</span>
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Est. 1917</span>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-x-6 gap-y-5">
                 <div className="flex items-start gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-[#DA222A]/10 flex items-center justify-center shrink-0 mt-0.5">
@@ -544,7 +544,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
                     <span className="text-[#0A5181] text-xs font-black uppercase tracking-tight mt-0.5 font-bold">Fresh Stock Everyday</span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-[#0A5181]/10 flex items-center justify-center shrink-0 mt-0.5">
                     <TrendingUp className="w-4 h-4 text-[#0A5181]" />
