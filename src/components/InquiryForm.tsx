@@ -106,9 +106,13 @@ export default function InquiryForm({ verticalId, interestDefault = "General Inq
               required
               type="tel" 
               placeholder="Mobile Number"
+              pattern="[0-9]{10}"
+              title="Please enter a valid 10-digit mobile number"
+              maxLength={10}
+              minLength={10}
               className="w-full bg-surface-dim px-12 py-4 rounded-md text-sm font-semibold border-none focus:ring-2 focus:ring-accent/10 focus:bg-white transition-all outline-none"
               value={formData.mobile}
-              onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, '') })}
             />
           </div>
         </div>
