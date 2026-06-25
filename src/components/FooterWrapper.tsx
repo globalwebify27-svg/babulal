@@ -13,7 +13,8 @@ export default function FooterWrapper() {
                      pathname?.startsWith('/trucking') ||
                      pathname?.startsWith('/muva-industries') ||
                      pathname?.startsWith('/admin') ||
-                     pathname?.startsWith('/auth');
+                     pathname?.startsWith('/auth') ||
+                     pathname?.startsWith('/welcome');
   
   if (shouldHide) return null;
   

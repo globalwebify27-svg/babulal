@@ -19,12 +19,14 @@ import {
   FileText,
   MapPin,
   Globe,
-  Video
+  Video,
+  HeartHandshake
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const MENU_ITEMS = [
   { name: 'Dashboard', icon: LayoutDashboard, href: '/admin' },
+  { name: 'Customer Welcome', icon: HeartHandshake, href: '/admin/welcome' },
   { name: 'Manage Categories', icon: Layers, href: '/admin/categories' },
   { name: 'Manage Product', icon: ShoppingBag, href: '/admin/products' },
   { name: 'Product Attributes', icon: Sliders, href: '/admin/attributes' },

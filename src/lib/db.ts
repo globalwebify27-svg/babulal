@@ -270,6 +270,54 @@ export async function initDb() {
         // Column might already exist
       }
 
+      // 9. Create Welcome Page Settings table
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS welcome_page_settings (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          welcomeTitle VARCHAR(255) DEFAULT 'Welcome to Babulal Premkumar',
+          welcomeMessage TEXT,
+          introTitle VARCHAR(255) DEFAULT 'About Us',
+          introContent TEXT,
+          videoUrl VARCHAR(500) DEFAULT '',
+          videoTitle VARCHAR(255) DEFAULT 'Shopping Guide',
+          feedbackUrl VARCHAR(500) DEFAULT '',
+          contactPhone VARCHAR(50) DEFAULT '',
+          contactEmail VARCHAR(255) DEFAULT '',
+          address TEXT,
+          googleMapsUrl VARCHAR(500) DEFAULT '',
+          whatsappNumber VARCHAR(50) DEFAULT '',
+          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      // Seed Welcome Page Settings if empty
+      try {
+        const [settingsCount]: any = await connection.query('SELECT COUNT(*) as count FROM welcome_page_settings');
+        if (settingsCount[0].count === 0) {
+          await connection.query(`
+            INSERT INTO welcome_page_settings (
+              welcomeTitle, welcomeMessage, introTitle, introContent, videoUrl, videoTitle, feedbackUrl, contactPhone, contactEmail, address, googleMapsUrl, whatsappNumber
+            ) VALUES (
+              'Welcome to Babulal Premkumar',
+              'Thank you for visiting us. We are delighted to have you as our valued customer. Explore our latest collections, check our shopping guide video, and feel free to connect with us or share your feedback.',
+              'Our Legacy',
+              'Established in 1978, Babulal Premsons Group is a household name in Ranchi, Jharkhand, trusted by generations for premium quality textiles, automobiles, and more.',
+              'https://www.youtube.com/embed/dQw4w9WgXcQ',
+              'Experience Babulal Premkumar: Your Shopping Guide',
+              'https://g.page/r/your-google-review-link/review',
+              '+91 99999 99999',
+              'info@babulalpremsons.com',
+              'Main Road, Ranchi, Jharkhand - 834001',
+              'https://maps.google.com',
+              '+91 99999 99999'
+            )
+          `);
+        }
+      } catch (err) {
+        console.error('Failed to seed welcome page settings:', err);
+      }
+
       isDbInitialized = true;
       console.log('✅ MySQL Database and Tables initialized successfully.');
     } catch (error) {
