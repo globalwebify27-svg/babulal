@@ -13,28 +13,10 @@ import {
   Sparkles,
   Home,
   MessageCircle,
-  Gift,
-  Coins
+  X,
+  Loader2
 } from 'lucide-react';
 import Image from 'next/image';
-
-const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    viewBox="0 0 24 24"
-    width="24"
-    height="24"
-    stroke="currentColor"
-    strokeWidth="2"
-    fill="none"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-  </svg>
-);
 
 interface WelcomeClientProps {
   data: {
@@ -56,6 +38,16 @@ interface WelcomeClientProps {
 export default function WelcomeClient({ data }: WelcomeClientProps) {
   const [showBottomMenu, setShowBottomMenu] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  // Review Modal State
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewName, setReviewName] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
+  const [reviewError, setReviewError] = useState('');
 
   useEffect(() => {
     setMounted(true);
@@ -103,6 +95,45 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
   }
 
   const isShorts = data.videoUrl && (data.videoUrl.includes('/shorts/') || data.videoUrl.includes('youtube.com/shorts'));
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewName.trim()) {
+      setReviewError('Name is required');
+      return;
+    }
+    setSubmittingReview(true);
+    setReviewError('');
+    try {
+      const res = await fetch('/api/welcome-reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: reviewName,
+          rating: reviewRating,
+          comment: reviewComment,
+        }),
+      });
+      if (res.ok) {
+        setReviewSuccess(true);
+        setReviewName('');
+        setReviewRating(5);
+        setReviewComment('');
+        setTimeout(() => {
+          setReviewSuccess(false);
+          setShowReviewModal(false);
+        }, 2000);
+      } else {
+        const errData = await res.json();
+        setReviewError(errData.error || 'Failed to submit review');
+      }
+    } catch (err) {
+      console.error(err);
+      setReviewError('An unexpected error occurred.');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   const VERTICALS = [
     { name: 'Textiles & Handloom', href: '/textiles', desc: 'Premium ethnic wear & custom tailoring', color: 'border-l-4 border-amber-500' },
@@ -198,78 +229,20 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">Directions</span>
           </a>
 
-          <a 
-            href={data.feedbackUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex flex-col items-center gap-2 group"
+          <button 
+            onClick={() => setShowReviewModal(true)} 
+            className="flex flex-col items-center gap-2 group w-full"
           >
-            <div className="w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-600 transition-all duration-300 group-hover:scale-105 group-hover:bg-amber-500 group-hover:text-white shadow-sm">
+            <div className="w-14 h-14 mx-auto bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-600 transition-all duration-300 group-hover:scale-105 group-hover:bg-amber-500 group-hover:text-white shadow-sm">
               <Star className="w-6 h-6 fill-current" />
             </div>
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">Reviews</span>
-          </a>
+          </button>
         </div>
-
-        {/* ═══ ATTRACTIVE FOLLOW TO WIN CASH PRIZE SECTION ═══ */}
-        <section className="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden text-white border-2 border-pink-500/20 group animate-reveal" style={{ animationDelay: '200ms' }}>
-          <div className="absolute top-0 right-0 w-40 h-40 bg-pink-500/10 rounded-full blur-2xl pointer-events-none animate-pulse" />
-          <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-yellow-500/10 rounded-full blur-2xl pointer-events-none" />
-
-          <div className="flex justify-between items-start mb-6">
-            <div className="bg-amber-400/20 border border-amber-400/40 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-amber-300 flex items-center gap-1.5">
-              <Coins className="w-3.5 h-3.5 text-amber-400 animate-spin" /> Limited Campaign
-            </div>
-            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-amber-400 shadow-inner">
-              <Gift className="w-6 h-6 animate-bounce" />
-            </div>
-          </div>
-
-          <div className="space-y-4 relative z-10">
-            <h3 className="text-2xl font-black uppercase italic tracking-tight leading-tight flex flex-col gap-1">
-              <span>Follow Us &</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 pr-3 pb-1">
-                Win Cash Prizes!
-              </span>
-            </h3>
-            
-            <p className="text-xs text-purple-200 font-semibold leading-relaxed">
-              We appreciate your business! Follow our official handle on Instagram, stay tuned, and stand a chance to win mega cash rewards & gift vouchers.
-            </p>
-
-            <div className="grid grid-cols-3 gap-2 py-4 border-y border-white/10 text-center">
-              <div className="space-y-1">
-                <div className="text-[10px] font-black text-amber-400 uppercase">Step 1</div>
-                <div className="text-[10px] font-bold text-white/90">Click Follow</div>
-              </div>
-              <div className="space-y-1 border-x border-white/10">
-                <div className="text-[10px] font-black text-amber-400 uppercase">Step 2</div>
-                <div className="text-[10px] font-bold text-white/90">Like Reels</div>
-              </div>
-              <div className="space-y-1">
-                <div className="text-[10px] font-black text-amber-400 uppercase">Step 3</div>
-                <div className="text-[10px] font-bold text-white/90">Win Weekly</div>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <a 
-                href="https://instagram.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-full bg-gradient-to-r from-amber-400 to-orange-500 text-white font-black text-xs uppercase tracking-widest py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20 hover:-translate-y-0.5 active:scale-95 group/btn relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover/btn:animate-shimmer" />
-                <InstagramIcon className="w-5 h-5 animate-pulse" />
-                Follow us on Instagram
-              </a>
-            </div>
-          </div>
-        </section>
 
         {/* ═══ SHOPPING GUIDE VIDEO ═══ */}
         {embedVideoUrl && (
-          <section className="bg-white rounded-[2rem] overflow-hidden shadow-2xl border border-slate-100/50 animate-reveal" style={{ animationDelay: '300ms' }}>
+          <section className="bg-white rounded-[2rem] overflow-hidden shadow-2xl border border-slate-100/50 animate-reveal" style={{ animationDelay: '200ms' }}>
             <div className="p-6 border-b border-slate-50 flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
                 <Video className="w-5 h-5" />
@@ -289,33 +262,29 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
         )}
 
         {/* ═══ CUSTOMER FEEDBACK LINK ═══ */}
-        {data.feedbackUrl && (
-          <section className="bg-gradient-to-br from-[#FEF9E7] to-[#FDF2E9] rounded-[2rem] p-6 shadow-2xl border border-amber-200/50 relative overflow-hidden group transition-all duration-300 hover:shadow-amber-100/50 animate-reveal" style={{ animationDelay: '350ms' }}>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/10 rotate-45 translate-x-12 -translate-y-12 pointer-events-none" />
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20 flex-shrink-0">
-                <Star className="w-7 h-7 fill-current text-white" />
-              </div>
-              <div className="space-y-3 flex-1">
-                <h4 className="font-black uppercase tracking-tight text-amber-950 text-sm italic">Share Your Experience</h4>
-                <p className="text-xs text-amber-900/80 leading-relaxed font-semibold">
-                  We strive to provide the best service. Please take a moment to leave a review and guide others.
-                </p>
-                <a 
-                  href={data.feedbackUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#095181] text-white text-[10px] font-black uppercase tracking-widest px-6 py-3.5 rounded-xl hover:opacity-95 transition-all shadow-lg shadow-[#095181]/25 hover:-translate-y-0.5"
-                >
-                  Write Google Review <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
+        <section className="bg-gradient-to-br from-[#FEF9E7] to-[#FDF2E9] rounded-[2rem] p-6 shadow-2xl border border-amber-200/50 relative overflow-hidden group transition-all duration-300 hover:shadow-amber-100/50 animate-reveal" style={{ animationDelay: '250ms' }}>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/10 rotate-45 translate-x-12 -translate-y-12 pointer-events-none" />
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20 flex-shrink-0 animate-pulse">
+              <Star className="w-7 h-7 fill-current text-white" />
             </div>
-          </section>
-        )}
+            <div className="space-y-3 flex-1 text-left">
+              <h4 className="font-black uppercase tracking-tight text-amber-950 text-sm italic">Share Your Experience</h4>
+              <p className="text-xs text-amber-900/80 leading-relaxed font-semibold">
+                We strive to provide the best service. Please take a moment to leave a review and guide others.
+              </p>
+              <button 
+                onClick={() => setShowReviewModal(true)}
+                className="inline-flex items-center gap-2 bg-[#095181] text-white text-[10px] font-black uppercase tracking-widest px-6 py-3.5 rounded-xl hover:opacity-95 transition-all shadow-lg shadow-[#095181]/25 hover:-translate-y-0.5"
+              >
+                Write Review <Star className="w-3.5 h-3.5 fill-current" />
+              </button>
+            </div>
+          </div>
+        </section>
 
         {/* ═══ COMPANY INTRODUCTION ═══ */}
-        <section className="bg-white rounded-[2rem] p-6 md:p-8 shadow-2xl border border-slate-100/50 space-y-4 animate-reveal" style={{ animationDelay: '400ms' }}>
+        <section className="bg-white rounded-[2rem] p-6 md:p-8 shadow-2xl border border-slate-100/50 space-y-4 animate-reveal" style={{ animationDelay: '300ms' }}>
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
               <Compass className="w-5 h-5" />
@@ -328,11 +297,11 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
         </section>
 
         {/* ═══ STORE ADDRESS ═══ */}
-        <section className="bg-white rounded-[2rem] p-6 shadow-2xl border border-slate-100/50 flex items-start gap-4 animate-reveal" style={{ animationDelay: '450ms' }}>
+        <section className="bg-white rounded-[2rem] p-6 shadow-2xl border border-slate-100/50 flex items-start gap-4 animate-reveal" style={{ animationDelay: '350ms' }}>
           <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-600 flex-shrink-0">
             <MapPin className="w-6 h-6" />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1 text-left">
             <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Our Showroom Address</h4>
             <p className="text-xs text-slate-700 font-bold leading-tight">{data.address}</p>
             {data.googleMapsUrl && (
@@ -349,7 +318,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
         </section>
 
         {/* ═══ GROUP DIVISIONS ═══ */}
-        <section className="space-y-4 animate-reveal" style={{ animationDelay: '500ms' }}>
+        <section className="space-y-4 animate-reveal" style={{ animationDelay: '400ms' }}>
           <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center">Babulal Premsons Group Verticals</h4>
           <div className="space-y-3">
             {VERTICALS.map((vert) => (
@@ -358,7 +327,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
                 href={vert.href}
                 className={`bg-white rounded-2xl p-4 shadow-lg border border-slate-100/50 hover:border-primary/20 flex items-center justify-between group transition-all duration-300 hover:-translate-y-0.5 ${vert.color}`}
               >
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 text-left">
                   <h5 className="text-xs font-black text-slate-800 uppercase tracking-tight group-hover:text-primary transition-colors">{vert.name}</h5>
                   <p className="text-[10px] text-slate-500 font-semibold">{vert.desc}</p>
                 </div>
@@ -389,7 +358,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
 
       {/* ═══ MOBILE BOTTOM NAVIGATION MENU (SLIDE-IN ON SCROLL) ═══ */}
       <div 
-        className={`fixed bottom-4 inset-x-4 z-[100] md:hidden bg-primary/95 text-white rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(9,81,129,0.3)] backdrop-blur-lg pb-safe h-16 px-4 transition-all duration-500 ease-out transform ${
+        className={`fixed bottom-4 inset-x-4 z-[90] md:hidden bg-primary/95 text-white rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(9,81,129,0.3)] backdrop-blur-lg pb-safe h-16 px-4 transition-all duration-500 ease-out transform ${
           showBottomMenu ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-28 opacity-0 scale-95 pointer-events-none'
         }`}
       >
@@ -412,15 +381,13 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
             <span className="text-[8px] font-black uppercase tracking-widest mt-1">Directions</span>
           </a>
 
-          <a 
-            href={data.feedbackUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button 
+            onClick={() => setShowReviewModal(true)}
             className="flex flex-col items-center justify-center flex-1 h-full text-white/80 active:scale-95 transition-all border-l border-white/5"
           >
             <Star className="w-5 h-5 text-amber-400 fill-current" />
             <span className="text-[8px] font-black uppercase tracking-widest mt-1">Reviews</span>
-          </a>
+          </button>
 
           <a 
             href={whatsappUrl}
@@ -441,6 +408,117 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
           </a>
         </div>
       </div>
+
+      {/* ═══ CUSTOMER REVIEW MODAL ═══ */}
+      {showReviewModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-reveal">
+          <div className="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl border border-slate-100 flex flex-col relative animate-reveal">
+            
+            {/* Modal Header */}
+            <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-gradient-to-r from-[#063352] to-primary text-white">
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5 text-amber-400 fill-current" />
+                <h3 className="font-black uppercase tracking-tight text-sm italic">Submit Feedback</h3>
+              </div>
+              <button 
+                onClick={() => setShowReviewModal(false)}
+                className="p-1 rounded-full hover:bg-white/10 transition-colors text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleReviewSubmit} className="p-6 space-y-6 text-left">
+              {reviewSuccess ? (
+                <div className="py-8 text-center space-y-4">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-600">
+                    <Star className="w-8 h-8 fill-current" />
+                  </div>
+                  <h4 className="font-black text-slate-800 uppercase tracking-tight text-base">Thank You!</h4>
+                  <p className="text-xs text-slate-500 font-semibold max-w-xs mx-auto">
+                    Your feedback has been successfully submitted. We appreciate your response.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {reviewError && (
+                    <div className="bg-red-50 text-red-800 p-4 rounded-xl text-xs font-bold border border-red-100">
+                      {reviewError}
+                    </div>
+                  )}
+
+                  {/* Name field */}
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Your Name</label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="Enter your name"
+                      value={reviewName}
+                      onChange={(e) => setReviewName(e.target.value)}
+                      className="w-full bg-[#f8fafc] border border-[#e2e8f0] focus:border-primary focus:ring-1 focus:ring-primary rounded-xl px-4 py-3 text-xs font-bold text-slate-800 outline-none transition-all"
+                    />
+                  </div>
+
+                  {/* Rating Selector */}
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Rating</label>
+                    <div className="flex items-center gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setReviewRating(star)}
+                          onMouseEnter={() => setHoveredRating(star)}
+                          onMouseLeave={() => setHoveredRating(0)}
+                          className="p-1 transition-all duration-150 transform hover:scale-125"
+                        >
+                          <Star 
+                            className={`w-8 h-8 ${
+                              star <= (hoveredRating || reviewRating) 
+                                ? 'text-amber-400 fill-current' 
+                                : 'text-slate-200'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Comments field */}
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Comments (Optional)</label>
+                    <textarea 
+                      placeholder="Share your shopping experience with us..."
+                      rows={4}
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      className="w-full bg-[#f8fafc] border border-[#e2e8f0] focus:border-primary focus:ring-1 focus:ring-primary rounded-xl px-4 py-3 text-xs font-bold text-slate-800 outline-none transition-all"
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={submittingReview}
+                    className="w-full bg-[#095181] text-white font-black text-xs uppercase tracking-widest py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg hover:shadow-[#095181]/20 active:scale-95 disabled:opacity-50"
+                  >
+                    {submittingReview ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" /> Submitting...
+                      </>
+                    ) : (
+                      'Submit Feedback'
+                    )}
+                  </button>
+                </>
+              )}
+            </form>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );

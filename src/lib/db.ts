@@ -318,6 +318,18 @@ export async function initDb() {
         console.error('Failed to seed welcome page settings:', err);
       }
 
+
+      // 10. Create Welcome Page Reviews table
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS welcome_page_reviews (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          customerName VARCHAR(255) NOT NULL,
+          rating INT NOT NULL,
+          comment TEXT,
+          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
       isDbInitialized = true;
       console.log('✅ MySQL Database and Tables initialized successfully.');
     } catch (error) {
