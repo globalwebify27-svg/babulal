@@ -39,15 +39,8 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
   const [showBottomMenu, setShowBottomMenu] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Review Modal State
-  const [showReviewModal, setShowReviewModal] = useState(false);
-  const [reviewName, setReviewName] = useState('');
-  const [reviewRating, setReviewRating] = useState(5);
-  const [reviewComment, setReviewComment] = useState('');
-  const [hoveredRating, setHoveredRating] = useState(0);
-  const [submittingReview, setSubmittingReview] = useState(false);
-  const [reviewSuccess, setReviewSuccess] = useState(false);
-  const [reviewError, setReviewError] = useState('');
+  // Review Options Modal State
+  const [showReviewOptionsModal, setShowReviewOptionsModal] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -96,52 +89,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
 
   const isShorts = data.videoUrl && (data.videoUrl.includes('/shorts/') || data.videoUrl.includes('youtube.com/shorts'));
 
-  const handleReviewSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!reviewName.trim()) {
-      setReviewError('Name is required');
-      return;
-    }
-    setSubmittingReview(true);
-    setReviewError('');
-    try {
-      const res = await fetch('/api/welcome-reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerName: reviewName,
-          rating: reviewRating,
-          comment: reviewComment,
-        }),
-      });
-      if (res.ok) {
-        setReviewSuccess(true);
-        setReviewName('');
-        setReviewRating(5);
-        setReviewComment('');
-        setTimeout(() => {
-          setReviewSuccess(false);
-          setShowReviewModal(false);
-        }, 2000);
-      } else {
-        const errData = await res.json();
-        setReviewError(errData.error || 'Failed to submit review');
-      }
-    } catch (err) {
-      console.error(err);
-      setReviewError('An unexpected error occurred.');
-    } finally {
-      setSubmittingReview(false);
-    }
-  };
 
-  const VERTICALS = [
-    { name: 'Textiles & Handloom', href: '/textiles', desc: 'Premium ethnic wear & custom tailoring', color: 'border-l-4 border-amber-500' },
-    { name: 'Honda Two-Wheelers', href: '/honda', desc: 'Authorized sales, service & spares', color: 'border-l-4 border-red-600' },
-    { name: 'Bajaj Motorcycles', href: '/bajaj', desc: 'Explore the performance range', color: 'border-l-4 border-blue-600' },
-    { name: 'Commercial Trucking', href: '/trucking', desc: 'Ashok Leyland commercial partner', color: 'border-l-4 border-slate-600' },
-    { name: 'Muva Industries', href: '/muva-industries', desc: 'Industrial and manufacturing solutions', color: 'border-l-4 border-emerald-600' },
-  ];
 
   return (
     <div className="bg-[#F4F6F9] min-h-screen text-slate-800 font-sans leading-relaxed selection:bg-accent selection:text-white pb-32">
@@ -230,7 +178,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
           </a>
 
           <button 
-            onClick={() => setShowReviewModal(true)} 
+            onClick={() => setShowReviewOptionsModal(true)} 
             className="flex flex-col items-center gap-2 group w-full"
           >
             <div className="w-14 h-14 mx-auto bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-600 transition-all duration-300 group-hover:scale-105 group-hover:bg-amber-500 group-hover:text-white shadow-sm">
@@ -273,12 +221,24 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
               <p className="text-xs text-amber-900/80 leading-relaxed font-semibold">
                 We strive to provide the best service. Please take a moment to leave a review and guide others.
               </p>
-              <button 
-                onClick={() => setShowReviewModal(true)}
-                className="inline-flex items-center gap-2 bg-[#095181] text-white text-[10px] font-black uppercase tracking-widest px-6 py-3.5 rounded-xl hover:opacity-95 transition-all shadow-lg shadow-[#095181]/25 hover:-translate-y-0.5"
-              >
-                Write Review <Star className="w-3.5 h-3.5 fill-current" />
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                {data.feedbackUrl && (
+                  <a 
+                    href={data.feedbackUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest px-5 py-3.5 rounded-xl hover:opacity-95 transition-all shadow-lg shadow-amber-500/25 hover:-translate-y-0.5 text-center"
+                  >
+                    Review on Google <Star className="w-3.5 h-3.5 fill-current" />
+                  </a>
+                )}
+                <a 
+                  href="/welcome/feedback"
+                  className="inline-flex items-center justify-center gap-2 bg-[#095181] text-white text-[10px] font-black uppercase tracking-widest px-5 py-3.5 rounded-xl hover:opacity-95 transition-all shadow-lg shadow-[#095181]/25 hover:-translate-y-0.5 text-center"
+                >
+                  Write Feedback <MessageCircle className="w-3.5 h-3.5" />
+                </a>
+              </div>
             </div>
           </div>
         </section>
@@ -317,27 +277,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
           </div>
         </section>
 
-        {/* ═══ GROUP DIVISIONS ═══ */}
-        <section className="space-y-4 animate-reveal" style={{ animationDelay: '400ms' }}>
-          <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center">Babulal Premsons Group Verticals</h4>
-          <div className="space-y-3">
-            {VERTICALS.map((vert) => (
-              <a 
-                key={vert.name}
-                href={vert.href}
-                className={`bg-white rounded-2xl p-4 shadow-lg border border-slate-100/50 hover:border-primary/20 flex items-center justify-between group transition-all duration-300 hover:-translate-y-0.5 ${vert.color}`}
-              >
-                <div className="space-y-0.5 text-left">
-                  <h5 className="text-xs font-black text-slate-800 uppercase tracking-tight group-hover:text-primary transition-colors">{vert.name}</h5>
-                  <p className="text-[10px] text-slate-500 font-semibold">{vert.desc}</p>
-                </div>
-                <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/5 group-hover:text-primary transition-all">
-                  <ChevronRight className="w-4 h-4" />
-                </div>
-              </a>
-            ))}
-          </div>
-        </section>
+
 
         {/* ═══ FOOTER LOGO & COPYRIGHT ═══ */}
         <footer className="text-center space-y-3 pt-6 border-t border-slate-200/50">
@@ -382,7 +322,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
           </a>
 
           <button 
-            onClick={() => setShowReviewModal(true)}
+            onClick={() => setShowReviewOptionsModal(true)}
             className="flex flex-col items-center justify-center flex-1 h-full text-white/80 active:scale-95 transition-all border-l border-white/5"
           >
             <Star className="w-5 h-5 text-amber-400 fill-current" />
@@ -409,8 +349,8 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
         </div>
       </div>
 
-      {/* ═══ CUSTOMER REVIEW MODAL ═══ */}
-      {showReviewModal && (
+      {/* ═══ CUSTOMER REVIEW SELECTION MODAL ═══ */}
+      {showReviewOptionsModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-reveal">
           <div className="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl border border-slate-100 flex flex-col relative animate-reveal">
             
@@ -418,103 +358,66 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
             <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-gradient-to-r from-[#063352] to-primary text-white">
               <div className="flex items-center gap-2">
                 <Star className="w-5 h-5 text-amber-400 fill-current" />
-                <h3 className="font-black uppercase tracking-tight text-sm italic">Submit Feedback</h3>
+                <h3 className="font-black uppercase tracking-tight text-sm italic">Share Your Experience</h3>
               </div>
               <button 
-                onClick={() => setShowReviewModal(false)}
+                onClick={() => setShowReviewOptionsModal(false)}
                 className="p-1 rounded-full hover:bg-white/10 transition-colors text-white"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Modal Form */}
-            <form onSubmit={handleReviewSubmit} className="p-6 space-y-6 text-left">
-              {reviewSuccess ? (
-                <div className="py-8 text-center space-y-4">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-600">
-                    <Star className="w-8 h-8 fill-current" />
+            {/* Selection Options */}
+            <div className="p-6 space-y-4">
+              <p className="text-xs text-slate-500 font-semibold text-center mb-2">
+                How would you like to share your review? Choose an option below.
+              </p>
+
+              {/* Google Review Button */}
+              {data.feedbackUrl && (
+                <a
+                  href={data.feedbackUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setShowReviewOptionsModal(false)}
+                  className="flex items-center gap-4 p-4 rounded-2xl bg-amber-50 border border-amber-200/50 hover:bg-amber-100/50 transition-all text-left group"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-amber-500 flex items-center justify-center text-white font-black text-lg shadow-md shadow-amber-500/20">
+                    G
                   </div>
-                  <h4 className="font-black text-slate-800 uppercase tracking-tight text-base">Thank You!</h4>
-                  <p className="text-xs text-slate-500 font-semibold max-w-xs mx-auto">
-                    Your feedback has been successfully submitted. We appreciate your response.
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-tight group-hover:text-amber-700 transition-colors">
+                      Write a Google Review
+                    </h4>
+                    <p className="text-[10px] text-slate-500 font-semibold mt-0.5">
+                      Review us publicly on Google Maps
+                    </p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-amber-500" />
+                </a>
+              )}
+
+              {/* Private Feedback Button */}
+              <a
+                href="/welcome/feedback"
+                onClick={() => setShowReviewOptionsModal(false)}
+                className="flex items-center gap-4 p-4 rounded-2xl bg-[#095181]/5 border border-[#095181]/10 hover:bg-[#095181]/10 transition-all text-left group"
+              >
+                <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-white shadow-md shadow-primary/20">
+                  <MessageCircle className="w-6 h-6" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-tight group-hover:text-primary transition-colors">
+                    Submit Store Feedback
+                  </h4>
+                  <p className="text-[10px] text-slate-500 font-semibold mt-0.5">
+                    Share feedback directly with our management
                   </p>
                 </div>
-              ) : (
-                <>
-                  {reviewError && (
-                    <div className="bg-red-50 text-red-800 p-4 rounded-xl text-xs font-bold border border-red-100">
-                      {reviewError}
-                    </div>
-                  )}
-
-                  {/* Name field */}
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Your Name</label>
-                    <input 
-                      type="text" 
-                      required
-                      placeholder="Enter your name"
-                      value={reviewName}
-                      onChange={(e) => setReviewName(e.target.value)}
-                      className="w-full bg-[#f8fafc] border border-[#e2e8f0] focus:border-primary focus:ring-1 focus:ring-primary rounded-xl px-4 py-3 text-xs font-bold text-slate-800 outline-none transition-all"
-                    />
-                  </div>
-
-                  {/* Rating Selector */}
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Rating</label>
-                    <div className="flex items-center gap-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setReviewRating(star)}
-                          onMouseEnter={() => setHoveredRating(star)}
-                          onMouseLeave={() => setHoveredRating(0)}
-                          className="p-1 transition-all duration-150 transform hover:scale-125"
-                        >
-                          <Star 
-                            className={`w-8 h-8 ${
-                              star <= (hoveredRating || reviewRating) 
-                                ? 'text-amber-400 fill-current' 
-                                : 'text-slate-200'
-                            }`}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Comments field */}
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Comments (Optional)</label>
-                    <textarea 
-                      placeholder="Share your shopping experience with us..."
-                      rows={4}
-                      value={reviewComment}
-                      onChange={(e) => setReviewComment(e.target.value)}
-                      className="w-full bg-[#f8fafc] border border-[#e2e8f0] focus:border-primary focus:ring-1 focus:ring-primary rounded-xl px-4 py-3 text-xs font-bold text-slate-800 outline-none transition-all"
-                    />
-                  </div>
-
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={submittingReview}
-                    className="w-full bg-[#095181] text-white font-black text-xs uppercase tracking-widest py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg hover:shadow-[#095181]/20 active:scale-95 disabled:opacity-50"
-                  >
-                    {submittingReview ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" /> Submitting...
-                      </>
-                    ) : (
-                      'Submit Feedback'
-                    )}
-                  </button>
-                </>
-              )}
-            </form>
+                <ChevronRight className="w-5 h-5 text-primary" />
+              </a>
+            </div>
 
           </div>
         </div>

@@ -324,11 +324,22 @@ export async function initDb() {
         CREATE TABLE IF NOT EXISTS welcome_page_reviews (
           id INT AUTO_INCREMENT PRIMARY KEY,
           customerName VARCHAR(255) NOT NULL,
+          mobileNumber VARCHAR(50) DEFAULT NULL,
           rating INT NOT NULL,
           comment TEXT,
           createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
+
+      try {
+        const [columns]: any = await connection.query(`SHOW COLUMNS FROM welcome_page_reviews LIKE 'mobileNumber'`);
+        if (columns.length === 0) {
+          await connection.query(`ALTER TABLE welcome_page_reviews ADD COLUMN mobileNumber VARCHAR(50) DEFAULT NULL AFTER customerName`);
+          console.log('Added mobileNumber column to welcome_page_reviews table');
+        }
+      } catch (err) {
+        console.error('Error adding mobileNumber column to welcome_page_reviews:', err);
+      }
 
       isDbInitialized = true;
       console.log('✅ MySQL Database and Tables initialized successfully.');

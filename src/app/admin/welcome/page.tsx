@@ -124,10 +124,11 @@ export default function WelcomePageAdmin() {
   const exportToCsv = () => {
     if (reviews.length === 0) return;
     
-    const headers = ['ID', 'Customer Name', 'Rating', 'Comment', 'Date Submitted'];
+    const headers = ['ID', 'Customer Name', 'Mobile Number', 'Rating', 'Comment', 'Date Submitted'];
     const rows = reviews.map(r => [
       r.id,
       `"${r.customerName.replace(/"/g, '""')}"`,
+      `"${(r.mobileNumber || '').replace(/"/g, '""')}"`,
       r.rating,
       `"${(r.comment || '').replace(/"/g, '""')}"`,
       new Date(r.createdAt).toLocaleString()
@@ -547,7 +548,7 @@ export default function WelcomePageAdmin() {
                           </div>
                         </div>
                         <p className="text-xs text-primary/40 font-semibold uppercase tracking-widest mt-1">
-                          ID: #{rev.id} &bull; Received {new Date(rev.createdAt).toLocaleString()}
+                          ID: #{rev.id} &bull; Mobile: {rev.mobileNumber || 'N/A'} &bull; Received {new Date(rev.createdAt).toLocaleString()}
                         </p>
                       </div>
                     </div>

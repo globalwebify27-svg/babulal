@@ -71,7 +71,12 @@ export default function MobileBottomMenu({ categories = [] }: MobileBottomMenuPr
           </button>
 
           {/* SCROLLING MIDDLE: Real categories from DB */}
-          <div className="flex-1 overflow-x-auto no-scrollbar flex items-center gap-2 px-3 h-full">
+          <div 
+            className="flex-1 overflow-x-auto no-scrollbar flex items-center gap-2 px-3 h-full overscroll-x-contain touch-pan-x"
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+          >
             {displayCategories.map((cat) => {
               const active = pathname === `/textiles/category/${cat.slug}`;
               return (
