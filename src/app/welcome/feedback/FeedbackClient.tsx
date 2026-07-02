@@ -201,7 +201,12 @@ export default function FeedbackClient({ data }: FeedbackClientProps) {
 
               {/* Rating Selector */}
               <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Give us your rating *</label>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400">Give us your rating *</label>
+                  <span className="text-[10px] font-black text-[#095181] uppercase tracking-wider">
+                    {rating === 5 ? 'Excellent' : rating === 4 ? 'Good' : rating === 3 ? 'Average' : rating === 2 ? 'Poor' : 'Very Poor'}
+                  </span>
+                </div>
                 <div className="flex items-center gap-2.5 bg-[#f8fafc] p-4 rounded-xl border border-slate-100">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -221,9 +226,6 @@ export default function FeedbackClient({ data }: FeedbackClientProps) {
                       />
                     </button>
                   ))}
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider ml-auto">
-                    {rating === 5 ? 'Excellent' : rating === 4 ? 'Good' : rating === 3 ? 'Average' : rating === 2 ? 'Poor' : 'Very Poor'}
-                  </span>
                 </div>
               </div>
 
