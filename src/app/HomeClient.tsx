@@ -256,7 +256,7 @@ export default function GroupHomepage() {
                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent" />
                 <div className="absolute bottom-10 left-10 z-10">
                   <span className="text-accent text-[9px] font-black uppercase tracking-[.4em] mb-2 block">Logistics</span>
-                  <h3 className="text-white text-3xl font-black uppercase tracking-tighter">Premsons <br />Motors.</h3>
+                  <h3 className="text-white text-3xl font-black uppercase tracking-tighter">Premsons & Poddars <br />Trucking.</h3>
                 </div>
               </Link>
             </motion.div>

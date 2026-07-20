@@ -37,7 +37,7 @@ export const BUSINESS_VERTICALS = {
   },
   TRUCKING: {
     id: "trucking",
-    name: "Premsons Motors",
+    name: "Premsons & Poddars Trucking",
     industry: "Commercial Logistics",
     slug: "trucking",
     color: "#1B365D",
