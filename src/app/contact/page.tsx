@@ -12,7 +12,7 @@ export default function ContactPage() {
   const [activeVertical, setActiveVertical] = useState<VerticalID>('TEXTILES');
 
   const contactDetails = {
-    headquarters: "Babulal Premsons Group, Main Road, Ranchi, Jharkhand - 834001",
+    headquarters: "Babulal Premsons Building, Upper Bazar, Ranchi, Jharkhand - 834001",
     phone: "+91 62049 00000",
     email: "info@premsons.com",
     hours: "Monday - Saturday: 10:00 AM - 8:30 PM",
@@ -141,10 +141,10 @@ export default function ContactPage() {
               <div className="relative z-10 space-y-4">
                 <h3 className="text-lg font-black uppercase tracking-wider italic">Visit Our Headquarters</h3>
                 <p className="text-xs text-white/70 font-medium leading-relaxed">
-                  Located in the commercial heart of Ranchi, Jharkhand. Click below to view interactive navigation on Google Maps.
+                  Located at Upper Bazar, Ranchi, Jharkhand. Click below to view interactive navigation on Google Maps.
                 </p>
                 <a 
-                  href="https://maps.google.com" 
+                  href="https://maps.google.com/?q=Babulal+Premsons+Building+Upper+Bazar+Ranchi" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-accent hover:text-white transition-colors pt-2"
