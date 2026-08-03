@@ -8,7 +8,7 @@ import { Award, ShieldCheck, History, Landmark, Building2, MapPin } from 'lucide
 const TIMELINE = [
   { year: "1978", title: "The Foundation", desc: "Shri Babulal Premkumar established the first textile trading post in Main Road, Ranchi, setting the standard for quality in the region." },
   { year: "1995", title: "Automotive Expansion", desc: "Leveraging a reputation for trust, the group diversified into two-wheelers, becoming one of the most successful dealerships in Jharkhand." },
-  { year: "2010", title: "Logistics & Manufacturing", desc: "Strategic entry into Commercial Vehicles with Ashok Leyland and the birth of MUVA Industries for precision engineering." },
+  { year: "2010", title: "Logistics & Manufacturing", desc: "Strategic entry into Commercial Vehicles with Premsons Poddar Trucking and the birth of MUVA Industries for precision engineering." },
   { year: "2026", title: "Global Digital Hub", desc: "A transition toward high-end B2B exports and digital transformation of the group's operational legacy." },
 ];
 

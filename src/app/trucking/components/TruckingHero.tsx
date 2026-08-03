@@ -31,7 +31,7 @@ export default function TruckingHero({ onTestRideClick }: TruckingHeroProps) {
       >
         <Image 
           src="/vertical_trucks.png" 
-          alt="Premsons & Poddar Trucking - Ashok Leyland Fleet" 
+          alt="Premsons & Poddar Trucking Fleet" 
           fill 
           sizes="100vw"
           className="object-cover object-center scale-105"
@@ -62,7 +62,7 @@ export default function TruckingHero({ onTestRideClick }: TruckingHeroProps) {
                  className="flex items-center gap-6"
                >
                   <label className="bg-[#DA222A] text-white text-[10px] font-black uppercase tracking-[.5em] px-4 py-1">Authorized</label>
-                  <span className="text-white/60 text-[10px] font-black uppercase tracking-[.6em]">Ashok Leyland HCV Partner (since 2017)</span>
+                  <span className="text-white/60 text-[10px] font-black uppercase tracking-[.6em]">Commercial Vehicle & HCV Partner (since 2017)</span>
                </motion.div>
 
                <div className="relative">
@@ -73,7 +73,7 @@ export default function TruckingHero({ onTestRideClick }: TruckingHeroProps) {
                     transition={{ delay: 1.5, duration: 2 }}
                     className="absolute -top-20 -left-10 text-[20vw] font-black text-white/[0.03] select-none pointer-events-none leading-none italic"
                   >
-                    ASHOK
+                    TRUCKING
                   </motion.div>
 
                   <motion.h1
@@ -137,7 +137,7 @@ export default function TruckingHero({ onTestRideClick }: TruckingHeroProps) {
                {[
                  { label: 'Payload Capacity', val: '55.0T', unit: 'Metric Tons', detail: 'Class-Leading Multi-Axle Power' },
                  { label: 'State Presence', val: '9+', unit: 'Strategic Hubs', detail: 'Dominating Jharkhand Highways' },
-                 { label: 'Service Uptime', val: '24/7', unit: 'Support Lab', detail: 'Leyland-Certified Diagnostics' }
+                 { label: 'Service Uptime', val: '24/7', unit: 'Support Lab', detail: 'High-Precision Diagnostics' }
                ].map((stat, i) => (
                  <motion.div 
                    key={i}

@@ -18,7 +18,7 @@ export default function TruckingServiceExcellence() {
               Precision <br /><span className="text-[#DA222A] italic">Engineering Lab.</span>
            </h2>
            <p className="text-gray-400 text-lg font-medium italic max-w-2xl mx-auto">
-             Commercial vehicles demand clinical reliability. Our specialized service centers are equipped with advanced diagnostic labs and Ashok Leyland certified technicians to minimize downtime.
+             Commercial vehicles demand clinical reliability. Our specialized service centers are equipped with advanced diagnostic labs and certified technicians to minimize downtime.
            </p>
         </div>
 
@@ -36,7 +36,7 @@ export default function TruckingServiceExcellence() {
             },
             { 
               title: "Authorized Spares", 
-              desc: "100% Ashok Leyland Genuine parts inventory for optimal performance.",
+              desc: "100% Genuine parts inventory for optimal performance.",
               icon: ShieldCheck 
             }
           ].map((item, i) => (

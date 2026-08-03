@@ -373,7 +373,7 @@ export default function GroupHomepage() {
                     {[
                       'Babulal Premkumar Textiles',
                       'Premsons Honda & Bajaj',
-                      'Ashok Leyland Distribution',
+                      'Premsons Poddar Trucking',
                       'MUVA Engineering Hub'
                     ].map((name) => (
                       <div key={name} className="flex justify-center grayscale hover:grayscale-0 transition-all duration-500 opacity-60 hover:opacity-100">

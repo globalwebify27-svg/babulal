@@ -48,7 +48,7 @@ const TruckingHeader = ({ onTestRideClick }: TruckingHeaderProps) => {
         <div className="bg-[#073E62] text-[10px] font-black uppercase tracking-[.4em] text-white px-6 md:px-12 h-8 flex justify-between items-center transition-all duration-300">
           <div className="flex gap-8 items-center">
             <span className="flex items-center gap-2">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#DA222A]" /> Ashok Leyland M & HCV Partner
+              <ShieldCheck className="w-3.5 h-3.5 text-[#DA222A]" /> Premsons & Poddar Trucking Partner
             </span>
             <span className="hidden lg:flex items-center gap-2">
                <AlertCircle className="w-3.5 h-3.5 text-[#DA222A]" /> Best Debuted Dealer in India

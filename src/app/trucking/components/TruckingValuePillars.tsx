@@ -11,7 +11,7 @@ export default function TruckingValuePillars() {
       <div className="max-w-[1700px] mx-auto px-6 md:px-12 lg:px-24 relative z-10">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-12">
           {[
-            { title: "M & HCV Expertise", sub: "Ashok Leyland Certified", icon: ShieldCheck },
+            { title: "M & HCV Expertise", sub: "Premsons Poddar Certified", icon: ShieldCheck },
             { title: "Statewide Network", sub: "9+ Strategic Hubs", icon: Truck },
             { title: "Express Uptime", sub: "Prioritized Service Bays", icon: Zap },
             { title: "Technical Mastery", sub: "Heavy-Duty DNA", icon: Settings2 }

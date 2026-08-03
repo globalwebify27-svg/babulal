@@ -25,7 +25,7 @@ const Footer = () => {
       </div>
 
       <div className="max-w-[1700px] mx-auto px-6 md:px-12 lg:px-24 relative z-10">
-        
+
         {/* TOP TIER: BRAND & GLOBAL ACTION */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12 mb-16 lg:mb-24 border-b border-white/5 pb-16">
           <div className="w-full lg:max-w-xl text-center lg:text-left">
@@ -47,12 +47,12 @@ const Footer = () => {
 
           <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-6 lg:gap-12">
             <div className="w-full sm:w-auto bg-white/5 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/10 group hover:border-[#DA222A] transition-all duration-500 text-center sm:text-left">
-               <p className="text-[#DA222A] text-[10px] font-black uppercase tracking-[0.3em] mb-4">Institutional Desk</p>
-               <Link href="tel:+916512330000" className="text-white text-xl md:text-2xl lg:text-3xl font-black italic tracking-tighter block group-hover:text-[#DA222A] transition-colors">
-                 +91 651 233 1234
-               </Link>
+              <p className="text-[#DA222A] text-[10px] font-black uppercase tracking-[0.3em] mb-4">Institutional Desk</p>
+              <Link href="tel:+916512330000" className="text-white text-xl md:text-2xl lg:text-3xl font-black italic tracking-tighter block group-hover:text-[#DA222A] transition-colors">
+                +91 651 233 1234
+              </Link>
             </div>
-            <Link 
+            <Link
               href="/contact"
               className="w-full sm:w-auto px-10 md:px-12 py-5 md:py-6 bg-[#DA222A] text-white text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-[#073E62] transition-all duration-500 rounded-sm flex items-center justify-center shadow-2xl"
             >
@@ -63,7 +63,7 @@ const Footer = () => {
 
         {/* MIDDLE TIER: THE LINK ECOSYSTEM */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-24 mb-16 lg:mb-24 px-2 lg:px-0">
-          
+
           {/* Vertical Portfolio */}
           <div className="space-y-6 lg:space-y-8 text-center sm:text-left">
             <h4 className="text-white text-[11px] lg:text-[12px] font-black uppercase tracking-[0.4em]">Business Units</h4>
@@ -71,7 +71,7 @@ const Footer = () => {
               {[
                 { name: 'Premkumar Textiles', slug: 'textiles' },
                 { name: 'Premsons Honda', slug: 'honda' },
-                { name: 'Ashok Leyland Trucks', slug: 'trucking' },
+                { name: 'Premsons & Poddar Trucking', slug: 'trucking' },
                 { name: 'Premsons Bajaj', slug: 'bajaj' },
                 { name: 'MUVA Industries', slug: 'muva-industries' }
               ].map((unit) => (
@@ -120,7 +120,7 @@ const Footer = () => {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex gap-4 pt-6 md:pt-4 border-t border-white/5 justify-center sm:justify-start">
               {[Globe, Mail, MessageCircle, Send].map((Icon, i) => (
                 <Link key={i} href="#" className="w-10 h-10 md:w-12 md:h-12 bg-white/5 rounded-full flex items-center justify-center text-white/40 hover:bg-[#DA222A] hover:text-white transition-all duration-500 shadow-xl border border-white/10">
@@ -142,10 +142,10 @@ const Footer = () => {
               <Link href="#" className="hover:text-white transition-colors">Privacy Shield</Link>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-4 border-t md:border-t-0 pt-6 md:pt-0 w-full md:w-auto justify-center">
-             <span className="text-[#DA222A] text-[8px] md:text-[9px] font-black uppercase tracking-[0.6em] border-r border-white/10 pr-4">Institutional Red</span>
-             <span className="text-[#0A5181] text-[8px] md:text-[9px] font-black uppercase tracking-[0.6em]">Corporate Blue</span>
+            <span className="text-[#DA222A] text-[8px] md:text-[9px] font-black uppercase tracking-[0.6em] border-r border-white/10 pr-4">Institutional Red</span>
+            <span className="text-[#0A5181] text-[8px] md:text-[9px] font-black uppercase tracking-[0.6em]">Corporate Blue</span>
           </div>
         </div>
 

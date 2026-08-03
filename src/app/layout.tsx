@@ -21,7 +21,7 @@ export const viewport = {
 export const metadata: Metadata = {
   title: "Babulal Premsons Group | Legacy Since 1978",
   description: "A diverse business group with interests in Textiles, Two-Wheelers, Commercial Vehicles, and Manufacturing. Based in Ranchi, Jharkhand.",
-  keywords: "Babulal Premsons, Ranchi, Textiles, Honda Dealer, Ashok Leyland, Bajaj Auto, Manufacturing",
+  keywords: "Babulal Premsons, Ranchi, Textiles, Honda Dealer, Premsons Poddar Trucking, Bajaj Auto, Manufacturing",
   robots: "index, follow",
 };
 

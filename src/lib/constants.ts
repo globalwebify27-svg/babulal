@@ -37,13 +37,13 @@ export const BUSINESS_VERTICALS = {
   },
   TRUCKING: {
     id: "trucking",
-    name: "Premsons & Poddars Trucking",
+    name: "Premsons & Poddar Trucking",
     industry: "Commercial Logistics",
     slug: "trucking",
     color: "#1B365D",
     accent: "#DA222A",
-    tagline: "Ashok Leyland Mainline Dealer since 1995.",
-    seoPattern: "Ashok Leyland Truck Showroom Ranchi",
+    tagline: "Commercial Vehicle Logistics & Trucking Hub since 1995.",
+    seoPattern: "Premsons Poddar Trucking Showroom Ranchi",
     categories: ["HCV", "LCV", "Buses"],
     image: "/vertical_trucks.png"
   },

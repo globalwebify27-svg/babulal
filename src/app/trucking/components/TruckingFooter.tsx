@@ -87,7 +87,7 @@ const TruckingFooter = () => {
             <div className="space-y-10">
               <h4 className="text-[#DA222A] text-[11px] font-black uppercase tracking-[.4em]">Solutions</h4>
               <ul className="space-y-5">
-                {['i-Alert Telematics', 'Leyland Finance', 'Reconditioned Parts', 'Fleet Management', 'Driver Training'].map((item) => (
+                {['i-Alert Telematics', 'Fleet Finance', 'Reconditioned Parts', 'Fleet Management', 'Driver Training'].map((item) => (
                   <li key={item}>
                     <Link href="#" className="text-white/50 text-[11px] font-black uppercase tracking-widest hover:text-white transition-all flex items-center gap-3 group">
                       <div className="w-5 h-[1px] bg-[#DA222A]/30 group-hover:w-8 transition-all" />
