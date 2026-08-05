@@ -6,10 +6,10 @@ import { motion } from 'framer-motion';
 import { Award, ShieldCheck, History, Landmark, Building2, MapPin } from 'lucide-react';
 
 const TIMELINE = [
-  { year: "1978", title: "The Foundation", desc: "Shri Babulal Premkumar established the first textile trading post in Main Road, Ranchi, setting the standard for quality in the region." },
-  { year: "1995", title: "Automotive Expansion", desc: "Leveraging a reputation for trust, the group diversified into two-wheelers, becoming one of the most successful dealerships in Jharkhand." },
-  { year: "2010", title: "Logistics & Manufacturing", desc: "Strategic entry into Commercial Vehicles with Premsons Poddar Trucking and the birth of MUVA Industries for precision engineering." },
-  { year: "2026", title: "Global Digital Hub", desc: "A transition toward high-end B2B exports and digital transformation of the group's operational legacy." },
+  { year: "100+ Years", title: "The Foundation", desc: "Shri Babulal Premkumar established the first textile trading post in Main Road, Ranchi, setting the standard for quality in the region." },
+  { year: "Expansion", title: "Automotive Expansion", desc: "Leveraging a reputation for trust, the group diversified into two-wheelers, becoming one of the most successful dealerships in Jharkhand." },
+  { year: "Logistics", title: "Logistics & Manufacturing", desc: "Strategic entry into Commercial Vehicles with Premsons Poddar Trucking and the birth of MUVA Industries for precision engineering." },
+  { year: "Modern Era", title: "Global Digital Hub", desc: "A transition toward high-end B2B exports and digital transformation of the group's operational legacy." },
 ];
 
 export default function AboutPage() {
@@ -25,7 +25,7 @@ export default function AboutPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-accent text-[11px] font-bold uppercase tracking-[.4em] mb-6"
           >
-            Since 1978 — The Ranchi Legacy
+            100+ Years — The Ranchi Legacy
           </motion.h4>
           <motion.h1
             initial={{ opacity: 0, y: 40 }}

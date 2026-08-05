@@ -112,9 +112,9 @@ const BajajFooter = () => {
                     <MapPin className="w-4 h-4 text-[#DA222A]" />
                   </div>
                   <p className="text-white/60 text-xs font-medium leading-relaxed italic">
-                    Opposite Ranchi Club Complex,<br />
-                    Hindpiri, MG Main Road,<br />
-                    Ranchi - 834001
+                    Mahatma Gandhi Main Rd, near Sujata Chowk,<br />
+                    opp. Ranchi Club Complex, Hindpiri,<br />
+                    Ranchi, Jharkhand - 834001
                   </p>
                 </div>
                 <div className="flex gap-4 group cursor-default">
@@ -122,8 +122,8 @@ const BajajFooter = () => {
                     <Phone className="w-4 h-4 text-[#DA222A]" />
                   </div>
                   <p className="text-white/60 text-xs font-medium leading-relaxed italic">
-                    Sales: +91 94711 95711<br />
-                    Service: +91 94713 00000
+                    Ranchi HQ: +91 94711 95711<br />
+                    Tupudana: +91 92644 47809
                   </p>
                 </div>
               </div>

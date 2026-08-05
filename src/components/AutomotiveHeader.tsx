@@ -176,10 +176,10 @@ const AutomotiveHeader = () => {
             {/* Bottom Contact Quick Links */}
             <div className="p-8 bg-gray-50/50 mt-auto">
               <div className="flex justify-center gap-8">
-                <Link href="tel:+91" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#0A5181]">
+                <Link href="tel:+916512207555" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#0A5181]">
                   <Phone className="w-5 h-5" />
                 </Link>
-                <Link href="mailto:honda@premsons.com" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#DA222A]">
+                <Link href="mailto:Group@babulalpremsons.com" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#DA222A]">
                   <Mail className="w-5 h-5" />
                 </Link>
                 <Link href="#" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#25D366]">

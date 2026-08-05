@@ -8,27 +8,16 @@ const BAJAJ_STORES = [
   {
     city: "Ranchi",
     locations: [
-      { name: "Premsons Bajaj - Main Road (HQ)", address: "Opposite Ranchi Club Complex, Mahatma Gandhi Main Road, Ranchi - 834001", mapUrl: "https://maps.google.com/?q=Premsons+Bajaj+Main+Road+Ranchi" },
-      { name: "Premsons Bajaj - Tupudana", address: "Devi Mandap, Tupudana, Hatia, Ranchi - 834003", mapUrl: "https://maps.google.com/?q=Premsons+Bajaj+Tupudana+Ranchi" },
-      { name: "Premsons Bajaj - Namkum (Mega Service Hub)", address: "Samlong, Namkum Industrial Area, Ranchi - 834010", mapUrl: "https://maps.google.com/?q=Premsons+Bajaj+Namkum+Ranchi" }
+      { name: "Premsons Bajaj - Main Showroom", address: "Mahatma Gandhi Main Rd, near Sujata Chowk, opp. Ranchi Club Complex, Hindpiri, Ranchi, Jharkhand - 834001", mapUrl: "https://maps.google.com/?q=Premsons+Bajaj+Ranchi" },
+      { name: "Premsons Bajaj - Tupudana", address: "Hatia Rd, Pugudu, Tupudana, Ranchi, Jharkhand - 834003", mapUrl: "https://maps.google.com/?q=Premsons+Bajaj+Tupudana" },
+      { name: "Premsons Bajaj - BIT Mesra", address: "Near BIT Mesra, Ranchi", mapUrl: "https://maps.google.com/?q=Premsons+Bajaj+BIT+Mesra" },
+      { name: "Premsons Bajaj - Nagri", address: "Nagri, Ranchi", mapUrl: "https://maps.google.com/?q=Premsons+Bajaj+Nagri" }
     ]
   },
   {
     city: "Khunti",
     locations: [
-      { name: "Premsons Bajaj - Khunti", address: "Khunti-Ranchi Road, Khunti (Sales and Service)", mapUrl: "https://maps.google.com/?q=Premsons+Bajaj+Khunti" }
-    ]
-  },
-  {
-    city: "Ramgarh",
-    locations: [
-      { name: "Premsons Bajaj - Ramgarh", address: "Main Road, Ramgarh (Sales and Service)", mapUrl: "https://maps.google.com/?q=Premsons+Bajaj+Ramgarh" }
-    ]
-  },
-  {
-    city: "Silli",
-    locations: [
-      { name: "Premsons Bajaj - Silli Outlet", address: "Silli Main Road, Opposite Saheb Bandh Talab, Silli, Ranchi District", mapUrl: "https://maps.google.com/?q=Premsons+Bajaj+Silli" }
+      { name: "Premsons Bajaj - Khunti", address: "Piratoli, Main Rd, Mishra Colony, Khunti, Jharkhand - 835210", mapUrl: "https://maps.google.com/?q=Premsons+Bajaj+Khunti" }
     ]
   }
 ];
@@ -37,26 +26,7 @@ const TRUCKING_STORES = [
   {
     city: "Ranchi",
     locations: [
-      { name: "Premsons & Poddar Trucking - Ranchi (HQ)", address: "National Highway Hub, Near Highway Junction, Ranchi", mapUrl: "https://maps.google.com/?q=Premsons+Poddar+Trucking+Ranchi" },
-      { name: "Premsons & Poddar - Kathal More", address: "Kathal More, Ranchi (Sales and Service)", mapUrl: "https://maps.google.com/?q=Premsons+Poddar+Kathal+More" }
-    ]
-  },
-  {
-    city: "Hazaribagh",
-    locations: [
-      { name: "Premsons & Poddar - Hazaribagh", address: "NH-33, Main Commercial Belt, Hazaribagh", mapUrl: "https://maps.google.com/?q=Premsons+Poddar+Hazaribagh" }
-    ]
-  },
-  {
-    city: "Daltonganj",
-    locations: [
-      { name: "Premsons & Poddar - Daltonganj", address: "Industrial Area, Bypass Road, Daltonganj", mapUrl: "https://maps.google.com/?q=Premsons+Poddar+Daltonganj" }
-    ]
-  },
-  {
-    city: "Ramgarh",
-    locations: [
-      { name: "Premsons & Poddar - Ramgarh", address: "Gola Road Crossing, Ramgarh", mapUrl: "https://maps.google.com/?q=Premsons+Poddar+Ramgarh" }
+      { name: "Premsons & Poddar Trucking - Ranchi (HQ)", address: "7CJ7+JJP, NH 20, Rampur, Ganrke, Jharkhand - 834010", mapUrl: "https://maps.google.com/?q=Premsons+Poddar+Trucking+Rampur+Ranchi" }
     ]
   }
 ];
@@ -67,7 +37,7 @@ const TEXTILE_STORES = [
     locations: [
       { 
         name: "Babulal Premkumar - Upper Bazar (HQ)", 
-        address: "Babulal Premsons Building, Upper Bazar, Ranchi, Jharkhand - 834001", 
+        address: "Babulal Premkumar Building, Upper Bazar, Ranchi, Jharkhand - 834001", 
         mapUrl: "https://www.google.com/maps/place/Babulal+Premkumar/@23.3731426,85.3212812,17z/data=!3m1!4b1!4m6!3m5!1s0x39f4e1bf745d1d33:0x73a012c9b9d71786!8m2!3d23.3731426!4d85.3212812!16s%2Fg%2F11h2m9h6bl!18m1!1e1" 
       }
     ]
@@ -88,7 +58,7 @@ const HONDA_STORES = [
   {
     city: "Ranchi",
     locations: [
-      { name: "Premsons Honda - Harmu Road (Flagship)", address: "Shanti Complex, Harmu Road, Ranchi - 834002", mapUrl: "https://maps.google.com/?q=Premsons+Honda+Harmu+Road+Ranchi" }
+      { name: "Premsons Honda - Harmu Road (Flagship)", address: "Shanti Complex, Harmu Rd, near Kishoreganj Chowk, Kumhartoli, Ranchi, Jharkhand - 834001", mapUrl: "https://maps.google.com/?q=Premsons+Honda+Harmu+Road+Ranchi" }
     ]
   },
   {
@@ -101,6 +71,12 @@ const HONDA_STORES = [
     city: "Dhanbad",
     locations: [
       { name: "Premsons Honda - Saraidhela", address: "Saraidhela, Dhanbad - 828127", mapUrl: "https://maps.google.com/?q=Premsons+Honda+Dhanbad" }
+    ]
+  },
+  {
+    city: "Chandwa",
+    locations: [
+      { name: "Premsons Honda - Chandwa Outlet", address: "Near Indira Gandhi Chowk, Ranchi-Daltonganj Main Road - 829203", mapUrl: "https://maps.google.com/?q=Premsons+Honda+Chandwa" }
     ]
   }
 ];

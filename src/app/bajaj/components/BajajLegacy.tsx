@@ -26,7 +26,7 @@ export default function BajajLegacy() {
                      Empowering <br /><span className="text-[#DA222A]">Entrepreneurs.</span>
                   </h2>
                   <p className="text-gray-500 text-base md:text-xl lg:text-2xl font-medium italic leading-relaxed max-w-2xl border-l-4 lg:border-l-8 border-[#DA222A]/10 pl-6 lg:pl-8">
-                     Since 2019, Premsons Bajaj has been the economic engine of Jharkhand, providing thousands with the tools for last-mile logistics and passenger transport.
+                      Backed by over 100 years of group legacy, Premsons Bajaj has been a premier authorized dealer of Bajaj Auto, providing thousands with the tools for last-mile logistics and passenger transport.
                   </p>
 
                   <div className="grid grid-cols-2 gap-8 pt-8">

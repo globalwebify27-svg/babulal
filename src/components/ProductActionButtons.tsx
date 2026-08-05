@@ -77,7 +77,7 @@ export default function ProductActionButtons({ verticalSlug, productName }: Prod
           }}
           className="flex-1 px-8 py-5 bg-[#0A5181] text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-sm hover:bg-accent transition-all text-center shadow-xl shadow-primary/10 group"
         >
-          Price Inquiry <span className="inline-block group-hover:translate-x-1 transition-transform">→</span>
+          Price Enquiry <span className="inline-block group-hover:translate-x-1 transition-transform">→</span>
         </button>
         <button 
           onClick={() => {
@@ -268,7 +268,7 @@ export default function ProductActionButtons({ verticalSlug, productName }: Prod
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
                         <>
-                          Send Inquiry <Send className="w-3.5 h-3.5" />
+                          Send Enquiry <Send className="w-3.5 h-3.5" />
                         </>
                       )}
                     </button>

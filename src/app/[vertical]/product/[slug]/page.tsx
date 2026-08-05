@@ -277,7 +277,7 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
                 </h1>
 
                 <p className="text-lg text-primary/60 font-medium leading-relaxed italic">
-                  {shortDesc || product.description || `Premium wholesale supply of ${product.name}. Direct from Babulal Premkumar, Ranchi's leading textile distributor since 1978.`}
+                  {shortDesc || product.description || `Premium wholesale supply of ${product.name}. Direct from Babulal Premkumar, Ranchi's leading textile distributor for over 100 years.`}
                 </p>
 
                 <ProductActionButtons

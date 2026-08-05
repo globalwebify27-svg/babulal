@@ -21,7 +21,7 @@ const Footer = () => {
         BBP
       </div>
       <div className="absolute bottom-10 left-0 text-[15vw] md:text-[10vw] font-black text-white/[0.02] select-none pointer-events-none leading-none mb-12 ml-6 md:ml-12 overflow-hidden">
-        ESTD 1917
+        100+ YEARS
       </div>
 
       <div className="max-w-[1700px] mx-auto px-6 md:px-12 lg:px-24 relative z-10">
@@ -41,22 +41,22 @@ const Footer = () => {
               />
             </div>
             <p className="text-white/40 text-base md:text-lg font-medium italic leading-relaxed max-w-md mx-auto lg:mx-0">
-              The Ultimate House of Brands — A Diversified Industrial Legacy Engineering Success Across Five Generations Since 1978.
+              The Ultimate House of Brands — A Diversified Industrial Legacy Engineering Success Across Five Generations For Over 100 Years.
             </p>
           </div>
 
           <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-6 lg:gap-12">
             <div className="w-full sm:w-auto bg-white/5 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/10 group hover:border-[#DA222A] transition-all duration-500 text-center sm:text-left">
               <p className="text-[#DA222A] text-[10px] font-black uppercase tracking-[0.3em] mb-4">Institutional Desk</p>
-              <Link href="tel:+916512330000" className="text-white text-xl md:text-2xl lg:text-3xl font-black italic tracking-tighter block group-hover:text-[#DA222A] transition-colors">
-                +91 651 233 1234
+              <Link href="tel:+916512207555" className="text-white text-xl md:text-2xl lg:text-3xl font-black italic tracking-tighter block group-hover:text-[#DA222A] transition-colors">
+                +91 651 220 7555
               </Link>
             </div>
             <Link
               href="/contact"
               className="w-full sm:w-auto px-10 md:px-12 py-5 md:py-6 bg-[#DA222A] text-white text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-[#073E62] transition-all duration-500 rounded-sm flex items-center justify-center shadow-2xl"
             >
-              Strategic Inquiry
+              Strategic Enquiry
             </Link>
           </div>
         </div>
@@ -114,7 +114,7 @@ const Footer = () => {
               <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start text-white/40 group">
                 <MapPin className="w-5 h-5 group-hover:text-[#DA222A] transition-colors shrink-0 sm:mt-1" />
                 <p className="text-xs md:text-sm font-medium italic leading-relaxed">
-                  Babulal Premsons Building,<br />
+                  Babulal Premkumar Building,<br />
                   Upper Bazar, Ranchi,<br />
                   Jharkhand - 834001, India
                 </p>

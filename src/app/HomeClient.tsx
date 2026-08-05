@@ -50,7 +50,7 @@ export default function GroupHomepage() {
             >
               <span className="w-6 lg:w-12 h-[2px] bg-accent shrink-0" />
               <span className="text-[9px] lg:text-[10px] font-black uppercase tracking-[.15em] lg:tracking-[.6em] text-white/90 whitespace-nowrap">
-                Est. 1978 — Ranchi, Jharkhand
+                100+ Years Legacy — Ranchi, Jharkhand
               </span>
             </motion.div>
 
@@ -202,7 +202,7 @@ export default function GroupHomepage() {
               </h2>
             </div>
             <p className="max-w-sm text-primary/45 text-base lg:text-lg font-medium italic leading-relaxed border-l-2 border-accent/20 pl-6 lg:pl-10">
-              India&apos;s legacy in retail textiles since 1978.
+              India&apos;s legacy in retail textiles for over 100 years.
             </p>
           </div>
 
@@ -220,7 +220,7 @@ export default function GroupHomepage() {
                 <Image src="/vertical_textiles.png" alt="Textiles" fill className="object-cover opacity-60 grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[1500ms]" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                 <div className="absolute bottom-10 lg:bottom-16 left-10 lg:left-16 z-10">
-                  <span className="text-accent text-[9px] font-black uppercase tracking-[.4em] mb-3 block">Est. 1978</span>
+                  <span className="text-accent text-[9px] font-black uppercase tracking-[.4em] mb-3 block">100+ Years Legacy</span>
                   <h3 className="text-white text-3xl lg:text-5xl font-black uppercase tracking-tighter italic">Babulal <br /><span className="text-white/40 group-hover:text-white">Premkumar.</span></h3>
                 </div>
                 <div className="absolute bottom-10 lg:bottom-16 right-10 lg:right-16">

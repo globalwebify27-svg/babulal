@@ -82,7 +82,7 @@ export default function MuvaHero() {
                  transition={{ delay: 1.8, duration: 1 }}
                  className="text-white/70 text-base font-medium italic border-l-2 border-[#DA222A] pl-8 max-w-xl leading-relaxed"
                >
-                  Defining the future of precision manufacturing in Jharkhand since 1978. Our multi-vertical facility integrates advanced CAD/CAM robotics with legacy craftsmanship.
+                  Defining the future of precision manufacturing in Jharkhand backed by over 100 years of group legacy. Our multi-vertical facility integrates advanced robotics with legacy craftsmanship.
                </motion.p>
 
                <motion.div
@@ -106,7 +106,7 @@ export default function MuvaHero() {
                      Technical Capabilities
                      <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-[#073E62] transition-all">
                         <ChevronRight className="w-3 h-3" />
-                     </div>
+                      </div>
                   </Link>
                </motion.div>
             </div>
@@ -115,8 +115,7 @@ export default function MuvaHero() {
             <div className="hidden lg:col-span-4 lg:flex flex-col gap-4">
                {[
                  { label: 'Tolerance level', val: '0.01mm', detail: 'Micron-Level Precision' },
-                 { label: 'Facility Area', val: '50K+', detail: 'Sq. Ft. Production Floor' },
-                 { label: 'Engineering Hub', val: 'CAD/CAM', detail: 'Advanced Digital Lab' }
+                 { label: 'Facility Area', val: '50K+', detail: 'Sq. Ft. Production Floor' }
                ].map((stat, i) => (
                  <motion.div 
                     key={i}

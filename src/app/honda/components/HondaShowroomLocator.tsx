@@ -15,19 +15,19 @@ const SHOWROOMS = [
     city: "Bokaro",
     address: "M-5, City Center, Sector 4, Near Jai Jawan Petrol Pump - 827004",
     details: "Full Scale Sales, Service & Spare Parts",
-    phone: "+91 97714 52801"
+    phone: "+91 97714 80360"
   },
   {
     city: "Dhanbad",
     address: "Saraidhela, Opposite Imma Bhawan, Near Big Bazar - 828127",
     details: "Authorized Honda Sales & Service Hub",
-    phone: "+91 97714 52801"
+    phone: "+91 80515 00030"
   },
   {
     city: "Chandwa",
     address: "Near Indra Gandhi Chowk, Ranchi-Daltonganj Main Road - 829203",
     details: "Strategic Sales Point for Latehar Region",
-    phone: "+91 97714 52801"
+    phone: "+91 90655 27793"
   }
 ];
 
@@ -96,12 +96,12 @@ export default function HondaShowroomLocator({ onTestRideClick }: HondaShowroomL
            <div className="flex items-center gap-8">
               <div className="flex flex-col">
                 <span className="text-white/20 text-[9px] font-black uppercase tracking-widest mb-1">Central Inquiry</span>
-                <span className="text-white text-xl font-black">+91 97714 52801</span>
+                <span className="text-white text-xl font-black">+91 651 220 7555</span>
               </div>
               <div className="w-[1px] h-10 bg-white/10 hidden md:block" />
               <div className="flex flex-col">
                 <span className="text-white/20 text-[9px] font-black uppercase tracking-widest mb-1">Corporate Email</span>
-                <span className="text-white text-xl font-black">honda@premsons.com</span>
+                <span className="text-white text-xl font-black">Group@babulalpremsons.com</span>
               </div>
            </div>
            <button 

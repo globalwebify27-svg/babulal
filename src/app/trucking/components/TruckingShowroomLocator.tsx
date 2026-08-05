@@ -5,10 +5,7 @@ import Image from 'next/image';
 import { MapPin, ArrowUpRight, Navigation, Phone, Clock } from 'lucide-react';
 
 const TRUCKING_STORES = [
-  { city: "Ranchi HQ", address: "National Highway Hub, Near Highway Junction, Ranchi", type: "Sales & Service" },
-  { city: "Hazaribagh", address: "NH-33, Main Commercial Belt, Hazaribagh", type: "Service Hub" },
-  { city: "Daltonganj", address: "Industrial Area, Bypass Road, Daltonganj", type: "Sales Outlet" },
-  { city: "Ramgarh", address: "Gola Road Crossing, Ramgarh", type: "Sales & Service" }
+  { city: "Ranchi HQ", address: "7CJ7+JJP, NH 20, Rampur, Ganrke, Jharkhand - 834010", type: "Sales, Service & Spares" }
 ];
 
 interface TruckingShowroomLocatorProps {
@@ -19,7 +16,7 @@ export default function TruckingShowroomLocator({ onTestRideClick }: TruckingSho
   return (
     <section className="py-32 lg:py-48 bg-[#073E62] relative overflow-hidden">
       {/* ═══ GEOMETRIC WATERMARK ═══ */}
-      <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ccircle cx='10' cy='10' r='1' fill='white' opacity='0.5'/%3E%3Ccircle cx='50' cy='30' r='0.8' fill='white' opacity='0.4'/%3E%3Ccircle cx='80' cy='70' r='1.2' fill='white' opacity='0.3'/%3E%3Ccircle cx='30' cy='80' r='0.6' fill='white' opacity='0.5'/%3E%3Ccircle cx='70' cy='15' r='0.9' fill='white' opacity='0.4'/%3E%3C/svg%3E\")"}} />
+      <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ccircle cx='10' cy='10' r='1' fill='white' opacity='0.5'/%3E%3Ccircle cx='50' cy='30' r='0.8' fill='white' opacity='0.4'/%3E%3Ccircle cx='80' cy='70' r='1.2' fill='white' opacity='0.3'/%3E%3Ccircle cx='30' cy='80' r='0.6' fill='white' opacity='0.5'/%3E%3Ccircle cx='70' cy='15' r='0.9' fill='white' opacity='0.4'/%3E%3C/svg%3E\")"} } />
       
       <div className="max-w-[1700px] mx-auto px-6 md:px-12 lg:px-16 xl:px-24 relative z-10">
         
@@ -27,19 +24,19 @@ export default function TruckingShowroomLocator({ onTestRideClick }: TruckingSho
            <div className="lg:col-span-5 xl:col-span-4 space-y-12">
               <div className="flex items-center gap-4">
                  <div className="w-12 h-1 bg-[#DA222A]" />
-                 <span className="text-white text-[11px] font-black uppercase tracking-[.6em]">Regional Coverage</span>
+                 <span className="text-white text-[11px] font-black uppercase tracking-[.6em]">Ranchi Showroom</span>
               </div>
               <h2 className="text-white text-5xl lg:text-6xl xl:text-7xl font-black uppercase tracking-tighter italic leading-[0.85]">
-                 Strategic <br /><span className="text-[#DA222A]">Presence.</span>
+                 Flagship <br /><span className="text-[#DA222A]">Facility.</span>
               </h2>
               <p className="text-white/40 text-lg font-medium italic border-l-2 border-white/10 pl-8 max-w-sm">
-                Operating across 9+ key industrial and highway nodes in Jharkhand to keep your fleet moving.
+                Our state-of-the-art facility in Ranchi provides commercial transport sales, clinical servicing, and genuine parts.
               </p>
               <button 
                 onClick={onTestRideClick}
                 className="group flex items-center gap-6 bg-[#DA222A] px-10 py-5 rounded-sm hover:bg-white transition-all shadow-2xl"
               >
-                 <span className="text-white group-hover:text-[#073E62] text-xs font-black uppercase tracking-[.4em] italic">Full Network Map</span>
+                 <span className="text-white group-hover:text-[#073E62] text-xs font-black uppercase tracking-[.4em] italic">Get Directions</span>
                  <Navigation className="w-5 h-5 text-white group-hover:text-[#073E62]" />
               </button>
            </div>

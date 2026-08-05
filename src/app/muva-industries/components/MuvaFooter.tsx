@@ -43,12 +43,12 @@ export default function MuvaFooter() {
                   />
                </div>
                <p className="text-white/50 text-base font-medium italic leading-relaxed max-w-md">
-                 Engineering reliability and precision across Jharkhand since 1978. A specialized manufacturing vertical of the Babulal Premsons Group.
+                 Engineering reliability and precision across Jharkhand with over 100 years of group legacy. A specialized manufacturing vertical of the Babulal Premsons Group.
                </p>
             </div>
           </div>
 
-          <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-12">
+          <div className="lg:col-span-7 grid grid-cols-2 gap-12">
              <div className="space-y-10">
                 <h4 className="text-[#DA222A] text-[11px] font-black uppercase tracking-[.4em]">Expertise</h4>
                 <ul className="space-y-5">
@@ -60,24 +60,6 @@ export default function MuvaFooter() {
                     </li>
                   ))}
                 </ul>
-             </div>
-
-             <div className="space-y-10">
-                <h4 className="text-[#DA222A] text-[11px] font-black uppercase tracking-[.4em]">Facility</h4>
-                <div className="space-y-8">
-                   <div className="flex gap-4">
-                      <MapPin className="w-5 h-5 text-[#DA222A] shrink-0" />
-                      <p className="text-white/60 text-xs font-medium italic leading-relaxed">
-                        MUVA Industrial Zone,<br />
-                        Tupudana Industrial Area,<br />
-                        Ranchi, Jharkhand
-                      </p>
-                   </div>
-                   <div className="flex gap-4">
-                      <Phone className="w-5 h-5 text-[#DA222A] shrink-0" />
-                      <p className="text-white/60 text-xs font-medium italic leading-relaxed">+91 651 229 0012</p>
-                   </div>
-                </div>
              </div>
 
              <div className="space-y-10">

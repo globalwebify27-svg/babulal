@@ -33,11 +33,11 @@ export default function TruckingLegacy() {
                     <div className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Best Debuted Dealer in India</div>
                  </div>
                  <div className="space-y-4">
-                    <div className="flex items-center gap-4 text-[#073E62]">
-                       <Globe className="w-8 h-8" />
-                       <span className="text-4xl font-black italic tracking-tighter">9+</span>
-                    </div>
-                    <div className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Regional Centers</div>
+                     <div className="flex items-center gap-4 text-[#073E62]">
+                        <Globe className="w-8 h-8" />
+                        <span className="text-4xl font-black italic tracking-tighter">Ranchi</span>
+                     </div>
+                     <div className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Flagship Facility</div>
                  </div>
               </div>
            </div>

@@ -8,20 +8,20 @@ const BAJAJ_LOCATIONS = [
    {
       city: "RANCHI MAIN HQ",
       type: "Flagship Experience Center",
-      address: "MG Main Road, Near Sujata Chowk, Ranchi",
+      address: "Mahatma Gandhi Main Rd, near Sujata Chowk, opp. Ranchi Club Complex, Hindpiri, Ranchi, Jharkhand - 834001",
       phone: "+91 94711 95711"
    },
    {
-      city: "NAMKUM HUB",
+      city: "TUPUDANA HUB",
       type: "Commercial Sales & Service",
-      address: "Namkum Industrial Area, Ranchi",
-      phone: "+91 94711 95711"
+      address: "Hatia Rd, Pugudu, Tupudana, Ranchi, Jharkhand - 834003",
+      phone: "+91 92644 47809"
    },
    {
-      city: "SILLI REGIONAL",
-      type: "District Sales Point",
-      address: "Main Market Road, Silli",
-      phone: "+91 94713 00000"
+      city: "KHUNTI REGIONAL",
+      type: "District Sales & Service Point",
+      address: "Piratoli, Main Rd, Mishra Colony, Khunti, Jharkhand - 835210",
+      phone: "+91 92644 43102"
    }
 ];
 

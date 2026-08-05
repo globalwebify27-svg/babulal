@@ -34,7 +34,7 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [marqueeTexts, setMarqueeTexts] = useState<string[]>([
-    "Jharkhand's Leading Retail Textile Hub Since 1978",
+    "Jharkhand's Leading Retail Textile Hub For Over 100 Years",
     "Global Shipping Now Available to 50+ Countries",
     "New Bridal Collection 2026 Launching Soon"
   ]);
@@ -293,10 +293,10 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
             {/* Bottom Contact Quick Links */}
             <div className="p-8 bg-gray-50/50 mt-auto">
               <div className="flex justify-center gap-8">
-                <Link href="tel:+91" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#0A5181]">
+                <Link href="tel:+916512207555" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#0A5181]">
                   <Phone className="w-5 h-5" />
                 </Link>
-                <Link href="mailto:contact@bbp.com" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#DA222A]">
+                <Link href="mailto:Group@babulalpremsons.com" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#DA222A]">
                   <Mail className="w-5 h-5" />
                 </Link>
                 <Link href="#" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#25D366]">

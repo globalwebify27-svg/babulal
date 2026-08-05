@@ -34,16 +34,16 @@ export default function HondaLegacy() {
             {content?.heroTitle?.includes('Honda') ? content.heroTitle.split('Honda')[0] : "Ranchi's Trusted "} <br className="hidden sm:block" /><span className="text-[#DA222A]">{content?.heroTitle?.includes('Honda') ? 'Honda Powerhouse' : 'Honda Powerhouse.'}</span>
           </h2>
           <p className="text-gray-500 text-base md:text-xl lg:text-2xl font-medium max-w-4xl mx-auto italic leading-relaxed whitespace-pre-line">
-            {content?.aboutSection?.content || "We define automotive trust with transparent pricing and clinical service precision. As the largest Honda Wings dealer in Jharkhand, we bring the global standard of mobility to Ranchi."}
+            {content?.aboutSection?.content || "Premsons Honda, founded in 2012, is an authorised dealer of Honda Motorcycles and Scooters India (HMSI), with dealerships at Ranchi, Bokaro, Dhanbad & outlet at Chandwa in Jharkhand along with rural outlets across these districts."}
           </p>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-0 bg-white shadow-2xl border border-gray-100 rounded-3xl overflow-hidden">
             {[
-              { label: "Happy Customers", val: "100K+", sub: "Total Generations Served" },
-              { label: "Excellence", val: "HMSI", sub: "East Safe Riding Winner" },
-              { label: "Performance", val: "ICICI", sub: "Two Wheeler Business Award" },
-              { label: "Legacy Trust", val: "22 YRS", sub: "Authorized Honda Wings" }
+              { label: "ICICI Lombard Award", val: "2012-14", sub: "Significant Two-Wheeler Performance" },
+              { label: "IFFCO Tokio Award", val: "2013-14", sub: "Outstanding Achievement Award" },
+              { label: "HMSI Excellence", val: "2013-14", sub: "East Safe Riding Promotion Award" },
+              { label: "Key Network", val: "4 Hubs", sub: "Ranchi, Bokaro, Dhanbad & Chandwa" }
             ].map((stat, i) => (
               <div key={i} className="px-10 py-16 border-r border-b lg:border-b-0 border-gray-100 last:border-r-0 flex flex-col items-center text-center group hover:bg-[#0A5181]/5 transition-colors">
                 <span className="text-gray-400 text-[9px] font-black uppercase tracking-widest mb-4 group-hover:text-[#0A5181]">{stat.label}</span>

@@ -100,7 +100,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
         {mounted && (
           <>
             <div className="absolute top-6 left-6 text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] text-white/40 pointer-events-none select-none">
-              ESTD. 1978
+              100+ YEARS
             </div>
             <div className="absolute top-6 right-6 text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] text-white/40 pointer-events-none select-none">
               RANCHI, JH

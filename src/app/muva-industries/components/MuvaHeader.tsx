@@ -45,7 +45,7 @@ export default function MuvaHeader() {
                  <Zap className="w-3.5 h-3.5 text-[#DA222A]" /> Industry 4.0 Ready Facility
               </span>
            </div>
-           <div className="hidden sm:block text-[7px] md:text-[9px] font-black opacity-60">Est. 1978 — Engineering the Future</div>
+           <div className="hidden sm:block text-[7px] md:text-[9px] font-black opacity-60">100+ Years Legacy — Engineering the Future</div>
         </div>
       )}
 

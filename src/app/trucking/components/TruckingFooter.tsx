@@ -104,16 +104,14 @@ const TruckingFooter = () => {
                 <div className="flex gap-5">
                    <MapPin className="w-5 h-5 text-[#DA222A] shrink-0" />
                    <p className="text-white/60 text-xs font-medium italic leading-relaxed">
-                     P&P Trucking Center,<br />
-                     National Highway Hub,<br />
-                     Ranchi, Jharkhand
+                     7CJ7+JJP, NH 20, Rampur,<br />
+                     Ganrke, Jharkhand - 834010
                    </p>
                 </div>
                 <div className="flex gap-5">
                    <Phone className="w-5 h-5 text-[#DA222A] shrink-0" />
                    <p className="text-white/60 text-xs font-medium italic leading-relaxed">
-                     Sales: +91 651 220 7555<br />
-                     Support: +91 91226 60999
+                     Sales & Support: +91 651 220 7555
                    </p>
                 </div>
               </div>

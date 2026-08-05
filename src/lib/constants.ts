@@ -2,12 +2,12 @@ export const BUSINESS_VERTICALS = {
   TEXTILES: {
     id: "textiles",
     name: "Babulal Premkumar",
-    industry: "Textiles & Apparel",
+    industry: "Textiles & Garment Distribution",
     slug: "textiles",
     color: "#095181",
     accent: "#DA222A",
-    tagline: "India's Legacy in Wholesale & Retail Textiles since 1978.",
-    seoPattern: "Saree & Apparel Wholesale & Retail in Ranchi",
+    tagline: "Textile & Garment Distributors in Ranchi, Jharkhand — Serving Customers for Over 100 Years.",
+    seoPattern: "Textile & Garment Distributor in Ranchi, Jharkhand",
     categories: ["Saree", "Kurti", "Lehenga", "Suit", "Fabric"],
     image: "/vertical_textiles.png"
   },
@@ -18,8 +18,8 @@ export const BUSINESS_VERTICALS = {
     slug: "honda",
     color: "#000000",
     accent: "#DA222A",
-    tagline: "Jharkhand's Largest Authorised Honda Dealer.",
-    seoPattern: "Honda Two-Wheeler Showroom in Ranchi",
+    tagline: "Authorised Dealer of Honda Motorcycles & Scooters in Ranchi, Bokaro, Dhanbad & Chandwa.",
+    seoPattern: "Honda Two-Wheeler Showroom in Ranchi, Bokaro, Dhanbad & Chandwa",
     categories: ["Scooter", "Motorcycle", "Superbike"],
     image: "/vertical_honda.png"
   },

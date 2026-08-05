@@ -48,7 +48,7 @@ const HondaHeader = ({ onTestRideClick }: HondaHeaderProps) => {
       
       {/* ═══ TOP TECHNICAL RIBBON (CORPORATE BLUE) ═══ */}
       {!isScrolled && (
-        <div className="bg-[#0A5181] text-[10px] font-black uppercase tracking-[.4em] text-white px-6 md:px-12 h-8 flex justify-between items-center transition-all duration-300">
+        <div className="bg-[#0A5181] text-[10px] font-black uppercase tracking-[.4em] text-white px-6 md:px-12 h-8 flex justify-start items-center transition-all duration-300">
           <div className="flex gap-8 items-center">
             <span className="flex items-center gap-2">
               <AlertCircle className="w-3 h-3 text-[#DA222A]" /> Honda Authorized
@@ -56,9 +56,6 @@ const HondaHeader = ({ onTestRideClick }: HondaHeaderProps) => {
             <span className="hidden lg:flex items-center gap-2">
               <Zap className="w-3 h-3 text-[#DA222A]" /> Wings of Jharkhand
             </span>
-          </div>
-          <div className="flex gap-6 items-center">
-             <Link href="tel:+919771452801" className="hover:text-[#DA222A] transition-colors">Emergency Support: +91 9771452801</Link>
           </div>
         </div>
       )}

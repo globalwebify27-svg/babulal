@@ -110,10 +110,19 @@ const HondaFooter = () => {
                       <MapPin className="w-4 h-4 text-[#DA222A]" />
                    </div>
                    <p className="text-white/60 text-xs font-medium leading-relaxed italic">
-                     BBP Corporate Hall,<br />
-                     Near Kantatoli Chowk, Ranchi,<br />
-                     Jharkhand - 834001
+                     Shanti Complex, Harmu Rd,<br />
+                     Near Kishoreganj Chowk, Kumhartoli,<br />
+                     Ranchi, Jharkhand - 834001
                    </p>
+                </div>
+                <div className="flex gap-4 group cursor-default">
+                   <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0">
+                      <Phone className="w-4 h-4 text-[#DA222A]" />
+                   </div>
+                    <p className="text-white/60 text-xs font-medium leading-relaxed italic">
+                      Support:<br />
+                      +91 97714 52801
+                    </p>
                 </div>
                 <div className="flex gap-4 group cursor-default">
                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0">

@@ -29,7 +29,7 @@ export default function MuvaLegacy() {
 
               <div className="space-y-12">
                  <p className="text-white/60 text-xl font-medium italic border-l-4 border-[#DA222A] pl-10 max-w-xl leading-relaxed">
-                   Established in 1978, MUVA Industries began as the technical pulse of the BBP Group. For over ten decades, we have been the unseen infrastructure behind Jharkhand&apos;s industrial growth.
+                   MUVA Industries Limited is the leading manufacturer of MonoBlock Concrete Sleepers since 1988. We are the largest PSC Railway Sleeper manufacturer in Jharkhand. Apart from Railways, the company supplies to other big houses such as – Rites Limited, NTPC Limited, Bokaro Steel Plant, Durgapur Steel Plant, Electro Steels Limited, ARSS Infrastructure Projects Ltd, Sonar Bangla Cement Plant.
                  </p>
                  
                  <div className="grid md:grid-cols-2 gap-12 pt-8">
@@ -103,7 +103,7 @@ export default function MuvaLegacy() {
                   <div className="flex items-center gap-6 md:gap-12 text-[7px] md:text-[8px] font-black uppercase tracking-[.2em] md:tracking-[.3em] text-[#DA222A]">
                      <div className="flex flex-col gap-0.5 md:gap-1">
                         <span className="text-white/20">ESTABLISHED</span>
-                        <span>OCT_1978_HQ</span>
+                        <span>100_YEARS_LEGACY</span>
                      </div>
                      <div className="flex flex-col gap-0.5 md:gap-1">
                         <span className="text-white/20">PRECISION_REF</span>

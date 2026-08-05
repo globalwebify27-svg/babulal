@@ -78,7 +78,7 @@ export default function VerticalsAdminPage() {
           address: '',
           facebookPixel: { id: '', enabled: false },
           marqueeTexts: vId === 'TEXTILES' ? [
-            "Jharkhand's Leading Retail Textile Hub Since 1978",
+            "Jharkhand's Leading Retail Textile Hub For Over 100 Years",
             "Global Shipping Now Available to 50+ Countries",
             "New Bridal Collection 2026 Launching Soon"
           ] : []

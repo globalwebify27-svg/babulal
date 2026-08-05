@@ -5,10 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronRight, MapPin, Calendar, User, Phone, Mail, Clock, Navigation } from 'lucide-react';
 
 const CITIES = [
-  { name: "Ranchi", showrooms: ["Harmu Road (Flagship)", "Kishoreganj Workshop"] },
-  { name: "Bokaro", showrooms: ["City Center, Sector 4"] },
-  { name: "Dhanbad", showrooms: ["Saraidhela Hub"] },
-  { name: "Chandwa", showrooms: ["Latehar Main Road Showroom"] }
+  { name: "Ranchi", showrooms: ["Shanti Complex, Harmu Road, Near Kishoreganj Chowk, Ranchi - 834002"] },
+  { name: "Bokaro", showrooms: ["M-5, City Center, Sector 4, Near Jai Jawan Petrol Pump - 827004"] },
+  { name: "Dhanbad", showrooms: ["Saraidhela, Opposite Imma Bhawan, Near Big Bazar - 828127"] },
+  { name: "Chandwa", showrooms: ["Near Indra Gandhi Chowk, Ranchi-Daltonganj Main Road - 829203"] }
 ];
 
 const SLOTS = [

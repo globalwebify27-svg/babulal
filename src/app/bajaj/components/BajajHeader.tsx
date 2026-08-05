@@ -46,7 +46,7 @@ const BajajHeader = ({ onTestRideClick }: BajajHeaderProps) => {
 
       {/* ═══ TOP TECHNICAL RIBBON (CORPORATE BLUE) ═══ */}
       {!isScrolled && (
-        <div className="bg-[#0A5181] text-[8px] md:text-[10px] font-black uppercase tracking-[.2em] md:tracking-[.4em] text-white px-6 md:px-12 h-6 md:h-8 flex justify-between items-center transition-all duration-300">
+        <div className="bg-[#0A5181] text-[8px] md:text-[10px] font-black uppercase tracking-[.2em] md:tracking-[.4em] text-white px-6 md:px-12 h-6 md:h-8 flex justify-start items-center transition-all duration-300">
           <div className="flex gap-4 md:gap-8 items-center">
             <span className="flex items-center gap-2">
               <AlertCircle className="w-2.5 h-2.5 md:w-3 md:h-3 text-[#DA222A]" /> Bajaj Authorized
@@ -54,9 +54,6 @@ const BajajHeader = ({ onTestRideClick }: BajajHeaderProps) => {
             <span className="hidden sm:flex items-center gap-2">
               <Zap className="w-3 h-3 text-[#DA222A]" /> No. 1 in Jharkhand
             </span>
-          </div>
-          <div className="flex gap-6 items-center">
-            <Link href="tel:+919471195711" className="hover:text-[#DA222A] transition-colors">Sales: +91 94711 95711</Link>
           </div>
         </div>
       )}

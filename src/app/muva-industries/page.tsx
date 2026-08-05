@@ -20,7 +20,7 @@ export default function MuvaVerticalPage() {
         {/* ═══ DOMAINS OF ENGINEERING ═══ */}
         <MuvaValuePillars />
 
-        {/* ═══ TITANIUM ROOTS — THE 1978 LEGACY ═══ */}
+        {/* ═══ TITANIUM ROOTS — THE 100+ YEARS LEGACY ═══ */}
         <MuvaLegacy />
 
         {/* ═══ MANUFACTURING CALL TO ACTION ═══ */}

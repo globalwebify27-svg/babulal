@@ -46,16 +46,16 @@ import MobileBottomMenu from '@/components/MobileBottomMenu';
 
 const HERO_SLIDES = [
   {
-    title: "THE WORLD'S FINEST THREADS",
-    subtitle: "The Ultimate House of Brands Under One Roof",
+    title: "TEXTILE & GARMENTS DISTRIBUTOR",
+    subtitle: "One of the Oldest & Most Reputed Firms in Ranchi, Jharkhand",
     img: "/textile_factory.png",
-    accent: "A Legacy of 100+ Years"
+    accent: "Serving Customers for Over 100+ Years Across 5 Generations"
   },
   {
-    title: "WINGS OF JHARKHAND",
-    subtitle: "Five Generations of Excellence Since 1917",
+    title: "LUXURIOUS SAREES TO DURABLE DENIM",
+    subtitle: "Multi-Branded Fabrics for Women, Men & Home Furnishing",
     img: "/bridal_luxury.png",
-    accent: "Strategic Textile Leadership"
+    accent: "Best Wholesaler of Eastern India (2011 Award)"
   },
 ];
 
@@ -423,7 +423,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
           <div className="text-center mb-12 md:mb-16 px-4">
             <div className="flex items-center justify-center gap-4 md:gap-6 mb-6 md:mb-8">
               <div className="w-8 md:w-12 h-[1px] bg-[#0A5181]/20" />
-              <span className="text-[#0A5181] text-[10px] md:text-[11px] font-black uppercase tracking-[.4em] md:tracking-[.6em]">A Century of Immutable Trust</span>
+              <span className="text-[#0A5181] text-[10px] md:text-[11px] font-black uppercase tracking-[.4em] md:tracking-[.6em]">Over 100 Years & 5 Generations of Goodwill & Trust</span>
               <div className="w-8 md:w-12 h-[1px] bg-[#0A5181]/20" />
             </div>
             <h2 className="text-[#0A5181] text-4xl md:text-5xl lg:text-7xl font-black tracking-tighter leading-[1.1] mb-8 md:mb-10">
@@ -431,9 +431,9 @@ export default function TextileClient({ initialCategories, initialProducts, init
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
               {[
-                { year: "2019-20", title: "Raymond Top Retailer", region: "Bihar & Jharkhand" },
-                { year: "2018-19", title: "Raymond Growth Award", region: "Regional Winner" },
-                { year: "2021", title: "Linen Club Excellence", region: "Distribution Leadership" }
+                { year: "2011 Award", title: "Best Wholesaler of Eastern India", region: "National & Regional Performance Award" },
+                { year: "100+ Years", title: "5 Generations of Goodwill", region: "High-Level Customer Satisfaction & Trust" },
+                { year: "Multi-Branded", title: "Fabrics & Garments Hub", region: "Women's, Men's & Home Furnishing" }
               ].map((award, idx) => (
                 <div key={idx} className="bg-white p-6 border-l-4 border-[#DA222A] shadow-sm text-left">
                   <div className="text-[#DA222A] text-[9px] font-black uppercase tracking-widest mb-1">{award.year}</div>
@@ -442,8 +442,11 @@ export default function TextileClient({ initialCategories, initialProducts, init
                 </div>
               ))}
             </div>
-            <p className="text-gray-500 text-base md:text-xl lg:text-2xl font-medium max-w-4xl mx-auto italic leading-relaxed">
-              We define industry standards with a fixed-pricing strategy. From Sri Hanumanbux Ji Poddar to the 5th generation leadership, <br className="hidden lg:block" /> we service 2000+ partners across 6 states.
+            <p className="text-gray-700 text-base md:text-xl lg:text-2xl font-medium max-w-5xl mx-auto italic leading-relaxed">
+              Babulal Premkumar is a Textile and Garments Distributor in Ranchi, Jharkhand. We are one of the oldest and most reputed firms in the region of Jharkhand. We have been serving customers for over 100 years and have built great relationships with them that date back to five generations—a true proof of our goodwill, high-level customer satisfaction, and trust.
+            </p>
+            <p className="text-gray-500 text-sm md:text-base font-normal max-w-4xl mx-auto mt-6 leading-relaxed">
+              We deal with multi-branded fabrics for women, men, and home furnishing. From luxurious sarees that exude elegance to durable denim that defines durability, our textile distribution services cater to a diverse array of demands.
             </p>
           </div>
 
@@ -462,8 +465,8 @@ export default function TextileClient({ initialCategories, initialProducts, init
                 Icon: Users
               },
               {
-                pre: "Operational Since",
-                stat: "1917",
+                pre: "Operational Legacy",
+                stat: "100+ YEARS",
                 post: "Century of Immutable Trust",
                 Icon: Globe
               },
@@ -531,7 +534,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
                   </span>
                   <h4 className="text-[#0A5181] text-xs font-black uppercase tracking-[0.2em]">Our Selling Pillars</h4>
                 </div>
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Est. 1917</span>
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">100+ Years</span>
               </div>
 
               <div className="grid grid-cols-2 gap-x-6 gap-y-5">
