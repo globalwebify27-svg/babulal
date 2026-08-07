@@ -74,10 +74,14 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const product = mapProduct(rows[0])!;
   const vertical = Object.values(BUSINESS_VERTICALS).find(v => v.slug === verticalSlug);
 
+  const metaDesc = product.seo?.metaDescription || product.shortDescription || product.description?.substring(0, 160) || `Explore ${product.name} from Babulal Premsons Group (100+ Years Legacy).`;
+
   return {
     title: `${product.name} | ${vertical?.name || 'Babulal Premsons'}`,
-    description: product.seo?.metaDescription || product.description?.substring(0, 160),
+    description: metaDesc,
     openGraph: {
+      title: `${product.name} | ${vertical?.name || 'Babulal Premsons'}`,
+      description: metaDesc,
       images: product.images?.[0] ? [product.images[0]] : [],
     },
   };
