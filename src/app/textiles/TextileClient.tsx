@@ -48,7 +48,7 @@ const HERO_SLIDES = [
   {
     title: "TEXTILE & GARMENTS DISTRIBUTOR",
     subtitle: "One of the Oldest & Most Reputed Firms in Ranchi, Jharkhand",
-    img: "/textile_factory.png",
+    img: "/BabulalPremkumarHer.jpeg",
     accent: "Serving Customers for Over 100+ Years Across 5 Generations"
   },
   {

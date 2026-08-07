@@ -15,31 +15,30 @@ export default function GroupHomepage() {
       {/* ═══ HERO ═══ */}
       <section className="relative min-h-[80vh] lg:h-screen bg-primary overflow-hidden flex items-center">
 
-        {/* Cinematic Background */}
+        {/* Hero Background Image with Smooth Left Overlay */}
         <motion.div
-          initial={{ scale: 1.1, opacity: 0 }}
-          animate={{ scale: 1.02, opacity: 1 }}
-          transition={{ duration: 2.5, ease: "easeOut" }}
-          className="absolute inset-0 z-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
         >
-          <Image
-            src="/hero_rich.png"
+          {/* Image locked in exact requested position */}
+          <img
+            src="/BabulalPremkumarHer.jpeg"
             alt="Babulal Premsons Headquarters"
-            fill
-            sizes="100vw"
-            className="object-cover object-center"
-            priority
-            loading="eager"
+            className="absolute right-0 bottom-0 h-full w-auto max-w-none object-cover object-bottom translate-x-[15%]"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/75 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-primary/40" />
+
+          {/* Solid dark primary color up to 33% then rapid smooth dissolve to transparent over building */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary via-[33%] via-primary/40 via-[40%] to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent" />
         </motion.div>
 
         {/* Content */}
-        <div className="relative z-10 w-full max-w-[1700px] mx-auto px-5 sm:px-8 lg:px-24 grid lg:grid-cols-12 gap-6 lg:gap-10 items-center pt-16 lg:pt-28">
+        <div className="relative z-10 w-full max-w-[1700px] mx-auto px-5 sm:px-8 lg:px-24 flex items-center pt-16 lg:pt-28">
 
-          {/* Left: Narrative */}
-          <div className="lg:col-span-8">
+          {/* Narrative */}
+          <div className="max-w-3xl">
 
             {/* Eyebrow */}
             <motion.div
@@ -124,35 +123,6 @@ export default function GroupHomepage() {
                   <ArrowUpRight className="w-4 h-4" />
                 </div>
               </Link>
-            </motion.div>
-          </div>
-
-          {/* Right: Stats (Desktop only) */}
-          <div className="hidden lg:block lg:col-span-4 h-full relative pt-16">
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 2.5, duration: 1.2 }}
-              className="bg-white/[0.08] backdrop-blur-xl border border-white/10 p-12 relative overflow-hidden shadow-2xl"
-            >
-              <div className="absolute top-0 right-0 w-24 h-24 bg-accent/10 blur-3xl rounded-full" />
-              <div className="relative z-10 space-y-12">
-                {[
-                  { val: '100+', lbl: 'Years of Institutional Presence' },
-                  { val: '5', lbl: 'Strategic Business Verticals' },
-                  { val: '50K+', lbl: 'Network of Partners' },
-                ].map((stat) => (
-                  <div key={stat.lbl} className="group/stat">
-                    <div className="text-4xl font-black text-white tracking-tight italic mb-2 group-hover/stat:text-accent transition-colors">
-                      {stat.val}
-                    </div>
-                    <div className="text-[10px] font-black text-white/70 uppercase tracking-[.3em] leading-relaxed">
-                      {stat.lbl}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="absolute left-0 top-0 h-full w-[1px] bg-gradient-to-b from-transparent via-white/20 to-transparent" />
             </motion.div>
           </div>
         </div>
