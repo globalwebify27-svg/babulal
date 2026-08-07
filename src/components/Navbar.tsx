@@ -25,8 +25,8 @@ export default function Navbar() {
       isMobileMenuOpen 
         ? "bg-[#0A5181] py-1" 
         : isScrolled 
-          ? "bg-white shadow-sm border-accent/20 py-1" 
-          : "bg-black/20 backdrop-blur-md border-b border-white/10 py-2.5"
+          ? "bg-white shadow-sm border-b border-primary/10 py-1" 
+          : "bg-black/20 backdrop-blur-md py-2.5"
     )}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between gap-6">
 
