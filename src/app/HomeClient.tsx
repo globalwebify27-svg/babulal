@@ -22,16 +22,16 @@ export default function GroupHomepage() {
           transition={{ duration: 1.5, ease: "easeOut" }}
           className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
         >
-          {/* Image locked in exact requested position */}
+          {/* Image restored to exact requested position */}
           <img
             src="/BabulalPremkumarHer.jpeg"
             alt="Babulal Premsons Headquarters"
             className="absolute right-0 bottom-0 h-full w-auto max-w-none object-cover object-bottom translate-x-[15%]"
           />
 
-          {/* Solid dark primary color up to 33% then rapid smooth dissolve to transparent over building */}
-          <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary via-[33%] via-primary/40 via-[40%] to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent" />
+          {/* Dark overlay from left to right covering the line and fading smoothly */}
+          <div suppressHydrationWarning className="absolute inset-0 bg-gradient-to-r from-primary via-primary via-[35%] to-transparent" />
+          <div suppressHydrationWarning className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent" />
         </motion.div>
 
         {/* Content */}
