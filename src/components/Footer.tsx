@@ -13,7 +13,48 @@ import {
   MessageCircle
 } from 'lucide-react';
 
-const Footer = () => {
+const DEFAULT_TEXTILE_CATEGORIES = [
+  { name: 'Saree', href: '/textiles/category/sarees' },
+  { name: 'Lehenga', href: '/textiles/category/lehnga' },
+  { name: 'Suits', href: '/textiles/category/suits' },
+  { name: 'Kurti', href: '/textiles/category/kurtis' },
+  { name: "Women's Western Wear", href: '/textiles/category/womens-western-wear' },
+  { name: 'Kids Collection', href: '/textiles/category/kids-wear' },
+  { name: "Men's Wear", href: '/textiles/category/mens-wear' },
+  { name: 'Luggages', href: '/textiles/category/luggages' }
+];
+
+const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
+  const [categories, setCategories] = React.useState(DEFAULT_TEXTILE_CATEGORIES);
+
+  React.useEffect(() => {
+    if (categoriesProp && categoriesProp.length > 0) {
+      setCategories(categoriesProp.map((c: any) => ({
+        name: c.name,
+        href: `/textiles/category/${c.slug}`
+      })));
+      return;
+    }
+
+    async function fetchCategories() {
+      try {
+        const res = await fetch('/api/admin/categories?vertical=textiles');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setCategories(data.map((c: any) => ({
+              name: c.name,
+              href: `/textiles/category/${c.slug}`
+            })));
+          }
+        }
+      } catch (err) {
+        // Fallback to default textile categories
+      }
+    }
+    fetchCategories();
+  }, [categoriesProp]);
+
   return (
     <footer className="relative bg-[#073E62] pt-24 pb-12 overflow-hidden border-t-8 border-[#DA222A]">
       {/* ═══ INSTITUTIONAL WATERMARK ═══ */}
@@ -87,9 +128,9 @@ const Footer = () => {
           <div className="space-y-6 lg:space-y-8 text-center sm:text-left">
             <h4 className="text-white text-[11px] lg:text-[12px] font-black uppercase tracking-[0.4em]">Textile Boutique</h4>
             <div className="flex flex-col gap-3 lg:gap-4">
-              {['Elite Sarees', 'Designer Suits', 'Luxury Kurtis', 'Kids Collection', 'Retail Hub'].map((cat) => (
-                <Link key={cat} href="#" className="text-white/40 text-xs md:text-sm font-medium italic hover:text-[#DA222A] transition-colors">
-                  {cat}
+              {categories.map((item) => (
+                <Link key={item.name} href={item.href} className="text-white/40 text-xs md:text-sm font-medium italic hover:text-[#DA222A] transition-colors">
+                  {item.name}
                 </Link>
               ))}
             </div>
@@ -99,9 +140,16 @@ const Footer = () => {
           <div className="space-y-6 lg:space-y-8 text-center sm:text-left">
             <h4 className="text-white text-[11px] lg:text-[12px] font-black uppercase tracking-[0.4em]">Corporate Hub</h4>
             <div className="flex flex-col gap-3 lg:gap-4">
-              {['Our Legacy', 'Technical Specs', 'Quality Protocols', 'Global Logistics', 'Career Pipeline'].map((link) => (
-                <Link key={link} href="#" className="text-white/40 text-xs md:text-sm font-medium italic hover:text-[#DA222A] transition-colors">
-                  {link}
+              {[
+                { name: 'About Group Legacy', href: '/about' },
+                { name: 'Contact & Support', href: '/contact' },
+                { name: 'Premsons Honda', href: '/honda' },
+                { name: 'Trucking Logistics', href: '/trucking' },
+                { name: 'Premsons Bajaj', href: '/bajaj' },
+                { name: 'MUVA Industries', href: '/muva-industries' }
+              ].map((link) => (
+                <Link key={link.name} href={link.href} className="text-white/40 text-xs md:text-sm font-medium italic hover:text-[#DA222A] transition-colors">
+                  {link.name}
                 </Link>
               ))}
             </div>
@@ -111,21 +159,38 @@ const Footer = () => {
           <div className="space-y-8 text-center sm:text-left">
             <div className="space-y-6">
               <h4 className="text-white text-[11px] lg:text-[12px] font-black uppercase tracking-[0.4em]">Global H.Q.</h4>
-              <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start text-white/40 group">
+              <a 
+                href="https://maps.google.com/?q=Babulal+Premkumar+Building+Upper+Bazar+Ranchi+Jharkhand+834001" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex flex-col sm:flex-row gap-4 items-center sm:items-start text-white/40 hover:text-white group transition-colors"
+              >
                 <MapPin className="w-5 h-5 group-hover:text-[#DA222A] transition-colors shrink-0 sm:mt-1" />
                 <p className="text-xs md:text-sm font-medium italic leading-relaxed">
                   Babulal Premkumar Building,<br />
                   Upper Bazar, Ranchi,<br />
                   Jharkhand - 834001, India
                 </p>
-              </div>
+              </a>
             </div>
 
             <div className="flex gap-4 pt-6 md:pt-4 border-t border-white/5 justify-center sm:justify-start">
-              {[Globe, Mail, MessageCircle, Send].map((Icon, i) => (
-                <Link key={i} href="#" className="w-10 h-10 md:w-12 md:h-12 bg-white/5 rounded-full flex items-center justify-center text-white/40 hover:bg-[#DA222A] hover:text-white transition-all duration-500 shadow-xl border border-white/10">
-                  <Icon className="w-4 h-4 md:w-5 md:h-5" />
-                </Link>
+              {[
+                { Icon: Globe, href: '/textiles', label: 'Website' },
+                { Icon: Mail, href: 'mailto:contact@babulalpremsons.com', label: 'Email' },
+                { Icon: MessageCircle, href: 'https://wa.me/919334311111', label: 'WhatsApp', external: true },
+                { Icon: Send, href: '/contact', label: 'Enquiry' }
+              ].map((item, i) => (
+                <a
+                  key={i}
+                  href={item.href}
+                  target={item.external ? "_blank" : undefined}
+                  rel={item.external ? "noopener noreferrer" : undefined}
+                  title={item.label}
+                  className="w-10 h-10 md:w-12 md:h-12 bg-white/5 rounded-full flex items-center justify-center text-white/40 hover:bg-[#DA222A] hover:text-white transition-all duration-500 shadow-xl border border-white/10"
+                >
+                  <item.Icon className="w-4 h-4 md:w-5 md:h-5" />
+                </a>
               ))}
             </div>
           </div>
@@ -134,18 +199,12 @@ const Footer = () => {
 
         {/* BOTTOM TIER: COMPLIANCE & LEGAL */}
         <div className="pt-8 md:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-white/30 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-center">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-white/30 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-center w-full justify-between">
             <p>© 2026 Babulal Premsons Group. All Rights Reserved.</p>
-            <div className="hidden md:block w-px h-4 bg-white/10" />
             <div className="flex gap-6">
-              <Link href="#" className="hover:text-white transition-colors">Compliance Protocols</Link>
-              <Link href="#" className="hover:text-white transition-colors">Privacy Shield</Link>
+              <Link href="/about" className="hover:text-white transition-colors">Compliance Protocols</Link>
+              <Link href="/about" className="hover:text-white transition-colors">Privacy Shield</Link>
             </div>
-          </div>
-
-          <div className="flex items-center gap-4 border-t md:border-t-0 pt-6 md:pt-0 w-full md:w-auto justify-center">
-            <span className="text-[#DA222A] text-[8px] md:text-[9px] font-black uppercase tracking-[0.6em] border-r border-white/10 pr-4">Institutional Red</span>
-            <span className="text-[#0A5181] text-[8px] md:text-[9px] font-black uppercase tracking-[0.6em]">Corporate Blue</span>
           </div>
         </div>
 

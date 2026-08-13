@@ -53,69 +53,15 @@ export default function CategoryContent({
       />
 
       <main className="pt-[100px]">
-        
-        {/* ═══ REFINED CATEGORY HEADER (SS-Matched) ═══ */}
-        <section className="relative w-full h-[300px] lg:h-[400px] overflow-hidden bg-[#0A5181]">
-           <Image 
-             src={initialCategory?.image || "/bridal_luxury.png"} 
-             alt={initialCategory?.name} 
-             fill 
-             className="object-cover opacity-70"
-             priority
+        <React.Suspense fallback={<ProductSectionSkeleton initialCategory={initialCategory} />}>
+           <AsyncProductSection 
+             subCategoriesPromise={subCategoriesPromise}
+             subSubCategoriesPromise={subSubCategoriesPromise}
+             productsPromise={productsPromise}
+             initialCategory={initialCategory}
+             setIsStoreModalOpen={setIsStoreModalOpen}
            />
-           <div className="absolute inset-0 bg-black/20" />
-           
-           <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-12 flex flex-col justify-center">
-              <Link 
-                href="/textiles" 
-                onClick={() => Haptics.light()}
-                className="flex items-center gap-2 text-white/80 text-[10px] lg:text-[11px] font-black uppercase tracking-[0.3em] mb-4 hover:text-white transition-colors"
-              >
-                 <ArrowLeft className="w-4 h-4" /> BACK TO COLLECTIONS
-              </Link>
-              
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white italic uppercase tracking-tighter leading-[1] mb-6">
-                 {initialCategory?.name} COLLECTION
-              </h1>
-              
-              <p className="max-w-3xl text-sm lg:text-base text-white/90 font-medium italic leading-relaxed">
-                 {initialCategory?.description || "Discover a century of weaving excellence. From traditional handloom masterpieces to contemporary silk drapes, our collection defines the pinnacle of Indian ethnic elegance."}
-              </p>
-           </div>
-        </section>
-
-        {/* ══ FEATURED PIECES SECTION DIVIDER ══ */}
-        <section className="bg-white py-12 lg:py-16">
-           <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 pb-10">
-                 <div>
-                    <div className="w-16 h-1 bg-[#DA222A] mb-4" />
-                    <div className="text-[10px] font-black uppercase text-[#DA222A] tracking-[0.2em] mb-2">Inventory Catalog</div>
-                    <h2 className="text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-tighter italic">Featured Pieces</h2>
-                 </div>
-                 <div className="text-right">
-                    <div className="text-[10px] font-black uppercase text-accent tracking-widest">In-Store Procurement Only</div>
-                    <div className="text-[9px] font-bold uppercase text-gray-300 tracking-[0.3em] mt-1">Visit Ranchi H.Q. • Retail Hub • Lowest Price 365 Days</div>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* ══ CATALOG GRID WITH SIDEBAR ══ */}
-        <section className="bg-white pb-24">
-           <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-              <React.Suspense fallback={<ProductSectionSkeleton />}>
-                 <AsyncProductSection 
-                   subCategoriesPromise={subCategoriesPromise}
-                   subSubCategoriesPromise={subSubCategoriesPromise}
-                   productsPromise={productsPromise}
-                   initialCategory={initialCategory}
-                   setIsStoreModalOpen={setIsStoreModalOpen}
-                 />
-              </React.Suspense>
-           </div>
-        </section>
-
+        </React.Suspense>
       </main>
 
       <Footer />
@@ -140,26 +86,75 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     return dbProducts.filter((p: any) => {
       const normalize = (s: string) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, '').trim();
       const pCat = normalize(p.category);
+      if (!pCat) return false; // Prevent empty category string from matching everything
+
       const cName = normalize(initialCategory?.name);
       const cSlug = normalize(initialCategory?.slug);
-      return pCat === cName || pCat === cSlug || cName.includes(pCat) || pCat.includes(cSlug);
+
+      const stem = (str: string) => str.replace(/s$/, '');
+      const pStem = stem(pCat);
+      const cNameStem = stem(cName);
+      const cSlugStem = stem(cSlug);
+
+      return pCat === cName || pCat === cSlug || 
+             pStem === cNameStem || pStem === cSlugStem ||
+             (cNameStem.length > 3 && pStem.includes(cNameStem)) || 
+             (cSlugStem.length > 3 && pStem.includes(cSlugStem)) ||
+             (pStem.length > 3 && cNameStem.includes(pStem)) ||
+             (pStem.length > 3 && cSlugStem.includes(pStem));
     });
   }, [dbProducts, initialCategory]);
 
   const derivedSubTypes = React.useMemo(() => {
     return Array.from(new Set(
       productsInCategory.map((p: any) => p.subCategory).filter(Boolean)
-    )).map(name => ({ name, _id: name, slug: name.toLowerCase().replace(/\s+/g, '-') }));
+    )).map(name => ({ name, _id: name, slug: String(name).toLowerCase().replace(/\s+/g, '-') }));
   }, [productsInCategory]);
 
   const displaySubCategories = React.useMemo(() => {
     return dbSubCategories.length > 0 ? dbSubCategories : derivedSubTypes;
   }, [dbSubCategories, derivedSubTypes]);
 
+  const activeSubObject = React.useMemo(() => {
+    if (selectedSubs.length === 1) {
+      const subName = selectedSubs[0];
+      const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+      return displaySubCategories.find((s: any) => norm(s.name) === norm(subName)) || null;
+    }
+    return null;
+  }, [selectedSubs, displaySubCategories]);
+
+  // Dynamic Hero Header Title & Description calculation based on active subcategory selection
+  const currentHeroTitle = React.useMemo(() => {
+    if (selectedSubs.length === 1) {
+      const subName = selectedSubs[0];
+      const upper = subName.toUpperCase();
+      if (upper.includes('COLLECTION')) {
+        return upper;
+      }
+      return `${upper} COLLECTION`;
+    } else if (selectedSubs.length > 1) {
+      return `${selectedSubs.map(s => s.toUpperCase()).join(' & ')} COLLECTION`;
+    }
+    return `${initialCategory?.name?.toUpperCase() || 'CATEGORY'} COLLECTION`;
+  }, [selectedSubs, initialCategory]);
+
+  const currentHeroDescription = React.useMemo(() => {
+    if (activeSubObject?.description) {
+      return activeSubObject.description;
+    }
+    if (selectedSubs.length === 1) {
+      return `Discover our exclusive ${selectedSubs[0]} collection. Crafted with century-old weaving traditions and modern elegance for every occasion.`;
+    }
+    return initialCategory?.description || "Discover a century of weaving excellence. From traditional handloom masterpieces to contemporary silk drapes, our collection defines the pinnacle of Indian ethnic elegance.";
+  }, [activeSubObject, selectedSubs, initialCategory]);
+
   React.useEffect(() => {
     if (subParam) {
+      const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+      const targetParam = norm(subParam);
       const matchedSub = displaySubCategories.find(
-        (s: any) => s.slug === subParam || s.name.toLowerCase() === subParam.toLowerCase() || (s.slug && s.slug.replace(/\s+/g, '-').toLowerCase() === subParam.toLowerCase())
+        (s: any) => norm(s.slug) === targetParam || norm(s.name) === targetParam
       );
       if (matchedSub) {
         if (selectedSubs.length !== 1 || selectedSubs[0] !== matchedSub.name) {
@@ -175,21 +170,38 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
         setSelectedSubs([]);
       }
     }
-  }, [subParam, displaySubCategories, selectedSubs]);
+  }, [subParam, displaySubCategories]);
 
   const handleSubToggle = (subName: string, subId: string) => {
     Haptics.light();
     setSelectedSubs(prev => {
       const exists = prev.includes(subName);
+      let next: string[];
       if (exists) {
         // Clear sub-subcategories of this sub
         const subSubsForThisSub = dbSubSubCategories.filter((ss: any) => ss.subCategoryId === subId);
         const subSubNames = subSubsForThisSub.map((ss: any) => ss.name);
         setSelectedSubSubs(prevSubSubs => prevSubSubs.filter(name => !subSubNames.includes(name)));
-        return prev.filter(s => s !== subName);
+        next = prev.filter(s => s !== subName);
       } else {
-        return [...prev, subName];
+        next = [...prev, subName];
       }
+
+      // Keep address bar URL search param synchronized
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        if (next.length === 1) {
+          const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+          const subObj = displaySubCategories.find((s: any) => norm(s.name) === norm(next[0]));
+          const slug = subObj?.slug || next[0].toLowerCase().replace(/\s+/g, '-');
+          url.searchParams.set('sub', slug);
+        } else {
+          url.searchParams.delete('sub');
+        }
+        window.history.replaceState({}, '', url.toString());
+      }
+
+      return next;
     });
   };
 
@@ -206,6 +218,11 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     Haptics.medium();
     setSelectedSubs([]);
     setSelectedSubSubs([]);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('sub');
+      window.history.replaceState({}, '', url.toString());
+    }
   };
   
   const finalProducts = productsInCategory.filter((p: any) => {
@@ -233,8 +250,61 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
   });
 
   return (
-    <div className="flex flex-col lg:flex-row gap-12">
-       <aside className="lg:w-64 shrink-0">
+    <>
+      {/* ═══ REFINED CATEGORY HEADER (SS-Matched & Dynamic) ═══ */}
+      <section className="relative w-full h-[300px] lg:h-[400px] overflow-hidden bg-[#0A5181]">
+         <Image 
+           src={initialCategory?.image || "/bridal_luxury.png"} 
+           alt={initialCategory?.name} 
+           fill 
+           className="object-cover opacity-70"
+           priority
+         />
+         <div className="absolute inset-0 bg-black/20" />
+         
+         <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-12 flex flex-col justify-center">
+            <Link 
+              href="/textiles" 
+              onClick={() => Haptics.light()}
+              className="flex items-center gap-2 text-white/80 text-[10px] lg:text-[11px] font-black uppercase tracking-[0.3em] mb-4 hover:text-white transition-colors"
+            >
+               <ArrowLeft className="w-4 h-4" /> BACK TO COLLECTIONS
+            </Link>
+            
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white italic uppercase tracking-tighter leading-[1] mb-6">
+               {currentHeroTitle}
+            </h1>
+            
+            <p className="max-w-3xl text-sm lg:text-base text-white/90 font-medium italic leading-relaxed">
+               {currentHeroDescription}
+            </p>
+         </div>
+      </section>
+
+      {/* ══ FEATURED PIECES SECTION DIVIDER ══ */}
+      <section className="bg-white py-12 lg:py-16">
+         <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 pb-10">
+               <div>
+                  <div className="w-16 h-1 bg-[#DA222A] mb-4" />
+                  <div className="text-[10px] font-black uppercase text-[#DA222A] tracking-[0.2em] mb-2">Inventory Catalog</div>
+                  <h2 className="text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-tighter italic">
+                     {selectedSubs.length > 0 ? `${selectedSubs.join(', ')} Pieces` : 'Featured Pieces'}
+                  </h2>
+               </div>
+               <div className="text-right">
+                  <div className="text-[10px] font-black uppercase text-accent tracking-widest">In-Store Procurement Only</div>
+                  <div className="text-[9px] font-bold uppercase text-gray-300 tracking-[0.3em] mt-1">Visit Ranchi H.Q. • Retail Hub • Lowest Price 365 Days</div>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      {/* ══ CATALOG GRID WITH SIDEBAR ══ */}
+      <section className="bg-white pb-24">
+         <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+            <div className="flex flex-col lg:flex-row gap-12">
+               <aside className="lg:w-64 shrink-0">
           <div className="sticky top-40 space-y-12">
              <div>
                 <h3 className="text-xs font-black uppercase text-[#0A5181] border-b-2 border-gray-100 pb-2 mb-6 tracking-tight">Product Sub-Type</h3>
@@ -425,33 +495,64 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
                          Babulal Premkumar stands as a pillar of excellence in the Indian textile landscape. For over four decades, our group has anchored the textile supply chain across Jharkhand, connecting century-old weaving traditions with modern retail infrastructures. 
                       </p>
                    </div>
-                </div>
-             </div>
-          </div>
-       </div>
-    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+     </div>
+  </div>
+</section>
+</>
   );
 }
 
-function ProductSectionSkeleton() {
+function ProductSectionSkeleton({ initialCategory }: { initialCategory?: any }) {
   return (
-    <div className="flex flex-col lg:flex-row gap-12 w-full animate-pulse">
-       <aside className="lg:w-64 shrink-0 hidden lg:block space-y-4 pt-12">
-          <div className="h-4 w-full bg-gray-100 rounded mb-8" />
-          {[1,2,3,4,5].map(i => <div key={i} className="h-3 w-3/4 bg-gray-100 rounded" />)}
-       </aside>
-       <div className="flex-1 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-            <div key={i} className="group border border-gray-50 flex flex-col">
-              <div className="relative aspect-[3/4] bg-gray-100 overflow-hidden" />
-              <div className="p-5 flex flex-col gap-3">
-                 <div className="h-3 w-full bg-gray-100 rounded" />
-                 <div className="h-3 w-2/3 bg-gray-100 rounded" />
-                 <div className="h-8 w-full bg-gray-50 mt-4 rounded" />
-              </div>
+    <>
+      <section className="relative w-full h-[300px] lg:h-[400px] overflow-hidden bg-[#0A5181] animate-pulse">
+        <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-12 flex flex-col justify-center">
+          <div className="h-4 w-32 bg-white/20 rounded mb-4" />
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white/40 italic uppercase tracking-tighter leading-[1] mb-6">
+            {initialCategory?.name ? `${initialCategory.name} COLLECTION` : 'LOADING COLLECTION...'}
+          </h1>
+          <div className="h-4 w-2/3 bg-white/20 rounded" />
+        </div>
+      </section>
+
+      <section className="bg-white py-12 lg:py-16">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 pb-10">
+            <div>
+              <div className="w-16 h-1 bg-[#DA222A] mb-4" />
+              <div className="text-[10px] font-black uppercase text-[#DA222A] tracking-[0.2em] mb-2">Inventory Catalog</div>
+              <h2 className="text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-tighter italic">Featured Pieces</h2>
             </div>
-          ))}
-       </div>
-    </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white pb-24">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+          <div className="flex flex-col lg:flex-row gap-12 w-full animate-pulse">
+             <aside className="lg:w-64 shrink-0 hidden lg:block space-y-4 pt-12">
+                <div className="h-4 w-full bg-gray-100 rounded mb-8" />
+                {[1,2,3,4,5].map(i => <div key={i} className="h-3 w-3/4 bg-gray-100 rounded" />)}
+             </aside>
+             <div className="flex-1 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                  <div key={i} className="group border border-gray-50 flex flex-col">
+                    <div className="relative aspect-[3/4] bg-gray-100 overflow-hidden" />
+                    <div className="p-5 flex flex-col gap-3">
+                       <div className="h-3 w-full bg-gray-100 rounded" />
+                       <div className="h-3 w-2/3 bg-gray-100 rounded" />
+                       <div className="h-8 w-full bg-gray-50 mt-4 rounded" />
+                    </div>
+                  </div>
+                ))}
+             </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
