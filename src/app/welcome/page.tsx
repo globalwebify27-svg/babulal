@@ -18,7 +18,7 @@ async function fetchWelcomePageData() {
       introContent: 'With a legacy of over 100 years, Babulal Premsons Group is a household name in Ranchi, Jharkhand, trusted by generations for premium quality textiles, automobiles, and more.',
       videoUrl: 'https://youtube.com/shorts/pw3yuTPf31c?si=9Gtn467sTS5lUlBP',
       videoTitle: 'Experience Babulal Premkumar: Your Shopping Guide',
-      feedbackUrl: 'https://search.google.com/local/writereview?placeid=ChIJKeSLvTvh9DkRDa7qU5BsWoc',
+      feedbackUrl: 'https://bit.ly/4ivIcvv',
       contactPhone: '+91 651 220 7555',
       contactEmail: 'Group@babulalpremsons.com',
       address: 'Main Road, Ranchi, Jharkhand - 834001',
@@ -27,7 +27,10 @@ async function fetchWelcomePageData() {
     };
   }
   
-  return rows[0];
+  const data = rows[0];
+  // Force update the review link as requested
+  data.feedbackUrl = 'https://bit.ly/4ivIcvv';
+  return data;
 }
 
 export default async function CustomerWelcomePage() {

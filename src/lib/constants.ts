@@ -11,6 +11,7 @@ export const BUSINESS_VERTICALS = {
     categories: ["Saree", "Kurti", "Lehenga", "Suit", "Fabric"],
     image: "/vertical_textiles.png"
   },
+  /*
   HONDA: {
     id: "honda",
     name: "Premsons Honda",
@@ -59,6 +60,7 @@ export const BUSINESS_VERTICALS = {
     categories: ["Precision", "Casting", "Assembly"],
     image: "/vertical_manufacturing.png"
   }
+  */
 } as const;
 
 export type VerticalID = keyof typeof BUSINESS_VERTICALS;
