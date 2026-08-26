@@ -11,7 +11,9 @@ import {
   ArrowRight, 
   Loader2, 
   ShieldCheck,
-  Globe
+  Globe,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +22,7 @@ export default function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const [mounted, setMounted] = React.useState(false);
 
@@ -132,13 +135,21 @@ export default function LoginPage() {
                  <div className="relative group">
                     <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/20 group-focus-within:text-primary transition-colors" />
                     <input 
-                      type="password" 
+                      type={showPassword ? "text" : "password"}
                       required
                       className="w-full bg-surface-dim border-none rounded-2xl py-5 px-14 text-sm font-bold text-primary focus:ring-2 focus:ring-primary/10 transition-all outline-none"
                       placeholder="••••••••"
                       value={formData.password}
                       onChange={(e) => setFormData({...formData, password: e.target.value})}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-primary/20 hover:text-primary transition-colors"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
                  </div>
               </div>
 
