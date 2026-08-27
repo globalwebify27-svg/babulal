@@ -95,7 +95,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
     <div className="bg-[#F4F6F9] min-h-screen text-slate-800 font-sans leading-relaxed selection:bg-accent selection:text-white pb-32">
       
       {/* ═══ BRANDING HEADER ═══ */}
-      <header className="bg-[#063352] text-white relative overflow-hidden text-center shadow-xl w-full aspect-[9/16] flex flex-col justify-center">
+      <header className="bg-[#063352] text-white relative overflow-hidden text-center shadow-xl w-full aspect-[9/16] md:aspect-auto md:h-[80vh] flex flex-col justify-center">
         {/* Symmetrical Corner Identifiers */}
         {mounted && (
           <>
@@ -112,14 +112,26 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
         
         {/* Background Video */}
         {embedVideoUrl && embedVideoUrl.toLowerCase().endsWith('.mp4') && (
-          <video 
-            src={embedVideoUrl}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover object-center z-0"
-          />
+          <>
+            {/* Desktop Blurred Background Layer */}
+            <video 
+              src={embedVideoUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="hidden md:block absolute inset-0 w-full h-full object-cover blur-[80px] opacity-50 z-0 scale-125"
+            />
+            {/* Main Foreground Video */}
+            <video 
+              src={embedVideoUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover md:object-contain object-center z-10"
+            />
+          </>
         )}
 
         {/* Decorative elements behind video if no video */}
