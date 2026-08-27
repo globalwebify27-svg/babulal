@@ -203,6 +203,36 @@ export default function ManageCategoriesPage() {
     }
   };
 
+  const updateSubCategory = async (id: string, updates: any) => {
+    try {
+      const res = await fetch('/api/admin/sub-categories', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, ...updates })
+      });
+      if (res.ok && activeParentNode) {
+        fetchSubCategories(activeParentNode._id);
+      }
+    } catch (err) {
+      console.error('Update sub error:', err);
+    }
+  };
+
+  const updateSubSubCategory = async (id: string, updates: any) => {
+    try {
+      const res = await fetch('/api/admin/sub-sub-categories', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, ...updates })
+      });
+      if (res.ok && expandedSubId) {
+        fetchSubSubCategories(expandedSubId);
+      }
+    } catch (err) {
+      console.error('Update sub-sub error:', err);
+    }
+  };
+
   // Fetch Categories
   const fetchCategories = async () => {
     setIsRefreshing(true);
@@ -709,6 +739,16 @@ export default function ManageCategoriesPage() {
                                     <FileText className="w-4 h-4" />
                                     <input type="file" className="hidden" accept=".pdf" onChange={(e) => handleSubBrochureUpload(e, sub._id)} />
                                  </label>
+                                 <button
+                                   type="button"
+                                   onClick={() => updateSubCategory(sub._id, { status: (!sub.status || sub.status === 'Active') ? 'Inactive' : 'Active' })}
+                                   className={cn(
+                                     "text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded border transition-all",
+                                     (!sub.status || sub.status === 'Active') ? "border-green-100 text-green-600 bg-green-50" : "border-red-100 text-red-500 bg-red-50"
+                                   )}
+                                 >
+                                   {(!sub.status || sub.status === 'Active') ? 'Active' : 'Inactive'}
+                                 </button>
                                  <Trash2 
                                    onClick={() => handleDeleteSub(sub._id)}
                                    className="w-3.5 h-3.5 text-[#1a2b4b]/20 hover:text-accent cursor-pointer transition-all" 
@@ -736,6 +776,16 @@ export default function ManageCategoriesPage() {
                                      {subSubCategories.map((subSub) => (
                                        <div key={subSub._id} className="flex items-center gap-1.5 bg-white border border-gray-100 rounded-lg pl-3 pr-2 py-1.5 shadow-sm text-xs font-semibold text-[#1a2b4b] uppercase tracking-wide">
                                          <span>{subSub.name}</span>
+                                         <button
+                                           type="button"
+                                           onClick={() => updateSubSubCategory(subSub._id, { status: (!subSub.status || subSub.status === 'Active') ? 'Inactive' : 'Active' })}
+                                           className={cn(
+                                             "text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded transition-all ml-1",
+                                             (!subSub.status || subSub.status === 'Active') ? "text-green-600 bg-green-50" : "text-red-500 bg-red-50"
+                                           )}
+                                         >
+                                           {(!subSub.status || subSub.status === 'Active') ? 'ACT' : 'INA'}
+                                         </button>
                                          <button 
                                            type="button"
                                            onClick={() => handleDeleteSubSub(subSub._id)}

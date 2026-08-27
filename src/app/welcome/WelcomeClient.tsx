@@ -95,51 +95,39 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
     <div className="bg-[#F4F6F9] min-h-screen text-slate-800 font-sans leading-relaxed selection:bg-accent selection:text-white pb-32">
       
       {/* ═══ BRANDING HEADER ═══ */}
-      <header className="bg-gradient-to-b from-[#063352] to-primary text-white relative overflow-hidden py-24 px-6 text-center shadow-xl">
+      <header className="bg-[#063352] text-white relative overflow-hidden text-center shadow-xl w-full aspect-[9/16] flex flex-col justify-center">
         {/* Symmetrical Corner Identifiers */}
         {mounted && (
           <>
-            <div className="absolute top-6 left-6 text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] text-white/40 pointer-events-none select-none">
+            <div className="absolute top-6 left-6 text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] text-white/40 pointer-events-none select-none z-10">
               100+ YEARS
             </div>
-            <div className="absolute top-6 right-6 text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] text-white/40 pointer-events-none select-none">
+            <div className="absolute top-6 right-6 text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] text-white/40 pointer-events-none select-none z-10">
               RANCHI, JH
             </div>
           </>
         )}
 
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-white/[0.02] rounded-full -translate-y-1/2 pointer-events-none" />
-        <div className="absolute bottom-0 right-10 w-96 h-96 bg-accent/[0.04] rounded-full translate-y-1/2 pointer-events-none animate-pulse" />
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none z-0" />
+        
+        {/* Background Video */}
+        {embedVideoUrl && embedVideoUrl.toLowerCase().endsWith('.mp4') && (
+          <video 
+            src={embedVideoUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover object-center z-0"
+          />
+        )}
 
-        <div className="max-w-xl mx-auto relative z-10 space-y-6">
-          <div className="relative w-52 h-20 mx-auto bg-white rounded-3xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.15)] flex items-center justify-center border border-white animate-reveal">
-            <div className="relative w-full h-full">
-              <Image 
-                src="/babulal_premsons.avif" 
-                alt="Babulal Premsons Group Logo" 
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
-          </div>
-
-          <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.25em] px-4 py-1.5 rounded-full">
-            <Sparkles className="w-3 h-3 text-amber-400" /> Valued Customer Portal
-          </div>
-          
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight uppercase italic text-white leading-tight">
-            {data.welcomeTitle}
-          </h1>
-          
-          <p className="text-sm md:text-base text-white/80 leading-relaxed font-medium max-w-lg mx-auto">
-            {data.welcomeMessage}
-          </p>
-        </div>
+        {/* Decorative elements behind video if no video */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-white/[0.02] rounded-full -translate-y-1/2 pointer-events-none z-0" />
+        <div className="absolute bottom-0 right-10 w-96 h-96 bg-accent/[0.04] rounded-full translate-y-1/2 pointer-events-none animate-pulse z-0" />
       </header>
 
-      <main className="max-w-lg mx-auto px-4 -mt-10 relative z-20 space-y-8">
+      <main className="max-w-lg mx-auto px-4 -mt-6 relative z-20 space-y-8">
         
         {/* ═══ QUICK CONNECT CARD (4-COLUMNS) ═══ */}
         <div className="bg-white rounded-[2rem] p-6 shadow-2xl border border-slate-100/50 grid grid-cols-4 gap-2 text-center items-start animate-reveal" style={{ animationDelay: '100ms' }}>
@@ -188,8 +176,32 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
           </button>
         </div>
 
+        {/* ═══ WELCOME CONTENT ═══ */}
+        <section className="bg-white rounded-[2rem] p-6 md:p-8 shadow-2xl border border-slate-100/50 space-y-6 text-center animate-reveal" style={{ animationDelay: '150ms' }}>
+          <div className="relative w-48 h-16 mx-auto">
+            <Image 
+              src="/babulal_premsons.avif" 
+              alt="Babulal Premsons Group Logo" 
+              fill
+              className="object-contain"
+            />
+          </div>
+
+          <div className="inline-flex items-center gap-1.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-[0.25em] px-4 py-1.5 rounded-full">
+            <Sparkles className="w-3 h-3 text-amber-500" /> Valued Customer Portal
+          </div>
+          
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight uppercase italic text-slate-800 leading-tight">
+            {data.welcomeTitle}
+          </h1>
+          
+          <p className="text-sm text-slate-600 leading-relaxed font-medium max-w-lg mx-auto">
+            {data.welcomeMessage}
+          </p>
+        </section>
+
         {/* ═══ SHOPPING GUIDE VIDEO ═══ */}
-        {embedVideoUrl && (
+        {embedVideoUrl && !embedVideoUrl.toLowerCase().endsWith('.mp4') && (
           <section className="bg-white rounded-[2rem] overflow-hidden shadow-2xl border border-slate-100/50 animate-reveal" style={{ animationDelay: '200ms' }}>
             <div className="p-6 border-b border-slate-50 flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center text-accent">

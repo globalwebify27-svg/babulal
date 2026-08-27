@@ -30,6 +30,8 @@ async function fetchWelcomePageData() {
   const data = rows[0];
   // Force update the review link as requested
   data.feedbackUrl = 'https://bit.ly/4ivIcvv';
+  // Force update video to use local MP4
+  data.videoUrl = '/BLPK Roadmap.mp4';
   return data;
 }
 
