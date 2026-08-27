@@ -112,7 +112,8 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
   }, [productsInCategory]);
 
   const displaySubCategories = React.useMemo(() => {
-    return dbSubCategories.length > 0 ? dbSubCategories : derivedSubTypes;
+    const activeDbSubs = dbSubCategories.filter((sub: any) => sub.status !== 'Inactive');
+    return activeDbSubs.length > 0 ? activeDbSubs : derivedSubTypes;
   }, [dbSubCategories, derivedSubTypes]);
 
   const activeSubObject = React.useMemo(() => {
@@ -152,23 +153,30 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
   React.useEffect(() => {
     if (subParam) {
       const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-      const targetParam = norm(subParam);
-      const matchedSub = displaySubCategories.find(
-        (s: any) => norm(s.slug) === targetParam || norm(s.name) === targetParam
-      );
-      if (matchedSub) {
-        if (selectedSubs.length !== 1 || selectedSubs[0] !== matchedSub.name) {
-          setSelectedSubs([matchedSub.name]);
+      const slugs = subParam.split(',').map(s => norm(s));
+      const matchedNames: string[] = [];
+      
+      slugs.forEach(targetParam => {
+        const matchedSub = displaySubCategories.find(
+          (s: any) => norm(s.slug) === targetParam || norm(s.name) === targetParam
+        );
+        if (matchedSub) {
+          matchedNames.push(matchedSub.name);
         }
+      });
+
+      if (matchedNames.length > 0) {
+        setSelectedSubs(prev => {
+          if (matchedNames.sort().join(',') !== [...prev].sort().join(',')) {
+            return matchedNames;
+          }
+          return prev;
+        });
       } else {
-        if (selectedSubs.length !== 0) {
-          setSelectedSubs([]);
-        }
+        setSelectedSubs(prev => prev.length !== 0 ? [] : prev);
       }
     } else {
-      if (selectedSubs.length !== 0) {
-        setSelectedSubs([]);
-      }
+      setSelectedSubs(prev => prev.length !== 0 ? [] : prev);
     }
   }, [subParam, displaySubCategories]);
 
@@ -190,11 +198,13 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
       // Keep address bar URL search param synchronized
       if (typeof window !== 'undefined') {
         const url = new URL(window.location.href);
-        if (next.length === 1) {
-          const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-          const subObj = displaySubCategories.find((s: any) => norm(s.name) === norm(next[0]));
-          const slug = subObj?.slug || next[0].toLowerCase().replace(/\s+/g, '-');
-          url.searchParams.set('sub', slug);
+        if (next.length > 0) {
+          const slugs = next.map(n => {
+            const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+            const subObj = displaySubCategories.find((s: any) => norm(s.name) === norm(n));
+            return subObj?.slug || n.toLowerCase().replace(/\s+/g, '-');
+          });
+          url.searchParams.set('sub', slugs.join(','));
         } else {
           url.searchParams.delete('sub');
         }
@@ -319,7 +329,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
                    </li>
                    {displaySubCategories.map((sub: any) => {
                       const isActive = selectedSubs.some(s => s.toLowerCase().trim() === sub.name.toLowerCase().trim());
-                      const subSubsForThisSub = dbSubSubCategories.filter((ss: any) => ss.subCategoryId === sub._id);
+                      const subSubsForThisSub = dbSubSubCategories.filter((ss: any) => ss.subCategoryId === sub._id && ss.status !== 'Inactive');
                       
                       return (
                         <li key={sub._id} className="space-y-2">
