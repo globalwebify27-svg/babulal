@@ -40,4 +40,3 @@ test-db.js
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-*.mp4
