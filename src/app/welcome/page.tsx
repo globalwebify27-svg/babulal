@@ -19,11 +19,11 @@ async function fetchWelcomePageData() {
       videoUrl: 'https://youtube.com/shorts/pw3yuTPf31c?si=9Gtn467sTS5lUlBP',
       videoTitle: 'Experience Babulal Premkumar: Your Shopping Guide',
       feedbackUrl: 'https://bit.ly/4ivIcvv',
-      contactPhone: '+91 651 220 7555',
+      contactPhone: '+91 76679 85545',
       contactEmail: 'Group@babulalpremsons.com',
       address: 'Main Road, Ranchi, Jharkhand - 834001',
       googleMapsUrl: 'https://maps.app.goo.gl/Fu9u9U9UQVj8zYZVA',
-      whatsappNumber: '+91 651 220 7555'
+      whatsappNumber: '+91 76679 85545'
     };
   }
   
@@ -34,6 +34,9 @@ async function fetchWelcomePageData() {
   data.videoUrl = '/BLPK Roadmap.mp4';
   // Force update legacy text to use generic 100 years and correct brand name
   data.introContent = 'With a legacy of over 100 years, Babulal Premkumar is a household name in Ranchi, Jharkhand, trusted by generations for premium quality textiles, automobiles, and more.';
+  // Force update contact numbers
+  data.contactPhone = '+91 76679 85545';
+  data.whatsappNumber = '+91 76679 85545';
   return data;
 }
 

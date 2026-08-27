@@ -59,7 +59,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
 
   // Helper to format WhatsApp message link
   const cleanWhatsappNumber = data.whatsappNumber ? data.whatsappNumber.replace(/[^0-9]/g, '') : '';
-  const whatsappUrl = `https://wa.me/${cleanWhatsappNumber}?text=Hello%20Babulal%20Premkumar,%20I%20just%20visited%20your%20store!`;
+  const whatsappUrl = `https://wa.me/${cleanWhatsappNumber}?text=Hello`;
 
   // Check if videoUrl is embeddable or YouTube URL
   let embedVideoUrl = data.videoUrl;
