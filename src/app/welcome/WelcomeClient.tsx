@@ -180,8 +180,8 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
         <section className="bg-white rounded-[2rem] p-6 md:p-8 shadow-2xl border border-slate-100/50 space-y-6 text-center animate-reveal" style={{ animationDelay: '150ms' }}>
           <div className="relative w-48 h-16 mx-auto">
             <Image 
-              src="/babulal_premsons.avif" 
-              alt="Babulal Premsons Group Logo" 
+              src="/BabulalPremkumar.png" 
+              alt="Babulal Premkumar Logo" 
               fill
               className="object-contain"
             />
@@ -295,8 +295,8 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
         <footer className="text-center space-y-3 pt-6 border-t border-slate-200/50">
           <div className="relative w-36 h-10 mx-auto opacity-30 grayscale">
             <Image 
-              src="/babulal_premsons.avif" 
-              alt="Babulal Premsons Group Logo" 
+              src="/BabulalPremkumar.png" 
+              alt="Babulal Premkumar Logo" 
               fill
               className="object-contain"
             />

@@ -32,6 +32,8 @@ async function fetchWelcomePageData() {
   data.feedbackUrl = 'https://bit.ly/4ivIcvv';
   // Force update video to use local MP4
   data.videoUrl = '/BLPK Roadmap.mp4';
+  // Force update legacy text to use generic 100 years and correct brand name
+  data.introContent = 'With a legacy of over 100 years, Babulal Premkumar is a household name in Ranchi, Jharkhand, trusted by generations for premium quality textiles, automobiles, and more.';
   return data;
 }
 
