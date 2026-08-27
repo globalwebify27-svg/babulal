@@ -104,8 +104,8 @@ export default function FeedbackClient({ data }: FeedbackClientProps) {
           <div className="relative w-44 h-16 mx-auto bg-white rounded-2xl p-3 shadow-md flex items-center justify-center border border-white">
             <div className="relative w-full h-full">
               <Image 
-                src="/babulal_premsons.avif" 
-                alt="Babulal Premsons Group Logo" 
+                src="/BabulalPremkumar.png" 
+                alt="Babulal Premkumar Logo" 
                 fill
                 className="object-contain"
                 priority
