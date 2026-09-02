@@ -141,11 +141,7 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
             <div className="flex flex-col gap-3 lg:gap-4">
               {[
                 { name: 'About Group Legacy', href: '/about', isLink: true },
-                { name: 'Contact & Support', href: '/contact', isLink: true },
-                { name: 'Premsons Honda', isLink: false },
-                { name: 'Trucking Logistics', isLink: false },
-                { name: 'Premsons Bajaj', isLink: false },
-                { name: 'MUVA Industries', isLink: false }
+                { name: 'Contact & Support', href: '/contact', isLink: true }
               ].map((link) => (
                 link.isLink ? (
                   <Link key={link.name} href={link.href!} className="text-white/40 text-xs md:text-sm font-medium italic hover:text-[#DA222A] transition-colors">
