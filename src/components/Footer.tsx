@@ -89,8 +89,8 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
           <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-6 lg:gap-12">
             <div className="w-full sm:w-auto bg-white/5 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/10 group hover:border-[#DA222A] transition-all duration-500 text-center sm:text-left">
               <p className="text-[#DA222A] text-[10px] font-black uppercase tracking-[0.3em] mb-4">Institutional Desk</p>
-              <Link href="tel:+916512207555" className="text-white text-xl md:text-2xl lg:text-3xl font-black italic tracking-tighter block group-hover:text-[#DA222A] transition-colors">
-                +91 651 220 7555
+              <Link href="tel:+917667985545" className="text-white text-xl md:text-2xl lg:text-3xl font-black italic tracking-tighter block group-hover:text-[#DA222A] transition-colors">
+                +91 76679 85545
               </Link>
             </div>
             <Link
@@ -178,7 +178,7 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
               {[
                 { Icon: Globe, href: '/textiles', label: 'Website' },
                 { Icon: Mail, href: 'mailto:contact@babulalpremsons.com', label: 'Email' },
-                { Icon: MessageCircle, href: 'https://wa.me/919334311111', label: 'WhatsApp', external: true },
+                { Icon: MessageCircle, href: 'https://wa.me/917667985545?text=Hello', label: 'WhatsApp', external: true },
                 { Icon: Send, href: '/contact', label: 'Enquiry' }
               ].map((item, i) => (
                 <a

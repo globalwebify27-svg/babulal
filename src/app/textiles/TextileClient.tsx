@@ -1285,16 +1285,19 @@ export default function TextileClient({ initialCategories, initialProducts, init
       {/* Global Sticky Action Shelf — PERMANENT PIPELINE */}
       <div className="fixed right-8 bottom-10 z-[110] hidden md:flex flex-col gap-3">
         {[
-          { Icon: MessageCircle, color: "bg-[#25D366]" },
-          { Icon: Mail, color: "bg-[#DA222A]" },
-          { Icon: Phone, color: "bg-[#0A5181]" }
+          { Icon: MessageCircle, color: "bg-[#25D366]", href: "https://wa.me/917667985545?text=Hello" },
+          { Icon: Mail, color: "bg-[#DA222A]", href: "mailto:Group@babulalpremsons.com" },
+          { Icon: Phone, color: "bg-[#0A5181]", href: "tel:+917667985545" }
         ].map((item, i) => (
-          <div
+          <a
             key={i}
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
             className={`${item.color} w-11 h-11 rounded-full flex items-center justify-center text-white cursor-pointer shadow-2xl hover:scale-110 active:scale-95 transition-all border-4 border-white/20`}
           >
             <item.Icon className="w-5 h-5" />
-          </div>
+          </a>
         ))}
       </div>
 

@@ -291,15 +291,15 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
             </div>
 
             {/* Bottom Contact Quick Links */}
-            <div className="p-8 bg-gray-50/50 mt-auto">
+            <div className="px-8 pt-8 pb-28 bg-gray-50/50 mt-auto">
               <div className="flex justify-center gap-8">
-                <Link href="tel:+916512207555" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#0A5181]">
+                <Link href="tel:+917667985545" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#0A5181]">
                   <Phone className="w-5 h-5" />
                 </Link>
                 <Link href="mailto:Group@babulalpremsons.com" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#DA222A]">
                   <Mail className="w-5 h-5" />
                 </Link>
-                <Link href="#" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#25D366]">
+                <Link href="https://wa.me/917667985545?text=Hello" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-[#25D366]">
                   <MessageCircle className="w-5 h-5" />
                 </Link>
               </div>

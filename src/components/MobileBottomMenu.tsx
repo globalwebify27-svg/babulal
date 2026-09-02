@@ -32,7 +32,7 @@ export default function MobileBottomMenu({ categories = [] }: MobileBottomMenuPr
   };
 
   const handleCallAction = () => {
-    window.location.href = 'tel:+916512207555';
+    window.location.href = 'tel:+917667985545';
   };
 
   const handleCategoryClick = (cat: Category) => {
