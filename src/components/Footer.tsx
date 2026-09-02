@@ -73,7 +73,7 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
             <div className="relative w-full max-w-[300px] h-24 lg:max-w-[450px] lg:h-[140px] mb-8 mx-auto lg:mx-0">
               <Image
                 src="/babulal_premsons.avif"
-                alt="Babulal Premsons Group"
+                alt="Babulal Premkumar"
                 fill
                 sizes="(max-width: 1024px) 300px, 450px"
                 className="object-contain object-center lg:object-left brightness-0 invert"
@@ -110,16 +110,15 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
             <h4 className="text-white text-[11px] lg:text-[12px] font-black uppercase tracking-[0.4em]">Business Units</h4>
             <div className="flex flex-col gap-3 lg:gap-4">
               {[
-                { name: 'Premkumar Textiles', slug: 'textiles' },
-                { name: 'Premsons Honda', slug: 'honda' },
-                { name: 'Premsons & Poddar Trucking', slug: 'trucking' },
-                { name: 'Premsons Bajaj', slug: 'bajaj' },
-                { name: 'MUVA Industries', slug: 'muva-industries' }
+                { name: 'Premkumar Textiles' },
+                { name: 'Premsons Honda' },
+                { name: 'Premsons & Poddar Trucking' },
+                { name: 'Premsons Bajaj' },
+                { name: 'MUVA Industries' }
               ].map((unit) => (
-                <Link key={unit.name} href={`/${unit.slug}`} className="text-white/40 text-xs md:text-sm font-bold uppercase tracking-widest hover:text-[#DA222A] transition-all flex items-center justify-center sm:justify-start gap-3 group">
-                  <span className="hidden sm:block w-0 group-hover:w-4 h-[2px] bg-[#DA222A] transition-all" />
+                <div key={unit.name} className="text-white/40 text-xs md:text-sm font-bold uppercase tracking-widest flex items-center justify-center sm:justify-start gap-3">
                   {unit.name}
-                </Link>
+                </div>
               ))}
             </div>
           </div>
@@ -141,16 +140,22 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
             <h4 className="text-white text-[11px] lg:text-[12px] font-black uppercase tracking-[0.4em]">Corporate Hub</h4>
             <div className="flex flex-col gap-3 lg:gap-4">
               {[
-                { name: 'About Group Legacy', href: '/about' },
-                { name: 'Contact & Support', href: '/contact' },
-                { name: 'Premsons Honda', href: '/honda' },
-                { name: 'Trucking Logistics', href: '/trucking' },
-                { name: 'Premsons Bajaj', href: '/bajaj' },
-                { name: 'MUVA Industries', href: '/muva-industries' }
+                { name: 'About Group Legacy', href: '/about', isLink: true },
+                { name: 'Contact & Support', href: '/contact', isLink: true },
+                { name: 'Premsons Honda', isLink: false },
+                { name: 'Trucking Logistics', isLink: false },
+                { name: 'Premsons Bajaj', isLink: false },
+                { name: 'MUVA Industries', isLink: false }
               ].map((link) => (
-                <Link key={link.name} href={link.href} className="text-white/40 text-xs md:text-sm font-medium italic hover:text-[#DA222A] transition-colors">
-                  {link.name}
-                </Link>
+                link.isLink ? (
+                  <Link key={link.name} href={link.href!} className="text-white/40 text-xs md:text-sm font-medium italic hover:text-[#DA222A] transition-colors">
+                    {link.name}
+                  </Link>
+                ) : (
+                  <div key={link.name} className="text-white/40 text-xs md:text-sm font-medium italic">
+                    {link.name}
+                  </div>
+                )
               ))}
             </div>
           </div>
@@ -200,7 +205,7 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
         {/* BOTTOM TIER: COMPLIANCE & LEGAL */}
         <div className="pt-8 md:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-white/30 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-center w-full justify-between">
-            <p>© 2026 Babulal Premsons Group. All Rights Reserved.</p>
+            <p>© 2026 Babulal Premkumar. All Rights Reserved.</p>
             <div className="flex gap-6">
               <Link href="/about" className="hover:text-white transition-colors">Compliance Protocols</Link>
               <Link href="/about" className="hover:text-white transition-colors">Privacy Shield</Link>
