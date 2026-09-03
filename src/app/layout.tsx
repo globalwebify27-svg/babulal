@@ -20,12 +20,12 @@ export const viewport = {
 
 export const metadata: Metadata = {
   title: "Babulal Premkumar | 100+ Years Legacy",
-  description: "A diverse business group with interests in Textiles, Two-Wheelers, Commercial Vehicles, and Manufacturing. Based in Ranchi, Jharkhand. Over 100+ Years Legacy.",
-  keywords: "Babulal Premkumar, Ranchi, Textiles, Honda Dealer, Premsons Poddar Trucking, Bajaj Auto, Manufacturing",
+  description: "Babulal Premkumar - A premium textile destination offering an exclusive collection of Sarees, Lehengas, Suits, and more. Based in Ranchi, Jharkhand with over 100+ Years Legacy.",
+  keywords: "Babulal Premkumar, Ranchi, Textiles, Sarees, Lehengas, Suits, Kurtis, Mens Wear, Womens Western Wear, Kids Collection",
   robots: "index, follow",
   openGraph: {
     title: "Babulal Premkumar | 100+ Years Legacy",
-    description: "A diverse business group with interests in Textiles, Two-Wheelers, Commercial Vehicles, and Manufacturing. Based in Ranchi, Jharkhand. Over 100+ Years Legacy.",
+    description: "Babulal Premkumar - A premium textile destination offering an exclusive collection of Sarees, Lehengas, Suits, and more. Based in Ranchi, Jharkhand with over 100+ Years Legacy.",
     type: "website",
     locale: "en_US",
     siteName: "Babulal Premkumar",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Babulal Premkumar | 100+ Years Legacy",
-    description: "A diverse business group with interests in Textiles, Two-Wheelers, Commercial Vehicles, and Manufacturing. Based in Ranchi, Jharkhand. Over 100+ Years Legacy.",
+    description: "Babulal Premkumar - A premium textile destination offering an exclusive collection of Sarees, Lehengas, Suits, and more. Based in Ranchi, Jharkhand with over 100+ Years Legacy.",
   },
 };
 
