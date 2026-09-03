@@ -7,7 +7,8 @@ export default function FooterWrapper() {
   const pathname = usePathname();
   
   // Hide the global Footer on vertical-specific pages that have their own specialized footer
-  const shouldHide = pathname?.startsWith('/textiles') || 
+  const shouldHide = pathname === '/' ||
+                     pathname?.startsWith('/textiles') || 
                      pathname?.startsWith('/honda') || 
                      pathname?.startsWith('/bajaj') ||
                      pathname?.startsWith('/trucking') ||

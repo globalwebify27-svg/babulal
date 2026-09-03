@@ -108,8 +108,8 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
 
             <div className="flex items-center gap-4 md:gap-10">
                <div className="hidden lg:flex items-center gap-8 text-[11px] font-black uppercase tracking-widest text-gray-400">
-                 <Link href="#about" className="hover:text-red-600 transition-colors">About Us</Link>
-                 <Link href="#contact" className="hover:text-red-600 transition-colors">Contact</Link>
+                 <Link href="/about" className="hover:text-red-600 transition-colors">About Us</Link>
+                 <Link href="/contact" className="hover:text-red-600 transition-colors">Contact</Link>
                </div>
                 <button 
                   onClick={() => setIsCatalogModalOpen(true)}
@@ -231,7 +231,7 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
                 ),
                 { name: "Retail Hub", slug: "sarees", type: 'utility', href: '/textiles/category/sarees' },
                 { name: "Blog", slug: "blog", type: 'utility', href: '#blog' },
-                { name: "Contact Us", slug: "contact", type: 'utility', href: '#contact' },
+                { name: "Contact Us", slug: "contact", type: 'utility', href: '/contact' },
               ].map((item: any, i) => {
                 const isCategory = item.type === 'category';
                 const hasSubs = isCategory && item.subcategories && item.subcategories.length > 0;

@@ -4,14 +4,12 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, Shield, ArrowRight } from 'lucide-react';
-import { BUSINESS_VERTICALS } from '@/lib/constants';
+import { ChevronDown, Shield, ArrowRight, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isVerticalsOpen, setIsVerticalsOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 60);
@@ -37,14 +35,12 @@ export default function Navbar() {
             isScrolled ? "w-64 h-16 lg:w-[350px] lg:h-[84px]" : "w-60 h-14 lg:w-[320px] lg:h-[80px]"
           )}>
             <Image
-              src="/babulal_premsons.avif"
-              alt="Babulal Premsons Group"
+              src="/BabulalPremkumar.png"
+              alt="Babulal Premkumar"
               fill
               sizes="(max-width: 1024px) 320px, 400px"
               className={cn(
-                "object-contain object-left transition-all duration-700",
-                // At top or when menu is open: invert to white
-                (!isScrolled || isMobileMenuOpen) && "brightness-0 invert drop-shadow-[0_0_18px_rgba(255,255,255,0.35)]"
+                "object-contain object-left transition-all duration-700"
               )}
               priority
               loading="eager"
@@ -55,61 +51,23 @@ export default function Navbar() {
         {/* ── DESKTOP NAV ── */}
         <nav className="hidden lg:flex items-center gap-8 flex-1 justify-center">
 
-          <Link href="/about#legacy" className={cn(
+          <Link href="/" className={cn(
             "text-[11px] font-bold uppercase tracking-[.2em] transition-colors duration-300",
             isScrolled ? "text-primary/75 hover:text-primary" : "text-white/80 hover:text-white"
           )}>
-            Our Legacy
+            Home
           </Link>
-          <Link href="/about#philosophy" className={cn(
+          <Link href="/about" className={cn(
             "text-[11px] font-bold uppercase tracking-[.2em] transition-colors duration-300",
             isScrolled ? "text-primary/75 hover:text-primary" : "text-white/80 hover:text-white"
           )}>
-            Leadership
+            About Us
           </Link>
-
-          {/* VERTICALS DROPDOWN */}
-          <div
-            className="relative"
-            onMouseEnter={() => setIsVerticalsOpen(true)}
-            onMouseLeave={() => setIsVerticalsOpen(false)}
-          >
-            <button className={cn(
-              "flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[.2em] transition-colors duration-300",
-              isScrolled
-                ? isVerticalsOpen ? "text-primary" : "text-primary/55 hover:text-primary"
-                : isVerticalsOpen ? "text-white"  : "text-white/60 hover:text-white"
-            )}>
-              Businesses
-              <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-400", isVerticalsOpen && "rotate-180")} />
-            </button>
-
-            <div className={cn(
-              "absolute top-full left-1/2 -translate-x-1/2 pt-6 transition-all duration-300 origin-top",
-              isVerticalsOpen ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
-            )}>
-              {/* arrow tip */}
-              <div className="absolute top-[18px] left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rotate-45" />
-              <div className="bg-primary shadow-[0_30px_70px_rgba(0,0,0,0.5)] p-8 w-[400px] grid grid-cols-2 gap-x-6 gap-y-5 relative">
-                {Object.values(BUSINESS_VERTICALS).map((v) => (
-                  <Link
-                    key={v.id}
-                    href={`/${v.slug}`}
-                    className="group/item flex flex-col gap-0.5 pb-3 border-b border-white/[0.06] hover:border-accent/30 transition-colors"
-                  >
-                    <span className="text-[9px] font-black uppercase tracking-[.3em] text-white/30 group-hover/item:text-accent transition-colors">{v.industry}</span>
-                    <span className="text-sm font-bold text-white/75 group-hover/item:text-white group-hover/item:translate-x-0.5 transition-all duration-200">{v.name}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-
           <Link href="/contact" className={cn(
             "text-[11px] font-bold uppercase tracking-[.2em] transition-colors duration-300",
             isScrolled ? "text-primary/75 hover:text-primary" : "text-white/80 hover:text-white"
           )}>
-            Contact
+            Contact Us
           </Link>
         </nav>
 
@@ -126,7 +84,7 @@ export default function Navbar() {
           <Link
             href="/contact"
             className={cn(
-              "text-white text-[10px] font-black uppercase tracking-[.25em] px-6 py-3 transition-all shadow-lg",
+              "text-white text-[10px] font-black uppercase tracking-[.25em] px-6 py-3 transition-all shadow-lg inline-flex items-center justify-center rounded-sm",
               isScrolled
                 ? "bg-accent hover:bg-accent/90 shadow-accent/20"
                 : "bg-accent/90 backdrop-blur-sm hover:bg-accent shadow-accent/30 border border-accent/50"
@@ -167,10 +125,10 @@ export default function Navbar() {
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <div className="relative w-40 h-10">
                 <Image
-                  src="/babulal_premsons.avif"
-                  alt="Babulal Premsons Group"
+                  src="/BabulalPremkumar.png"
+                  alt="Babulal Premkumar"
                   fill
-                  className="object-contain brightness-0 invert"
+                  className="object-contain"
                 />
               </div>
               <button
@@ -184,9 +142,8 @@ export default function Navbar() {
             {/* Menu Links */}
             <div className="flex flex-col p-8 overflow-y-auto">
               {[
-                { label: 'Our Legacy', href: '/about#legacy' },
-                { label: 'Businesses', href: '/#divisions' },
-                { label: 'Leadership', href: '/about#philosophy' },
+                { label: 'Home', href: '/' },
+                { label: 'About Us', href: '/about' },
                 { label: 'Contact Us', href: '/contact' },
               ].map((item, i) => (
                 <motion.div

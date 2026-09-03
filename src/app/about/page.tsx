@@ -37,7 +37,7 @@ export default function AboutPage() {
             Integrity is our Architecture.
           </motion.h1>
           <p className="text-white/60 text-base lg:text-lg font-medium max-w-2xl mx-auto leading-relaxed italic">
-            The Babulal Premsons Group is a multi-sector conglomerate built on the bedrock of trust, dedication, and architectural business excellence.
+            Babulal Premkumar is a premium textile destination built on the bedrock of trust, dedication, and architectural business excellence.
           </p>
         </div>
       </section>
@@ -117,23 +117,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-16 lg:py-32 bg-primary">
-        <div className="max-w-4xl mx-auto px-5 sm:px-6 text-center">
-          <h2
-            className="text-white font-bold italic tracking-tighter mb-8 uppercase"
-            style={{ fontSize: 'clamp(2rem, 6vw, 4.5rem)' }}
-          >
-            Partner with Legacy.
-          </h2>
-          <Link
-            href="/contact"
-            className="inline-block bg-accent text-white px-8 lg:px-12 py-4 lg:py-5 rounded-md font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-all shadow-2xl shadow-black/40"
-          >
-            Initiate Group Collaboration
-          </Link>
-        </div>
-      </section>
+
 
     </div>
   );

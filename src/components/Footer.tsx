@@ -72,17 +72,17 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
           <div className="w-full lg:max-w-xl text-center lg:text-left">
             <div className="relative w-full max-w-[300px] h-24 lg:max-w-[450px] lg:h-[140px] mb-8 mx-auto lg:mx-0">
               <Image
-                src="/babulal_premsons.avif"
+                src="/BabulalPremkumar.png"
                 alt="Babulal Premkumar"
                 fill
                 sizes="(max-width: 1024px) 300px, 450px"
-                className="object-contain object-center lg:object-left brightness-0 invert"
+                className="object-contain object-center lg:object-left"
                 priority
                 loading="eager"
               />
             </div>
             <p className="text-white/40 text-base md:text-lg font-medium italic leading-relaxed max-w-md mx-auto lg:mx-0">
-              The Ultimate House of Brands — A Diversified Industrial Legacy Engineering Success Across Five Generations For Over 100 Years.
+              Babulal Premkumar — A Premium Textile Destination Offering an Exclusive Collection of Sarees, Lehengas, and Suits for Over 100 Years.
             </p>
           </div>
 
@@ -140,7 +140,7 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
             <h4 className="text-white text-[11px] lg:text-[12px] font-black uppercase tracking-[0.4em]">Corporate Hub</h4>
             <div className="flex flex-col gap-3 lg:gap-4">
               {[
-                { name: 'About Group Legacy', href: '/about', isLink: true },
+                { name: 'About Us', href: '/about', isLink: true },
                 { name: 'Contact & Support', href: '/contact', isLink: true }
               ].map((link) => (
                 link.isLink ? (

@@ -7,7 +7,8 @@ export default function NavbarWrapper() {
   const pathname = usePathname();
   
   // Hide the global Navbar on vertical-specific pages that have their own header
-  const shouldHide = pathname?.startsWith('/textiles') || 
+  const shouldHide = pathname === '/' || 
+                     pathname?.startsWith('/textiles') || 
                      pathname?.startsWith('/honda') || 
                      pathname?.startsWith('/bajaj') ||
                      pathname?.startsWith('/trucking') ||

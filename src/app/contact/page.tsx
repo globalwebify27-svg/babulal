@@ -9,12 +9,10 @@ import { cn } from '@/lib/utils';
 import { Haptics } from '@/lib/haptics';
 
 export default function ContactPage() {
-  const [activeVertical, setActiveVertical] = useState<VerticalID>('TEXTILES');
-
   const contactDetails = {
     headquarters: "Babulal Premkumar Building, Upper Bazar, Ranchi, Jharkhand - 834001",
-    phone: "+91 651 220 7555",
-    email: "Group@babulalpremsons.com",
+    phone: "+91 76679 85545",
+    email: "contact@babulalpremsons.com",
     hours: "Monday - Saturday: 10:00 AM - 8:30 PM",
   };
 
@@ -50,7 +48,7 @@ export default function ContactPage() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="mt-6 text-primary/60 text-base lg:text-lg max-w-2xl font-medium leading-relaxed"
           >
-            Get in touch with our corporate office or route your inquiry directly to one of our division leads for quick assistance.
+            Get in touch with Babulal Premkumar for any inquiries regarding our premium textile collections, bulk orders, or general support.
           </motion.p>
         </div>
 
@@ -66,7 +64,7 @@ export default function ContactPage() {
               className="bg-white p-8 md:p-10 border border-primary/5 rounded-2xl shadow-xl space-y-8"
             >
               <h2 className="text-xl font-black uppercase tracking-wider text-primary border-b border-primary/5 pb-4 flex items-center gap-3">
-                <Building2 className="w-5 h-5 text-accent" /> Corporate Office
+                <Building2 className="w-5 h-5 text-accent" /> Store Details
               </h2>
               
               <div className="space-y-6">
@@ -155,7 +153,7 @@ export default function ContactPage() {
             </motion.div>
           </div>
 
-          {/* Right: Department Select & Form */}
+          {/* Right: Form */}
           <div className="lg:col-span-7 space-y-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -163,40 +161,15 @@ export default function ContactPage() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="space-y-6"
             >
-              <div>
-                <label className="text-xs font-black uppercase tracking-widest text-primary/40 block mb-3">
-                  Select Business Division
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-                  {(Object.keys(BUSINESS_VERTICALS) as VerticalID[]).map((key) => {
-                    const isActive = activeVertical === key;
-                    return (
-                      <button
-                        key={key}
-                        onClick={() => {
-                          Haptics.light();
-                          setActiveVertical(key);
-                        }}
-                        className={cn(
-                          "px-4 py-3 rounded-lg text-[10px] font-black uppercase tracking-wider border text-center transition-all duration-300",
-                          isActive
-                            ? "bg-primary border-primary text-white shadow-md shadow-primary/10"
-                            : "bg-white border-primary/5 text-primary/65 hover:bg-primary/5"
-                        )}
-                      >
-                        {BUSINESS_VERTICALS[key].name.split(' ').slice(-1)[0]}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <h2 className="text-xl font-black uppercase tracking-wider text-primary border-b border-primary/5 pb-4 mb-6">
+                Send an Inquiry
+              </h2>
 
               {/* Form Container */}
               <div className="relative">
                 <InquiryForm 
-                  key={activeVertical} 
-                  verticalId={activeVertical} 
-                  interestDefault={`Inquiry for ${BUSINESS_VERTICALS[activeVertical].name}`}
+                  verticalId="TEXTILES" 
+                  interestDefault={`Inquiry for Babulal Premkumar Textiles`}
                 />
               </div>
             </motion.div>
