@@ -19,20 +19,20 @@ export const viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Babulal Premsons Group | 100+ Years Legacy",
+  title: "Babulal Premkumar | 100+ Years Legacy",
   description: "A diverse business group with interests in Textiles, Two-Wheelers, Commercial Vehicles, and Manufacturing. Based in Ranchi, Jharkhand. Over 100+ Years Legacy.",
-  keywords: "Babulal Premsons, Ranchi, Textiles, Honda Dealer, Premsons Poddar Trucking, Bajaj Auto, Manufacturing",
+  keywords: "Babulal Premkumar, Ranchi, Textiles, Honda Dealer, Premsons Poddar Trucking, Bajaj Auto, Manufacturing",
   robots: "index, follow",
   openGraph: {
-    title: "Babulal Premsons Group | 100+ Years Legacy",
+    title: "Babulal Premkumar | 100+ Years Legacy",
     description: "A diverse business group with interests in Textiles, Two-Wheelers, Commercial Vehicles, and Manufacturing. Based in Ranchi, Jharkhand. Over 100+ Years Legacy.",
     type: "website",
     locale: "en_US",
-    siteName: "Babulal Premsons Group",
+    siteName: "Babulal Premkumar",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Babulal Premsons Group | 100+ Years Legacy",
+    title: "Babulal Premkumar | 100+ Years Legacy",
     description: "A diverse business group with interests in Textiles, Two-Wheelers, Commercial Vehicles, and Manufacturing. Based in Ranchi, Jharkhand. Over 100+ Years Legacy.",
   },
 };
