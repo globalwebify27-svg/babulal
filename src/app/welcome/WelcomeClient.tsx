@@ -311,7 +311,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
             />
           </div>
           <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-            © {new Date().getFullYear()} Babulal Premsons Group. All rights reserved.
+            Copyright &copy; {new Date().getFullYear()} Babulal Premkumar - All Rights Reserved.
           </p>
         </footer>
 

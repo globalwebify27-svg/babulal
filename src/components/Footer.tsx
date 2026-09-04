@@ -201,7 +201,7 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
         {/* BOTTOM TIER: COMPLIANCE & LEGAL */}
         <div className="pt-8 md:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-white/30 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-center w-full justify-between">
-            <p>© 2026 Babulal Premkumar. All Rights Reserved.</p>
+            <p>Copyright &copy; 2026 Babulal Premkumar - All Rights Reserved.</p>
             <div className="flex gap-6">
               <Link href="/about" className="hover:text-white transition-colors">Compliance Protocols</Link>
               <Link href="/about" className="hover:text-white transition-colors">Privacy Shield</Link>
