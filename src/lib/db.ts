@@ -3,6 +3,7 @@ import mysql from 'mysql2/promise';
 // Prevent multiple pools in development
 const pool = (global as any).mysqlPool || mysql.createPool({
   host: process.env.DATABASE_HOST || 'localhost',
+  port: process.env.DATABASE_PORT ? Number(process.env.DATABASE_PORT) : 3306,
   user: process.env.DATABASE_USER || 'root',
   password: process.env.DATABASE_PASSWORD || '',
   database: process.env.DATABASE_NAME || 'babulal_portal',
