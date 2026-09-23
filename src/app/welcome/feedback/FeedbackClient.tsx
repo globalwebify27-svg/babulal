@@ -44,6 +44,11 @@ export default function FeedbackClient({ data }: FeedbackClientProps) {
       setError('Mobile Number is required');
       return;
     }
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(mobileNumber.trim())) {
+      setError('Please enter a valid 10-digit mobile number');
+      return;
+    }
     setSubmitting(true);
     setError('');
 
@@ -192,9 +197,11 @@ export default function FeedbackClient({ data }: FeedbackClientProps) {
                 <input 
                   type="tel" 
                   required
+                  maxLength={10}
+                  pattern="[0-9]{10}"
                   placeholder="Enter Your Mobile Number"
                   value={mobileNumber}
-                  onChange={(e) => setMobileNumber(e.target.value)}
+                  onChange={(e) => setMobileNumber(e.target.value.replace(/[^0-9]/g, ''))}
                   className="w-full bg-[#f8fafc] border border-[#e2e8f0] focus:border-primary focus:ring-1 focus:ring-primary rounded-xl px-4 py-3.5 text-xs font-bold text-slate-800 outline-none transition-all"
                 />
               </div>

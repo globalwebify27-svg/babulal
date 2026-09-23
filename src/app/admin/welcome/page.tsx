@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 
 export default function WelcomePageAdmin() {
   const [activeTab, setActiveTab] = useState<'settings' | 'reviews'>('settings');
+  const [storeLocation, setStoreLocation] = useState<'Ranchi' | 'Chas'>('Ranchi');
   const [settings, setSettings] = useState<any>({
     welcomeTitle: '',
     welcomeMessage: '',
@@ -38,6 +39,7 @@ export default function WelcomePageAdmin() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [uploadingVideo, setUploadingVideo] = useState(false);
 
   // Reviews state
   const [reviews, setReviews] = useState<any[]>([]);
@@ -45,8 +47,9 @@ export default function WelcomePageAdmin() {
 
   useEffect(() => {
     async function fetchSettings() {
+      setLoading(true);
       try {
-        const res = await fetch('/api/admin/welcome-settings');
+        const res = await fetch(`/api/admin/welcome-settings?location=${storeLocation}`);
         if (res.ok) {
           const data = await res.json();
           setSettings(data);
@@ -60,8 +63,10 @@ export default function WelcomePageAdmin() {
         setLoading(false);
       }
     }
-    fetchSettings();
-  }, []);
+    if (activeTab === 'settings') {
+      fetchSettings();
+    }
+  }, [storeLocation, activeTab]);
 
   const fetchReviews = async () => {
     setLoadingReviews(true);
@@ -102,7 +107,7 @@ export default function WelcomePageAdmin() {
       const res = await fetch('/api/admin/welcome-settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings)
+        body: JSON.stringify({ ...settings, storeLocation })
       });
       
       if (res.ok) {
@@ -118,6 +123,34 @@ export default function WelcomePageAdmin() {
       setError('An unexpected error occurred while saving.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('video', file);
+
+    setUploadingVideo(true);
+    try {
+      const res = await fetch('/api/admin/upload-video', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSettings((prev: any) => ({ ...prev, videoUrl: data.url }));
+      } else {
+        alert('Failed to upload video');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred during upload');
+    } finally {
+      setUploadingVideo(false);
     }
   };
 
@@ -208,6 +241,32 @@ export default function WelcomePageAdmin() {
           Customer Reviews
         </button>
       </div>
+
+      {activeTab === 'settings' && (
+        <div className="mb-6 flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-[#d1d9e6] w-fit">
+          <label className="text-[10px] font-black uppercase tracking-widest text-primary/60">Select Store:</label>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setStoreLocation('Ranchi')}
+              className={cn(
+                "px-4 py-2 rounded-lg text-xs font-bold transition-all",
+                storeLocation === 'Ranchi' ? "bg-primary text-white" : "bg-[#f5f7fb] text-primary/60 hover:bg-[#e2e8f0]"
+              )}
+            >
+              Ranchi
+            </button>
+            <button
+              onClick={() => setStoreLocation('Chas')}
+              className={cn(
+                "px-4 py-2 rounded-lg text-xs font-bold transition-all",
+                storeLocation === 'Chas' ? "bg-primary text-white" : "bg-[#f5f7fb] text-primary/60 hover:bg-[#e2e8f0]"
+              )}
+            >
+              Chas (Bokaro)
+            </button>
+          </div>
+        </div>
+      )}
 
       {activeTab === 'settings' ? (
         <form onSubmit={handleSubmit} className="space-y-8 max-w-5xl">
@@ -316,17 +375,32 @@ export default function WelcomePageAdmin() {
               </div>
 
               <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-primary/60 mb-2">Embed Video URL</label>
-                <input 
-                  type="text" 
-                  name="videoUrl"
-                  value={settings.videoUrl}
-                  onChange={handleChange}
-                  className="w-full bg-[#f8fafc] border border-[#e2e8f0] focus:border-primary focus:ring-1 focus:ring-primary rounded-xl px-5 py-4 text-sm font-medium text-primary outline-none transition-all"
-                  placeholder="e.g. https://www.youtube.com/embed/..."
-                />
+                <label className="block text-[10px] font-black uppercase tracking-widest text-primary/60 mb-2">Embed Video URL or Upload</label>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="text" 
+                    name="videoUrl"
+                    value={settings.videoUrl}
+                    onChange={handleChange}
+                    className="flex-1 min-w-0 bg-[#f8fafc] border border-[#e2e8f0] focus:border-primary focus:ring-1 focus:ring-primary rounded-xl px-5 py-4 text-sm font-medium text-primary outline-none transition-all"
+                    placeholder="e.g. https://www.youtube.com/embed/..."
+                  />
+                  {settings.videoUrl && (
+                    <button 
+                      type="button"
+                      onClick={() => setSettings((prev: any) => ({ ...prev, videoUrl: '' }))}
+                      className="bg-red-50 text-red-500 hover:bg-red-100 rounded-xl px-4 py-4 text-[10px] uppercase font-black tracking-widest transition-all flex items-center justify-center shadow-sm"
+                    >
+                      Remove
+                    </button>
+                  )}
+                  <label className="cursor-pointer bg-primary text-white hover:bg-primary/90 rounded-xl px-4 py-4 text-[10px] uppercase font-black tracking-widest transition-all flex items-center justify-center min-w-[120px] shadow-sm">
+                    {uploadingVideo ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Upload Video'}
+                    <input type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} disabled={uploadingVideo} />
+                  </label>
+                </div>
                 <p className="text-[9px] text-primary/40 mt-2 font-bold uppercase tracking-widest">
-                  Use a YouTube embed link (e.g. <code className="text-accent bg-accent/5 px-1 py-0.5 rounded">https://www.youtube.com/embed/VIDEO_ID</code>) or a direct MP4 URL.
+                  Use a YouTube embed link (e.g. <code className="text-accent bg-accent/5 px-1 py-0.5 rounded">https://www.youtube.com/embed/VIDEO_ID</code>), a direct MP4 URL, or upload a local file directly.
                 </p>
               </div>
 

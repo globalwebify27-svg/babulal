@@ -7,7 +7,7 @@ export const revalidate = 60; // Cache for 60 seconds
 async function fetchWelcomePageData() {
   await initDb();
   const [rows]: any = await pool.query(
-    'SELECT * FROM welcome_page_settings ORDER BY id ASC LIMIT 1'
+    'SELECT * FROM welcome_page_settings WHERE storeLocation = "Ranchi" ORDER BY id ASC LIMIT 1'
   );
   
   if (rows.length === 0) {

@@ -274,6 +274,7 @@ export async function initDb() {
       await connection.query(`
         CREATE TABLE IF NOT EXISTS welcome_page_settings (
           id INT AUTO_INCREMENT PRIMARY KEY,
+          storeLocation VARCHAR(255) DEFAULT 'Ranchi',
           welcomeTitle VARCHAR(255) DEFAULT 'Welcome to Babulal Premkumar',
           welcomeMessage TEXT,
           introTitle VARCHAR(255) DEFAULT 'About Us',
@@ -291,15 +292,41 @@ export async function initDb() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
 
+      try {
+        const [columns]: any = await connection.query(`SHOW COLUMNS FROM welcome_page_settings LIKE 'storeLocation'`);
+        if (columns.length === 0) {
+          await connection.query(`ALTER TABLE welcome_page_settings ADD COLUMN storeLocation VARCHAR(255) DEFAULT 'Ranchi' AFTER id`);
+          console.log('Added storeLocation column to welcome_page_settings table');
+          
+          await connection.query(`
+            INSERT INTO welcome_page_settings (
+              storeLocation, welcomeTitle, welcomeMessage, introTitle, introContent, videoUrl, videoTitle, feedbackUrl, contactPhone, contactEmail, address, googleMapsUrl, whatsappNumber
+            ) SELECT 
+              'Chas', welcomeTitle, welcomeMessage, introTitle, 
+              'With a legacy of over 100 years, Babulal Premsons Group is a household name in Chas, Bokaro, Jharkhand, trusted by generations for premium quality textiles, automobiles, and more.',
+              '/BLPK Roadmap.mp4', videoTitle, 
+              'https://search.google.com/local/writereview?placeid=ChIJ6_GSN7Eh9DkRs9gxWhVmgXQ',
+              '+91 92967 98387', contactEmail,
+              'Main Rd, opposite Kedia Bhawan, near Raymond Retail shop, Bihar Colony, Shivpuri Colony, Chas, Bokaro Steel City, Jharkhand 827013',
+              'https://maps.app.goo.gl/CHvWqjQkXby1uCXbA',
+              '+91 92967 98387'
+            FROM welcome_page_settings WHERE storeLocation = 'Ranchi' LIMIT 1
+          `);
+        }
+      } catch (err) {
+        console.error('Error adding storeLocation to welcome_page_settings:', err);
+      }
+
       // Seed Welcome Page Settings if empty
       try {
         const [settingsCount]: any = await connection.query('SELECT COUNT(*) as count FROM welcome_page_settings');
         if (settingsCount[0].count === 0) {
           await connection.query(`
             INSERT INTO welcome_page_settings (
-              welcomeTitle, welcomeMessage, introTitle, introContent, videoUrl, videoTitle, feedbackUrl, contactPhone, contactEmail, address, googleMapsUrl, whatsappNumber
-            ) VALUES (
-              'Welcome to Babulal Premkumar',
+              storeLocation, welcomeTitle, welcomeMessage, introTitle, introContent, videoUrl, videoTitle, feedbackUrl, contactPhone, contactEmail, address, googleMapsUrl, whatsappNumber
+            ) VALUES 
+            (
+              'Ranchi', 'Welcome to Babulal Premkumar',
               'Thank you for visiting us. We are delighted to have you as our valued customer. Explore our latest collections, check our shopping guide video, and feel free to connect with us or share your feedback.',
               'Our Legacy',
               'With a legacy of over 100 years, Babulal Premsons Group is a household name in Ranchi, Jharkhand, trusted by generations for premium quality textiles, automobiles, and more.',
@@ -311,6 +338,20 @@ export async function initDb() {
               'Main Road, Ranchi, Jharkhand - 834001',
               'https://maps.google.com',
               '+91 651 220 7555'
+            ),
+            (
+              'Chas', 'Welcome to Babulal Premkumar',
+              'Thank you for visiting us. We are delighted to have you as our valued customer.',
+              'Our Legacy',
+              'With a legacy of over 100 years, Babulal Premsons Group is a household name in Chas, Bokaro, Jharkhand, trusted by generations for premium quality textiles, automobiles, and more.',
+              '/BLPK Roadmap.mp4',
+              'Experience Babulal Premkumar: Your Shopping Guide',
+              'https://search.google.com/local/writereview?placeid=ChIJ6_GSN7Eh9DkRs9gxWhVmgXQ',
+              '+91 92967 98387',
+              'Group@babulalpremsons.com',
+              'Main Rd, opposite Kedia Bhawan, near Raymond Retail shop, Bihar Colony, Shivpuri Colony, Chas, Bokaro Steel City, Jharkhand 827013',
+              'https://maps.app.goo.gl/CHvWqjQkXby1uCXbA',
+              '+91 92967 98387'
             )
           `);
         }

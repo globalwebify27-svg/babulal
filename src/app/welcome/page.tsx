@@ -7,7 +7,7 @@ export const revalidate = 60; // Cache for 60 seconds
 async function fetchWelcomePageData() {
   await initDb();
   const [rows]: any = await pool.query(
-    'SELECT * FROM welcome_page_settings ORDER BY id ASC LIMIT 1'
+    'SELECT * FROM welcome_page_settings WHERE storeLocation = "Ranchi" ORDER BY id ASC LIMIT 1'
   );
   
   if (rows.length === 0) {
@@ -28,15 +28,6 @@ async function fetchWelcomePageData() {
   }
   
   const data = rows[0];
-  // Force update the review link as requested
-  data.feedbackUrl = 'https://search.google.com/local/writereview?placeid=ChIJMx1ddL_h9DkRhhfXuckSoHM';
-  // Force update video to use local MP4
-  data.videoUrl = '/BLPK Roadmap.mp4';
-  // Force update legacy text to use generic 100 years and correct brand name
-  data.introContent = 'With a legacy of over 100 years, Babulal Premkumar is a household name in Ranchi, Jharkhand, trusted by generations for premium quality textiles, automobiles, and more.';
-  // Force update contact numbers
-  data.contactPhone = '+91 76679 85545';
-  data.whatsappNumber = '+91 76679 85545';
   return data;
 }
 

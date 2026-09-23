@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
 import pool, { initDb } from '@/lib/db';
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const location = searchParams.get('location') || 'Ranchi';
     await initDb();
     
     const [rows]: any = await pool.query(
-      'SELECT * FROM welcome_page_settings ORDER BY id ASC LIMIT 1'
+      'SELECT * FROM welcome_page_settings WHERE storeLocation = ? ORDER BY id ASC LIMIT 1',
+      [location]
     );
     
     if (rows.length === 0) {
@@ -23,10 +26,11 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const data = await req.json();
+    const location = data.storeLocation || 'Ranchi';
     await initDb();
 
-    // Check if a record exists
-    const [rows]: any = await pool.query('SELECT id FROM welcome_page_settings LIMIT 1');
+    // Check if a record exists for this location
+    const [rows]: any = await pool.query('SELECT id FROM welcome_page_settings WHERE storeLocation = ? LIMIT 1', [location]);
     
     const welcomeTitle = data.welcomeTitle || 'Welcome to Babulal Premkumar';
     const welcomeMessage = data.welcomeMessage || '';
@@ -45,10 +49,10 @@ export async function POST(req: Request) {
       // Insert if not exists
       await pool.query(
         `INSERT INTO welcome_page_settings (
-          welcomeTitle, welcomeMessage, introTitle, introContent, videoUrl, videoTitle, feedbackUrl, contactPhone, contactEmail, address, googleMapsUrl, whatsappNumber
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          storeLocation, welcomeTitle, welcomeMessage, introTitle, introContent, videoUrl, videoTitle, feedbackUrl, contactPhone, contactEmail, address, googleMapsUrl, whatsappNumber
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-          welcomeTitle, welcomeMessage, introTitle, introContent, videoUrl, videoTitle, feedbackUrl, contactPhone, contactEmail, address, googleMapsUrl, whatsappNumber
+          location, welcomeTitle, welcomeMessage, introTitle, introContent, videoUrl, videoTitle, feedbackUrl, contactPhone, contactEmail, address, googleMapsUrl, whatsappNumber
         ]
       );
     } else {
@@ -76,7 +80,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const [updatedRows]: any = await pool.query('SELECT * FROM welcome_page_settings ORDER BY id ASC LIMIT 1');
+    const [updatedRows]: any = await pool.query('SELECT * FROM welcome_page_settings WHERE storeLocation = ? ORDER BY id ASC LIMIT 1', [location]);
     return NextResponse.json(updatedRows[0]);
   } catch (error: any) {
     console.error('Welcome Page Settings Save Error:', error);

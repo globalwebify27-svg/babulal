@@ -108,7 +108,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none z-0" />
         
         {/* Background Video */}
-        {embedVideoUrl && embedVideoUrl.toLowerCase().endsWith('.mp4') && (
+        {embedVideoUrl && (embedVideoUrl.toLowerCase().endsWith('.mp4') || embedVideoUrl.toLowerCase().includes('/uploads/')) && (
           <>
             {/* Desktop Blurred Background Layer */}
             <video 
@@ -209,26 +209,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
           </p>
         </section>
 
-        {/* ═══ SHOPPING GUIDE VIDEO ═══ */}
-        {embedVideoUrl && !embedVideoUrl.toLowerCase().endsWith('.mp4') && (
-          <section className="bg-white rounded-[2rem] overflow-hidden shadow-2xl border border-slate-100/50 animate-reveal" style={{ animationDelay: '200ms' }}>
-            <div className="p-6 border-b border-slate-50 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
-                <Video className="w-5 h-5" />
-              </div>
-              <h3 className="font-black text-slate-800 uppercase tracking-tighter text-sm italic">{data.videoTitle || 'Shopping Guide'}</h3>
-            </div>
-            <div className={`relative w-full bg-slate-950 ${(mounted && isShorts) ? 'aspect-[9/16] max-w-[340px] mx-auto my-4 rounded-2xl overflow-hidden' : 'aspect-video'}`}>
-              <iframe 
-                src={embedVideoUrl}
-                title={data.videoTitle || 'Shopping Guide'}
-                className="absolute inset-0 w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowFullScreen
-              />
-            </div>
-          </section>
-        )}
+
 
         {/* ═══ CUSTOMER FEEDBACK LINK ═══ */}
         <section className="bg-gradient-to-br from-[#FEF9E7] to-[#FDF2E9] rounded-[2rem] p-6 shadow-2xl border border-amber-200/50 relative overflow-hidden group transition-all duration-300 hover:shadow-amber-100/50 animate-reveal" style={{ animationDelay: '250ms' }}>
