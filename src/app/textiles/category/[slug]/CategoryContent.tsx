@@ -19,6 +19,7 @@ import StoreLocatorModal from '@/components/StoreLocatorModal';
 import { Haptics } from '@/lib/haptics';
 import { useSearchParams } from 'next/navigation';
 import MobileBottomMenu from '@/components/MobileBottomMenu';
+import CoverBreadcrumbs from '@/components/CoverBreadcrumbs';
 
 interface CategoryContentProps {
   initialCategory: any;
@@ -59,6 +60,7 @@ export default function CategoryContent({
              subSubCategoriesPromise={subSubCategoriesPromise}
              productsPromise={productsPromise}
              initialCategory={initialCategory}
+             slug={slug}
              setIsStoreModalOpen={setIsStoreModalOpen}
            />
         </React.Suspense>
@@ -70,7 +72,7 @@ export default function CategoryContent({
   );
 }
 
-function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, productsPromise, initialCategory, setIsStoreModalOpen }: any) {
+function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, productsPromise, initialCategory, slug, setIsStoreModalOpen }: any) {
   // Wait for the data to stream in
   const dbSubCategories = subCategoriesPromise ? (React.use(subCategoriesPromise) as any[]) : [];
   const dbSubSubCategories = subSubCategoriesPromise ? (React.use(subSubCategoriesPromise) as any[]) : [];
@@ -259,6 +261,27 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     return true;
   });
 
+  const breadcrumbItems = React.useMemo(() => {
+    const items: { label: string; url?: string }[] = [
+      { label: 'Home', url: '/' },
+      { label: 'Textiles', url: '/textiles' },
+      { label: initialCategory?.name || slug, url: `/textiles/category/${slug}` }
+    ];
+
+    if (selectedSubs.length === 1) {
+      items.push({ label: selectedSubs[0] });
+      if (selectedSubSubs.length === 1) {
+        items.push({ label: selectedSubSubs[0] });
+      } else if (selectedSubSubs.length > 1) {
+        items.push({ label: selectedSubSubs.join(', ') });
+      }
+    } else if (selectedSubs.length > 1) {
+      items.push({ label: selectedSubs.join(', ') });
+    }
+
+    return items;
+  }, [initialCategory, slug, selectedSubs, selectedSubSubs]);
+
   return (
     <>
       {/* ═══ REFINED CATEGORY HEADER (SS-Matched & Dynamic) ═══ */}
@@ -273,13 +296,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
          <div className="absolute inset-0 bg-black/20" />
          
          <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-12 flex flex-col justify-center">
-            <Link 
-              href="/textiles" 
-              onClick={() => Haptics.light()}
-              className="flex items-center gap-2 text-white/80 text-[10px] lg:text-[11px] font-black uppercase tracking-[0.3em] mb-4 hover:text-white transition-colors"
-            >
-               <ArrowLeft className="w-4 h-4" /> BACK TO COLLECTIONS
-            </Link>
+            <CoverBreadcrumbs items={breadcrumbItems} className="mb-4" />
             
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white italic uppercase tracking-tighter leading-[1] mb-6">
                {currentHeroTitle}

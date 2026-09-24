@@ -11,6 +11,8 @@ import Image from 'next/image';
 import Footer from '@/components/Footer';
 import MobileBottomMenu from '@/components/MobileBottomMenu';
 
+import CoverBreadcrumbs from '@/components/CoverBreadcrumbs';
+
 interface CategoryPageProps {
   params: {
     vertical: string;
@@ -134,11 +136,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </div>
 
         <div className="relative max-w-7xl mx-auto z-10">
-          <div className="flex items-center gap-3 text-accent text-[11px] font-bold uppercase tracking-[0.2em] mb-6 opacity-80">
-            <Link href="/" className="hover:text-white transition-colors">Group Hub</Link>
-            <ArrowRight className="w-3.5 h-3.5" />
-            <Link href={`/${verticalSlug}`} className="hover:text-white transition-colors">{vertical.name}</Link>
-          </div>
+          <CoverBreadcrumbs 
+            items={[
+              { label: 'Home', url: '/' },
+              { label: vertical.name, url: `/${verticalSlug}` },
+              { label: categoryName, url: `/${verticalSlug}/${categorySlug}` }
+            ]}
+          />
 
           {/* SEO Requirement: H1 = Category + Nature of Business */}
           <h1 className="text-white text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-none capitalize italic">
