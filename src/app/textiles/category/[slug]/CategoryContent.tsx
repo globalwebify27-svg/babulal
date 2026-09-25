@@ -144,6 +144,18 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     return null;
   }, [selectedSubs, displaySubCategories]);
 
+  // Dynamic Top Category Heading (Matching Reference Image 1)
+  const dynamicTopHeading = React.useMemo(() => {
+    if (selectedSubs.length === 1) {
+      const subName = selectedSubs[0].toUpperCase();
+      return `TOP ${subName} IN RANCHI`;
+    } else if (selectedSubs.length > 1) {
+      return `TOP ${selectedSubs.map(s => s.toUpperCase()).join(' & ')} IN RANCHI`;
+    }
+    const catName = (initialCategory?.name || slug).toUpperCase();
+    return `TOP ${catName} IN RANCHI`;
+  }, [selectedSubs, initialCategory, slug]);
+
   // Dynamic Hero Header Title & Description calculation based on active subcategory selection and published SEO Content
   const currentHeroTitle = React.useMemo(() => {
     if (seoContent?.h1) {
@@ -558,12 +570,17 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
             </div>
           )}
 
-          {/* ══ DYNAMIC SEO CONTENT (WORD-LIKE RICH TEXT HTML OR STRUCTURED SECTIONS) ══ */}
-          <div className="mt-24 pt-16 border-t border-gray-100">
-             <div className="max-w-5xl space-y-12">
+          {/* ══ DYNAMIC TOP CATEGORY HEADING & SEO CONTENT (REFERENCE IMAGE MATCH) ══ */}
+          <div className="mt-20 pt-12 border-t border-gray-100 text-center">
+             <h2 className="text-2xl lg:text-3xl font-black text-[#0A5181] uppercase tracking-wider inline-block relative mb-12">
+               {dynamicTopHeading}
+               <div className="w-16 h-1 bg-[#DA222A] mx-auto mt-2 rounded-full" />
+             </h2>
+
+             <div className="max-w-5xl mx-auto space-y-8 text-left">
                 {seoContent?.htmlContent ? (
                   <div 
-                    className="prose max-w-none text-[#1a2b4b] text-sm md:text-base leading-relaxed space-y-4 font-medium [&_h2]:text-2xl [&_h2]:lg:text-3xl [&_h2]:font-black [&_h2]:uppercase [&_h2]:italic [&_h2]:text-[#0A5181] [&_h2]:mt-8 [&_h2]:mb-4 [&_h3]:text-xl [&_h3]:font-black [&_h3]:uppercase [&_h3]:italic [&_h3]:text-[#0A5181] [&_h3]:mt-6 [&_h3]:mb-3 [&_ul]:space-y-2 [&_ul]:my-4 [&_li]:flex [&_li]:items-start [&_li]:gap-2 [&_li]:font-semibold [&_li]:text-[#1a2b4b] [&_img]:rounded-2xl [&_img]:shadow-lg [&_img]:my-4"
+                    className="max-w-none text-[#1a2b4b] text-sm md:text-base leading-relaxed space-y-4 font-normal [&_h2]:text-xl [&_h2]:md:text-2xl [&_h2]:font-bold [&_h2]:text-[#0A5181] [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:md:text-xl [&_h3]:font-bold [&_h3]:text-[#0A5181] [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-base [&_h4]:font-bold [&_h4]:text-[#0A5181] [&_h4]:mt-3 [&_h4]:mb-1 [&_p]:text-sm [&_p]:md:text-base [&_p]:leading-relaxed [&_p]:text-gray-700 [&_p]:my-3 [&_ul]:space-y-2 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:text-sm [&_li]:md:text-base [&_li]:text-gray-700 [&_img]:rounded-2xl [&_img]:shadow-lg [&_img]:my-4"
                     dangerouslySetInnerHTML={{ __html: seoContent.htmlContent }}
                   />
                 ) : seoSections.length > 0 ? (

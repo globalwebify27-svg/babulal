@@ -21,7 +21,9 @@ import {
   Upload,
   PanelLeft,
   PanelRight,
-  Maximize2
+  Maximize2,
+  Type,
+  Eraser
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -61,6 +63,103 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
       execCmd('formatBlock', '<p>');
     } else {
       execCmd('formatBlock', `<${val}>`);
+    }
+  };
+
+  const handleFontSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const sizeVal = e.target.value;
+    if (!sizeVal) return;
+
+    if (sizeVal === 'default') {
+      document.execCommand('removeFormat', false);
+      if (editorRef.current) {
+        onChange(editorRef.current.innerHTML);
+      }
+      return;
+    }
+
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+      const range = sel.getRangeAt(0);
+      const span = document.createElement('span');
+      span.style.fontSize = sizeVal;
+      try {
+        range.surroundContents(span);
+      } catch (err) {
+        document.execCommand('styleWithCSS', false, 'true');
+        document.execCommand('fontSize', false, '7');
+        if (editorRef.current) {
+          const fontEls = editorRef.current.querySelectorAll('font[size="7"]');
+          fontEls.forEach((fontEl) => {
+            const replacement = document.createElement('span');
+            replacement.style.fontSize = sizeVal;
+            replacement.innerHTML = fontEl.innerHTML;
+            fontEl.parentNode?.replaceChild(replacement, fontEl);
+          });
+        }
+      }
+    } else {
+      document.execCommand('styleWithCSS', false, 'true');
+      document.execCommand('fontSize', false, '7');
+      if (editorRef.current) {
+        const fontEls = editorRef.current.querySelectorAll('font[size="7"]');
+        fontEls.forEach((fontEl) => {
+          const replacement = document.createElement('span');
+          replacement.style.fontSize = sizeVal;
+          replacement.innerHTML = fontEl.innerHTML;
+          fontEl.parentNode?.replaceChild(replacement, fontEl);
+        });
+      }
+    }
+
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const html = e.clipboardData.getData('text/html');
+    const text = e.clipboardData.getData('text/plain');
+
+    if (html) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+
+      // Clean inline font-size, font-family, and huge margins from pasted content
+      const allElements = doc.body.querySelectorAll('*');
+      allElements.forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.style.fontSize = '';
+          el.style.fontFamily = '';
+          el.style.lineHeight = '';
+          el.style.backgroundColor = '';
+          el.removeAttribute('size');
+          el.removeAttribute('face');
+
+          // Convert H1 to H2 for SEO category hierarchy
+          if (el.tagName === 'H1') {
+            const h2 = doc.createElement('h2');
+            h2.innerHTML = el.innerHTML;
+            el.parentNode?.replaceChild(h2, el);
+          }
+        }
+      });
+
+      const cleanedHtml = doc.body.innerHTML;
+      document.execCommand('insertHTML', false, cleanedHtml);
+    } else if (text) {
+      const formatted = text
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .map(line => `<p>${line}</p>`)
+        .join('');
+      document.execCommand('insertHTML', false, formatted || text);
+    }
+
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
     }
   };
 
@@ -128,6 +227,24 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
           <option value="h2">Heading 2 (H2)</option>
           <option value="h3">Heading 3 (H3)</option>
           <option value="h4">Heading 4 (H4)</option>
+        </select>
+
+        {/* FONT SIZE SELECTOR (DYNAMIC TEXT SIZE CONTROL) */}
+        <select
+          onChange={handleFontSizeChange}
+          defaultValue="default"
+          className="px-3 py-1.5 bg-white border border-[#d1d9e6] rounded-xl text-xs font-black text-[#095181] outline-none cursor-pointer hover:border-[#095181] transition-all"
+          title="Dynamic Text Size"
+        >
+          <option value="default">Font Size (Auto)</option>
+          <option value="12px">12px (Small)</option>
+          <option value="14px">14px (Normal)</option>
+          <option value="16px">16px (Medium)</option>
+          <option value="18px">18px (Large)</option>
+          <option value="20px">20px (XL)</option>
+          <option value="24px">24px (2XL - Heading)</option>
+          <option value="28px">28px (3XL - Title)</option>
+          <option value="32px">32px (4XL - Huge)</option>
         </select>
 
         <div className="h-5 w-px bg-[#d1d9e6] mx-1" />
@@ -267,7 +384,8 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
           ref={editorRef}
           contentEditable
           onInput={handleInput}
-          className="outline-none min-h-[320px] prose max-w-none text-[#1a2b4b] text-sm leading-relaxed focus:outline-none"
+          onPaste={handlePaste}
+          className="outline-none min-h-[320px] max-w-none text-[#1a2b4b] text-sm md:text-base leading-relaxed space-y-4 font-normal [&_h2]:text-xl [&_h2]:md:text-2xl [&_h2]:font-bold [&_h2]:text-[#0A5181] [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:md:text-xl [&_h3]:font-bold [&_h3]:text-[#0A5181] [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-base [&_h4]:font-bold [&_h4]:text-[#0A5181] [&_h4]:mt-3 [&_h4]:mb-1 [&_p]:text-sm [&_p]:md:text-base [&_p]:leading-relaxed [&_p]:text-gray-700 [&_p]:my-3 [&_ul]:space-y-2 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:text-sm [&_li]:md:text-base [&_li]:text-gray-700 [&_img]:rounded-2xl [&_img]:shadow-lg [&_img]:my-4 focus:outline-none"
           style={{ wordBreak: 'break-word' }}
         />
         {!value && (
