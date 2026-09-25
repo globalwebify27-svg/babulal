@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { 
   Plus, 
   Search, 
@@ -15,7 +16,8 @@ import {
   Layers,
   Star,
   FileText,
-  UploadCloud
+  UploadCloud,
+  Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -496,6 +498,12 @@ export default function ManageCategoriesPage() {
                                  >
                                     Manage Sub-Nodes
                                  </button>
+                                 <Link
+                                   href={`/admin/category-content/cat-${cat._id}`}
+                                   className="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-600 hover:text-white transition-all flex items-center gap-1"
+                                 >
+                                    <Globe className="w-3 h-3" /> SEO & Content
+                                 </Link>
                                  <button 
                                    onClick={() => updateCategory(cat._id, { status: cat.status === 'Active' ? 'Inactive' : 'Active' })}
                                   className={cn(
@@ -732,6 +740,12 @@ export default function ManageCategoriesPage() {
                                    Sub-Sub-Nodes
                                    <span className="text-[8px] opacity-80">{expandedSubId === sub._id ? "▲" : "▼"}</span>
                                  </button>
+                                 <Link
+                                   href={`/admin/category-content/sub-${sub._id}`}
+                                   className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded border border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-600 hover:text-white transition-all flex items-center gap-1"
+                                 >
+                                   <Globe className="w-3 h-3" /> SEO
+                                 </Link>
                                  <label className={cn(
                                    "w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-all",
                                    sub.brochureUrl ? "bg-green-100 text-green-600" : "bg-gray-50 text-gray-300 hover:bg-primary/10 hover:text-primary"
@@ -776,6 +790,12 @@ export default function ManageCategoriesPage() {
                                      {subSubCategories.map((subSub) => (
                                        <div key={subSub._id} className="flex items-center gap-1.5 bg-white border border-gray-100 rounded-lg pl-3 pr-2 py-1.5 shadow-sm text-xs font-semibold text-[#1a2b4b] uppercase tracking-wide">
                                          <span>{subSub.name}</span>
+                                         <Link
+                                           href={`/admin/category-content/subsub-${subSub._id}`}
+                                           className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-600 hover:text-white transition-all ml-1 flex items-center gap-0.5"
+                                         >
+                                           <Globe className="w-2.5 h-2.5" /> SEO
+                                         </Link>
                                          <button
                                            type="button"
                                            onClick={() => updateSubSubCategory(subSub._id, { status: (!subSub.status || subSub.status === 'Active') ? 'Inactive' : 'Active' })}

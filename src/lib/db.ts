@@ -383,6 +383,62 @@ export async function initDb() {
         console.error('Error adding mobileNumber column to welcome_page_reviews:', err);
       }
 
+      // 11. Create Category SEO Content table
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS category_seo_content (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          categoryId INT DEFAULT NULL,
+          subCategoryId INT DEFAULT NULL,
+          subSubCategoryId INT DEFAULT NULL,
+          h1 VARCHAR(255),
+          metaTitle VARCHAR(255),
+          metaDescription TEXT,
+          canonicalUrl VARCHAR(500),
+          robotsIndex VARCHAR(50) DEFAULT 'index',
+          robotsFollow VARCHAR(50) DEFAULT 'follow',
+          htmlContent LONGTEXT,
+          introContent TEXT,
+          bannerImage LONGTEXT,
+          bannerAlt VARCHAR(255),
+          youtubeUrl VARCHAR(500),
+          relatedCategoryIds TEXT,
+          status VARCHAR(50) DEFAULT 'Published',
+          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          INDEX idx_cat (categoryId),
+          INDEX idx_subcat (subCategoryId),
+          INDEX idx_subsubcat (subSubCategoryId)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      // Migration checks for existing category_seo_content columns
+      try {
+        await connection.query(`ALTER TABLE category_seo_content ADD COLUMN subSubCategoryId INT DEFAULT NULL AFTER subCategoryId`);
+      } catch (e) {}
+      try {
+        await connection.query(`ALTER TABLE category_seo_content ADD COLUMN htmlContent LONGTEXT AFTER robotsFollow`);
+      } catch (e) {}
+
+      // 12. Create Category SEO Sections table
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS category_seo_sections (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          seoContentId INT NOT NULL,
+          heading VARCHAR(255),
+          headingLevel VARCHAR(10) DEFAULT 'H2',
+          content TEXT,
+          bulletPoints TEXT,
+          image LONGTEXT,
+          imageAlt VARCHAR(255),
+          videoUrl VARCHAR(500),
+          orderIndex INT DEFAULT 0,
+          isActive BOOLEAN DEFAULT TRUE,
+          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          FOREIGN KEY (seoContentId) REFERENCES category_seo_content(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
       isDbInitialized = true;
       console.log('✅ MySQL Database and Tables initialized successfully.');
     } catch (error) {

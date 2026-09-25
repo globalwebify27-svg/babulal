@@ -6,18 +6,11 @@ import Footer from './Footer';
 export default function FooterWrapper() {
   const pathname = usePathname();
   
-  // Hide the global Footer on vertical-specific pages that have their own specialized footer
-  const shouldHide = pathname === '/' ||
-                     pathname?.startsWith('/textiles') || 
-                     pathname?.startsWith('/honda') || 
-                     pathname?.startsWith('/bajaj') ||
-                     pathname?.startsWith('/trucking') ||
-                     pathname?.startsWith('/muva-industries') ||
-                     pathname?.startsWith('/admin') ||
-                     pathname?.startsWith('/auth') ||
-                     pathname?.startsWith('/welcome');
+  // Only render global Footer on pages like /about and /contact that do not embed their own Footer.
+  // All vertical pages, category pages (/saree, /saree/fancy-sarees), product pages, and homepage render their own Footer.
+  const shouldShowGlobalFooter = pathname === '/about' || pathname === '/contact';
   
-  if (shouldHide) return null;
+  if (!shouldShowGlobalFooter) return null;
   
   return <Footer />;
 }

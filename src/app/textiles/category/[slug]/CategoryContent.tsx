@@ -11,7 +11,9 @@ import {
   CheckCircle,
   ChevronDown,
   Clock,
-  FileText
+  FileText,
+  PlayCircle,
+  Layers
 } from 'lucide-react';
 import TextileHeader from '@/components/TextileHeader';
 import Footer from '@/components/Footer';
@@ -27,8 +29,19 @@ interface CategoryContentProps {
   subSubCategoriesPromise: Promise<any[]>;
   productsPromise: Promise<any[]>;
   navCategoriesPromise: Promise<any[]>;
+  seoDataPromise?: Promise<{ seoContent: any; seoSections: any[]; relatedCategories: any[] }>;
   slug: string;
   initialSubSlug?: string;
+}
+
+function getYouTubeEmbedUrl(url: string) {
+  if (!url) return '';
+  if (url.includes('embed/')) return url;
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  if (match && match[1]) {
+    return `https://www.youtube.com/embed/${match[1]}`;
+  }
+  return url;
 }
 
 export default function CategoryContent({ 
@@ -37,6 +50,7 @@ export default function CategoryContent({
   subSubCategoriesPromise,
   productsPromise, 
   navCategoriesPromise,
+  seoDataPromise,
   slug,
   initialSubSlug
 }: CategoryContentProps) {
@@ -59,6 +73,7 @@ export default function CategoryContent({
              subCategoriesPromise={subCategoriesPromise}
              subSubCategoriesPromise={subSubCategoriesPromise}
              productsPromise={productsPromise}
+             seoDataPromise={seoDataPromise}
              initialCategory={initialCategory}
              slug={slug}
              initialSubSlug={initialSubSlug}
@@ -73,12 +88,13 @@ export default function CategoryContent({
   );
 }
 
-function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, productsPromise, initialCategory, slug, initialSubSlug, setIsStoreModalOpen }: any) {
+function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, productsPromise, seoDataPromise, initialCategory, slug, initialSubSlug, setIsStoreModalOpen }: any) {
   // Wait for the data to stream in
   const dbSubCategories = subCategoriesPromise ? (React.use(subCategoriesPromise) as any[]) : [];
   const dbSubSubCategories = subSubCategoriesPromise ? (React.use(subSubCategoriesPromise) as any[]) : [];
   const dbProducts = productsPromise ? (React.use(productsPromise) as any[]) : [];
-  
+  const { seoContent, seoSections = [], relatedCategories = [] } = seoDataPromise ? (React.use(seoDataPromise) as any) : { seoContent: null, seoSections: [], relatedCategories: [] };
+
   const searchParams = useSearchParams();
   const subParam = searchParams ? searchParams.get('sub') : null;
   const [selectedSubs, setSelectedSubs] = React.useState<string[]>([]);
@@ -89,7 +105,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     return dbProducts.filter((p: any) => {
       const normalize = (s: string) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, '').trim();
       const pCat = normalize(p.category);
-      if (!pCat) return false; // Prevent empty category string from matching everything
+      if (!pCat) return false;
 
       const cName = normalize(initialCategory?.name);
       const cSlug = normalize(initialCategory?.slug);
@@ -128,8 +144,11 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     return null;
   }, [selectedSubs, displaySubCategories]);
 
-  // Dynamic Hero Header Title & Description calculation based on active subcategory selection
+  // Dynamic Hero Header Title & Description calculation based on active subcategory selection and published SEO Content
   const currentHeroTitle = React.useMemo(() => {
+    if (seoContent?.h1) {
+      return seoContent.h1;
+    }
     if (selectedSubs.length === 1) {
       const subName = selectedSubs[0];
       const upper = subName.toUpperCase();
@@ -141,9 +160,12 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
       return `${selectedSubs.map(s => s.toUpperCase()).join(' & ')} COLLECTION`;
     }
     return `${initialCategory?.name?.toUpperCase() || 'CATEGORY'} COLLECTION`;
-  }, [selectedSubs, initialCategory]);
+  }, [seoContent, selectedSubs, initialCategory]);
 
   const currentHeroDescription = React.useMemo(() => {
+    if (seoContent?.introContent) {
+      return seoContent.introContent;
+    }
     if (activeSubObject?.description) {
       return activeSubObject.description;
     }
@@ -151,7 +173,9 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
       return `Discover our exclusive ${selectedSubs[0]} collection. Crafted with century-old weaving traditions and modern elegance for every occasion.`;
     }
     return initialCategory?.description || "Discover a century of weaving excellence. From traditional handloom masterpieces to contemporary silk drapes, our collection defines the pinnacle of Indian ethnic elegance.";
-  }, [activeSubObject, selectedSubs, initialCategory]);
+  }, [seoContent, activeSubObject, selectedSubs, initialCategory]);
+
+  const heroCoverImage = seoContent?.bannerImage || initialCategory?.image || "/bridal_luxury.png";
 
   React.useEffect(() => {
     const activeParam = subParam || initialSubSlug;
@@ -192,7 +216,6 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
 
     if (exists) {
       nextSubs = selectedSubs.filter(s => s !== subName);
-      // Clear sub-subcategories of this sub
       const subSubsForThisSub = dbSubSubCategories.filter((ss: any) => ss.subCategoryId === subId);
       const subSubNames = subSubsForThisSub.map((ss: any) => ss.name);
       setSelectedSubSubs(prevSubSubs => prevSubSubs.filter(name => !subSubNames.includes(name)));
@@ -202,7 +225,6 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
 
     setSelectedSubs(nextSubs);
 
-    // Keep address bar URL search param synchronized
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
       if (nextSubs.length > 0) {
@@ -241,8 +263,6 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
   
   const finalProducts = productsInCategory.filter((p: any) => {
     const normalize = (s: string) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-    
-    // Sub-category Match (if any selected)
     if (selectedSubs.length === 0) return true;
     
     const pSub = normalize(p.subCategory);
@@ -284,18 +304,20 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     return items;
   }, [initialCategory, slug, selectedSubs, selectedSubSubs]);
 
+  const youtubeEmbedLink = seoContent?.youtubeUrl ? getYouTubeEmbedUrl(seoContent.youtubeUrl) : '';
+
   return (
     <>
-      {/* ═══ REFINED CATEGORY HEADER (SS-Matched & Dynamic) ═══ */}
-      <section className="relative w-full h-[300px] lg:h-[400px] overflow-hidden bg-[#0A5181]">
+      {/* ═══ REFINED CATEGORY HEADER (SS-Matched & Dynamic SEO Banner) ═══ */}
+      <section className="relative w-full h-[320px] lg:h-[420px] overflow-hidden bg-[#0A5181]">
          <Image 
-           src={initialCategory?.image || "/bridal_luxury.png"} 
-           alt={initialCategory?.name} 
+           src={heroCoverImage} 
+           alt={seoContent?.bannerAlt || initialCategory?.name || "Category Header"} 
            fill 
            className="object-cover opacity-70"
            priority
          />
-         <div className="absolute inset-0 bg-black/20" />
+         <div className="absolute inset-0 bg-black/30" />
          
          <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-12 flex flex-col justify-center">
             <CoverBreadcrumbs items={breadcrumbItems} className="mb-4" />
@@ -515,18 +537,144 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
              )}
           </div>
 
-          <div className="mt-32 pt-20 border-t border-gray-100">
-             <div className="max-w-4xl space-y-12">
-                <div className="space-y-6">
-                   <h2 className="text-2xl lg:text-3xl font-black text-[#0A5181] uppercase tracking-tighter italic">Premier Retail Destination for {initialCategory?.name} in Ranchi</h2>
-                   <div className="text-sm lg:text-base text-gray-500 font-medium leading-[1.8] space-y-6 italic">
-                      <p>
-                         Babulal Premkumar stands as a pillar of excellence in the Indian textile landscape. For over four decades, our group has anchored the textile supply chain across Jharkhand, connecting century-old weaving traditions with modern retail infrastructures. 
-                      </p>
-                   </div>
-                 </div>
+          {/* ══ DYNAMIC YOUTUBE EMBED SECTION ══ */}
+          {youtubeEmbedLink && (
+            <div className="mt-20 p-8 bg-[#fbfbfb] border border-gray-100 rounded-3xl space-y-6">
+              <div className="flex items-center gap-3">
+                <PlayCircle className="w-6 h-6 text-[#DA222A]" />
+                <h3 className="text-xl font-black text-[#0A5181] uppercase tracking-tighter italic">
+                  Experience {initialCategory?.name || 'Category'} Collection Video
+                </h3>
               </div>
-           </div>
+              <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg bg-black">
+                <iframe
+                  src={youtubeEmbedLink}
+                  title="Category Showcase Video"
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ══ DYNAMIC SEO CONTENT (WORD-LIKE RICH TEXT HTML OR STRUCTURED SECTIONS) ══ */}
+          <div className="mt-24 pt-16 border-t border-gray-100">
+             <div className="max-w-5xl space-y-12">
+                {seoContent?.htmlContent ? (
+                  <div 
+                    className="prose max-w-none text-[#1a2b4b] text-sm md:text-base leading-relaxed space-y-4 font-medium [&_h2]:text-2xl [&_h2]:lg:text-3xl [&_h2]:font-black [&_h2]:uppercase [&_h2]:italic [&_h2]:text-[#0A5181] [&_h2]:mt-8 [&_h2]:mb-4 [&_h3]:text-xl [&_h3]:font-black [&_h3]:uppercase [&_h3]:italic [&_h3]:text-[#0A5181] [&_h3]:mt-6 [&_h3]:mb-3 [&_ul]:space-y-2 [&_ul]:my-4 [&_li]:flex [&_li]:items-start [&_li]:gap-2 [&_li]:font-semibold [&_li]:text-[#1a2b4b] [&_img]:rounded-2xl [&_img]:shadow-lg [&_img]:my-4"
+                    dangerouslySetInnerHTML={{ __html: seoContent.htmlContent }}
+                  />
+                ) : seoSections.length > 0 ? (
+                  seoSections.map((sec: any) => (
+                    <div key={sec.id} className="space-y-4">
+                      {sec.headingLevel === 'H2' && (
+                        <h2 className="text-2xl lg:text-3xl font-black text-[#0A5181] uppercase tracking-tighter italic">
+                          {sec.heading}
+                        </h2>
+                      )}
+                      {sec.headingLevel === 'H3' && (
+                        <h3 className="text-xl lg:text-2xl font-black text-[#0A5181] uppercase tracking-tighter italic">
+                          {sec.heading}
+                        </h3>
+                      )}
+                      {sec.headingLevel === 'H4' && (
+                        <h4 className="text-lg font-black text-[#0A5181] uppercase tracking-tighter italic">
+                          {sec.heading}
+                        </h4>
+                      )}
+
+                      {sec.content && (
+                        <div className="text-sm lg:text-base text-gray-600 font-medium leading-[1.8] space-y-4">
+                          {sec.content.split('\n\n').map((para: string, pIdx: number) => (
+                            <p key={pIdx}>{para}</p>
+                          ))}
+                        </div>
+                      )}
+
+                      {sec.bulletPoints && sec.bulletPoints.length > 0 && (
+                        <ul className="space-y-2 pl-2">
+                          {sec.bulletPoints.map((bp: string, bpIdx: number) => (
+                            <li key={bpIdx} className="flex items-start gap-3 text-sm font-semibold text-gray-700">
+                              <span className="text-[#DA222A] font-black">►</span>
+                              <span>{bp}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      {sec.image && (
+                        <div className="my-6 relative w-full h-64 lg:h-80 rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+                          <Image
+                            src={sec.image}
+                            alt={sec.imageAlt || sec.heading || "Section Image"}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
+
+                      {sec.videoUrl && (
+                        <div className="my-6 relative w-full aspect-video rounded-2xl overflow-hidden shadow-md bg-black">
+                          <iframe
+                            src={getYouTubeEmbedUrl(sec.videoUrl)}
+                            title={sec.heading || "Section Video"}
+                            className="w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="space-y-6">
+                    <h2 className="text-2xl lg:text-3xl font-black text-[#0A5181] uppercase tracking-tighter italic">
+                      Premier Retail Destination for {initialCategory?.name} in Ranchi
+                    </h2>
+                    <div className="text-sm lg:text-base text-gray-500 font-medium leading-[1.8] space-y-6 italic">
+                       <p>
+                          Babulal Premkumar stands as a pillar of excellence in the Indian textile landscape. For over four decades, our group has anchored the textile supply chain across Jharkhand, connecting century-old weaving traditions with modern retail infrastructures. 
+                       </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* ══ RELATED CATEGORIES GRID ══ */}
+                {relatedCategories.length > 0 && (
+                  <div className="mt-16 pt-12 border-t border-gray-100">
+                    <div className="flex items-center gap-3 mb-8">
+                      <Layers className="w-5 h-5 text-[#DA222A]" />
+                      <h3 className="text-xl lg:text-2xl font-black text-[#0A5181] uppercase tracking-tighter italic">
+                        Explore Related Categories
+                      </h3>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                      {relatedCategories.map((cat: any) => (
+                        <Link 
+                          key={cat._id} 
+                          href={`/${cat.slug}`}
+                          className="p-4 bg-gray-50 hover:bg-white border border-gray-100 rounded-2xl flex flex-col items-center gap-3 text-center group hover:shadow-lg transition-all"
+                        >
+                          <div className="w-16 h-16 rounded-xl overflow-hidden bg-white border border-gray-100 relative">
+                            <Image
+                              src={cat.image || "/bridal_luxury.png"}
+                              alt={cat.name}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform"
+                            />
+                          </div>
+                          <span className="text-xs font-black uppercase text-[#0A5181] group-hover:text-[#DA222A] transition-colors">
+                            {cat.name}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+             </div>
+          </div>
         </div>
      </div>
   </div>
