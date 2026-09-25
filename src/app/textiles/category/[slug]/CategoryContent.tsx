@@ -186,37 +186,37 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
 
   const handleSubToggle = (subName: string, subId: string) => {
     Haptics.light();
-    setSelectedSubs(prev => {
-      const exists = prev.includes(subName);
-      let next: string[];
-      if (exists) {
-        // Clear sub-subcategories of this sub
-        const subSubsForThisSub = dbSubSubCategories.filter((ss: any) => ss.subCategoryId === subId);
-        const subSubNames = subSubsForThisSub.map((ss: any) => ss.name);
-        setSelectedSubSubs(prevSubSubs => prevSubSubs.filter(name => !subSubNames.includes(name)));
-        next = prev.filter(s => s !== subName);
+
+    const exists = selectedSubs.includes(subName);
+    let nextSubs: string[];
+
+    if (exists) {
+      nextSubs = selectedSubs.filter(s => s !== subName);
+      // Clear sub-subcategories of this sub
+      const subSubsForThisSub = dbSubSubCategories.filter((ss: any) => ss.subCategoryId === subId);
+      const subSubNames = subSubsForThisSub.map((ss: any) => ss.name);
+      setSelectedSubSubs(prevSubSubs => prevSubSubs.filter(name => !subSubNames.includes(name)));
+    } else {
+      nextSubs = [...selectedSubs, subName];
+    }
+
+    setSelectedSubs(nextSubs);
+
+    // Keep address bar URL search param synchronized
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (nextSubs.length > 0) {
+        const slugs = nextSubs.map(n => {
+          const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+          const subObj = displaySubCategories.find((s: any) => norm(s.name) === norm(n));
+          return subObj?.slug || n.toLowerCase().replace(/\s+/g, '-');
+        });
+        url.searchParams.set('sub', slugs.join(','));
       } else {
-        next = [...prev, subName];
+        url.searchParams.delete('sub');
       }
-
-      // Keep address bar URL search param synchronized
-      if (typeof window !== 'undefined') {
-        const url = new URL(window.location.href);
-        if (next.length > 0) {
-          const slugs = next.map(n => {
-            const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-            const subObj = displaySubCategories.find((s: any) => norm(s.name) === norm(n));
-            return subObj?.slug || n.toLowerCase().replace(/\s+/g, '-');
-          });
-          url.searchParams.set('sub', slugs.join(','));
-        } else {
-          url.searchParams.delete('sub');
-        }
-        window.history.replaceState({}, '', url.toString());
-      }
-
-      return next;
-    });
+      window.history.replaceState({}, '', url.toString());
+    }
   };
 
   const handleSubSubToggle = (subSubName: string) => {
