@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import pool, { initDb } from '@/lib/db';
 import { optimizeBase64Image } from '@/lib/image-utils';
+import { generateUniqueSlug } from '@/lib/slug';
 
 function mapProduct(prod: any) {
   if (!prod) return null;
@@ -96,13 +97,8 @@ export async function POST(req: Request) {
     await initDb();
     const data = await req.json();
 
-    // Verification of core fields
-    if (!data.name || !data.slug || !data.businessVertical || !data.category) {
-      return NextResponse.json(
-        { error: 'Missing core fields: name, slug, businessVertical, or category' },
-        { status: 400 }
-      );
-    }
+    // Auto-generate or sanitize unique slug
+    data.slug = await generateUniqueSlug('products', data.name, undefined, data.slug);
 
     // Automatically optimize images
     if (data.image) {
@@ -178,7 +174,7 @@ export async function PATCH(req: Request) {
 
     // Auto-formatting slug if it's being updated
     if (updates.slug) {
-      updates.slug = updates.slug.toLowerCase().replace(/\s+/g, '-');
+      updates.slug = await generateUniqueSlug('products', updates.name || '', id, updates.slug);
     }
     if (updates.businessVertical) {
       updates.businessVertical = updates.businessVertical.toLowerCase();

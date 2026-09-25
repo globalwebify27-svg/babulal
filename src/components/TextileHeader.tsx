@@ -139,20 +139,18 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
           <nav className="flex items-center justify-center gap-3 py-1 lg:overflow-visible overflow-x-auto no-scrollbar snap-x">
             {/* DYNAMIC HEADER CATEGORIES */}
             {(categories.length > 0 ? categories : [
-              { name: "Sarees", slug: "sarees" },
-              { name: "Suits", slug: "suits" },
-              { name: "Kurtis", slug: "kurtis" },
-              { name: "Kids Wear", slug: "kids-wear" },
+              { name: "Sarees", slug: "saree" },
+              { name: "Suits", slug: "suit" },
+              { name: "Kurtis", slug: "kurti" },
+              { name: "Kids Wear", slug: "kids-boys" },
               { name: "Lehenga", slug: "lehenga" },
-              { name: "Home Furnishing", slug: "home-furnishings" },
-              { name: "Mens Wear", slug: "mens-wear" },
-              { name: "Uniforms", slug: "uniforms" }
+              { name: "Mens Wear", slug: "mens-wear" }
             ]).map((cat) => {
               const hasSubs = cat.subcategories && cat.subcategories.length > 0;
               return (
                 <div key={cat.slug} className="group relative shrink-0 snap-start">
                   <Link 
-                    href={`/textiles/category/${cat.slug}`} 
+                    href={`/${cat.slug}`} 
                     className="relative flex items-center gap-1 px-4 py-3.5 md:py-4.5 text-[10px] md:text-[11.5px] font-black uppercase tracking-[.18em] text-gray-700 hover:text-red-600 transition-colors"
                   >
                     {cat.name}
@@ -168,7 +166,7 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
                         {cat.subcategories.map((sub: any, idx: number) => (
                           <Link
                             key={`${sub.slug}-${idx}`}
-                            href={`/textiles/category/${cat.slug}?sub=${sub.slug}`}
+                            href={`/${cat.slug}/${sub.slug}`}
                             className="flex items-center justify-between px-5 py-3 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:text-red-600 hover:bg-gray-50/50 hover:pl-7 transition-all duration-200 group/item"
                           >
                             <span>{sub.name}</span>
@@ -240,7 +238,7 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
                   <div key={i} className="border-b border-gray-100 flex flex-col">
                     <div className="flex items-center justify-between">
                       <Link 
-                        href={isCategory ? `/textiles/category/${item.slug}` : (item.href || `#${item.slug}`)}
+                        href={isCategory ? `/${item.slug}` : (item.href || `#${item.slug}`)}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className="flex-1 px-8 py-5 text-[#DA222A] text-lg font-bold tracking-tight group active:bg-gray-50 transition-colors"
                       >
@@ -263,7 +261,7 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
                           {item.subcategories.map((sub: any, idx: number) => (
                             <Link
                               key={`${sub.slug}-${idx}`}
-                              href={`/textiles/category/${item.slug}?sub=${sub.slug}`}
+                              href={`/${item.slug}/${sub.slug}`}
                               onClick={() => setIsMobileMenuOpen(false)}
                               className="text-[12px] font-black uppercase tracking-widest text-gray-500 hover:text-[#DA222A] py-1 transition-colors"
                             >

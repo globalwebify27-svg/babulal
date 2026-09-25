@@ -65,8 +65,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   await initDb();
   
   const [rows]: any = await pool.query(
-    'SELECT * FROM products WHERE slug = ? AND businessVertical = ? LIMIT 1',
-    [slug, verticalSlug]
+    'SELECT * FROM products WHERE slug = ? LIMIT 1',
+    [slug]
   );
 
   if (rows.length === 0) return { title: 'Product Not Found' };
@@ -75,13 +75,19 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const vertical = Object.values(BUSINESS_VERTICALS).find(v => v.slug === verticalSlug);
 
   const metaDesc = product.seo?.metaDescription || product.shortDescription || product.description?.substring(0, 160) || `Explore ${product.name} from Babulal Premsons Group (100+ Years Legacy).`;
+  const catSlug = product.category ? product.category.toLowerCase().replace(/\s+/g, '-') : 'textiles';
+  const canonicalUrl = `https://www.babulalpremsons.com/${catSlug}/product/${product.slug}`;
 
   return {
     title: `${product.name} | ${vertical?.name || 'Babulal Premsons'}`,
     description: metaDesc,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: `${product.name} | ${vertical?.name || 'Babulal Premsons'}`,
       description: metaDesc,
+      url: canonicalUrl,
       images: product.images?.[0] ? [product.images[0]] : [],
     },
   };
@@ -93,8 +99,8 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
   await initDb();
   
   const [rows]: any = await pool.query(
-    'SELECT * FROM products WHERE slug = ? AND businessVertical = ? LIMIT 1',
-    [slug, verticalSlug]
+    'SELECT * FROM products WHERE slug = ? LIMIT 1',
+    [slug]
   );
 
   if (rows.length === 0) notFound();
@@ -222,21 +228,21 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
 
           {/* ══ BREADCRUMBS ══ */}
           {(() => {
-            const categorySlug = product.category?.toLowerCase().replace(/\s+/g, '-');
+            const categorySlug = product.category ? product.category.toLowerCase().replace(/\s+/g, '-') : 'textiles';
+            const subCategorySlug = product.subCategory ? product.subCategory.toLowerCase().replace(/\s+/g, '-') : null;
             return (
-              <nav className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-[#0A5181]/40 mb-12">
-                <Link href="/" className="hover:text-accent transition-colors">Group Hub</Link>
-                <ChevronRight className="w-3 h-3" />
-                <Link href={`/${verticalSlug}`} className="hover:text-accent transition-colors">{vertical?.name}</Link>
-                <ChevronRight className="w-3 h-3" />
-                <Link
-                  href={verticalSlug === 'textiles' ? `/${verticalSlug}/category/${categorySlug}` : `/${verticalSlug}`}
-                  className="hover:text-accent transition-colors"
-                >
-                  {product.category}
-                </Link>
-                <ChevronRight className="w-3 h-3" />
-                <span className="text-accent">{product.name}</span>
+              <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs md:text-sm font-medium text-gray-500 mb-12 flex-wrap">
+                <Link href="/" className="hover:text-[#0A5181] transition-colors">Home</Link>
+                <span className="text-gray-300">/</span>
+                <Link href={`/${categorySlug}`} className="hover:text-[#0A5181] transition-colors capitalize">{product.category}</Link>
+                {product.subCategory && (
+                  <>
+                    <span className="text-gray-300">/</span>
+                    <Link href={`/${categorySlug}/${subCategorySlug}`} className="hover:text-[#0A5181] transition-colors capitalize">{product.subCategory}</Link>
+                  </>
+                )}
+                <span className="text-gray-300">/</span>
+                <span className="text-[#0A5181] font-bold capitalize" aria-current="page">{product.name}</span>
               </nav>
             );
           })()}

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import pool, { initDb } from '@/lib/db';
+import { generateUniqueSlug } from '@/lib/slug';
 
 function mapSubCategory(sub: any) {
   if (!sub) return null;
@@ -39,9 +40,7 @@ export async function POST(req: Request) {
     const data = await req.json();
     await initDb();
     
-    if (!data.slug) {
-      data.slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    }
+    data.slug = await generateUniqueSlug('sub_categories', data.name, undefined, data.slug);
 
     const [result]: any = await pool.query(
       `INSERT INTO sub_categories (name, slug, categoryId, status, orderIndex, brochureUrl)

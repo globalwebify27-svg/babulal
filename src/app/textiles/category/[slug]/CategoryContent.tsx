@@ -28,6 +28,7 @@ interface CategoryContentProps {
   productsPromise: Promise<any[]>;
   navCategoriesPromise: Promise<any[]>;
   slug: string;
+  initialSubSlug?: string;
 }
 
 export default function CategoryContent({ 
@@ -36,12 +37,11 @@ export default function CategoryContent({
   subSubCategoriesPromise,
   productsPromise, 
   navCategoriesPromise,
-  slug 
+  slug,
+  initialSubSlug
 }: CategoryContentProps) {
   const [isStoreModalOpen, setIsStoreModalOpen] = React.useState(false);
   const allCategories = React.use(navCategoriesPromise) as any[];
-
-
 
   return (
     <div className="bg-white min-h-screen text-[#0A5181] pb-20 md:pb-0">
@@ -61,6 +61,7 @@ export default function CategoryContent({
              productsPromise={productsPromise}
              initialCategory={initialCategory}
              slug={slug}
+             initialSubSlug={initialSubSlug}
              setIsStoreModalOpen={setIsStoreModalOpen}
            />
         </React.Suspense>
@@ -72,7 +73,7 @@ export default function CategoryContent({
   );
 }
 
-function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, productsPromise, initialCategory, slug, setIsStoreModalOpen }: any) {
+function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, productsPromise, initialCategory, slug, initialSubSlug, setIsStoreModalOpen }: any) {
   // Wait for the data to stream in
   const dbSubCategories = subCategoriesPromise ? (React.use(subCategoriesPromise) as any[]) : [];
   const dbSubSubCategories = subSubCategoriesPromise ? (React.use(subSubCategoriesPromise) as any[]) : [];
@@ -153,12 +154,13 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
   }, [activeSubObject, selectedSubs, initialCategory]);
 
   React.useEffect(() => {
-    if (subParam) {
+    const activeParam = subParam || initialSubSlug;
+    if (activeParam) {
       const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-      const slugs = subParam.split(',').map(s => norm(s));
+      const slugs = activeParam.split(',').map((s: string) => norm(s));
       const matchedNames: string[] = [];
       
-      slugs.forEach(targetParam => {
+      slugs.forEach((targetParam: string) => {
         const matchedSub = displaySubCategories.find(
           (s: any) => norm(s.slug) === targetParam || norm(s.name) === targetParam
         );
@@ -180,7 +182,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     } else {
       setSelectedSubs(prev => prev.length !== 0 ? [] : prev);
     }
-  }, [subParam, displaySubCategories]);
+  }, [subParam, initialSubSlug, displaySubCategories]);
 
   const handleSubToggle = (subName: string, subId: string) => {
     Haptics.light();

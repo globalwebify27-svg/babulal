@@ -1,4 +1,6 @@
 import React from 'react';
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import pool, { initDb } from '@/lib/db';
 import { BUSINESS_VERTICALS, VerticalID } from '@/lib/constants';
 import InquiryForm from '@/components/InquiryForm';
@@ -10,13 +12,36 @@ import AutomotiveHeader from '@/components/AutomotiveHeader';
 import Image from 'next/image';
 import Footer from '@/components/Footer';
 import MobileBottomMenu from '@/components/MobileBottomMenu';
-
 import CoverBreadcrumbs from '@/components/CoverBreadcrumbs';
+import { renderTextileCategoryPage } from '@/app/textiles/category/[slug]/page';
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     vertical: string;
     category: string;
+  }>;
+}
+
+export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+  const { vertical: verticalSlug, category: categorySlug } = await params;
+  const categoryName = categorySlug.toLowerCase() === 'all' ? 'All Products' : categorySlug.replace(/-/g, ' ');
+  const isSubCategory = verticalSlug.toLowerCase() !== 'textiles' && verticalSlug.toLowerCase() !== 'honda' && verticalSlug.toLowerCase() !== 'bajaj' && verticalSlug.toLowerCase() !== 'trucking';
+  
+  const canonicalUrl = isSubCategory 
+    ? `https://www.babulalpremsons.com/${verticalSlug}/${categorySlug}`
+    : `https://www.babulalpremsons.com/${categorySlug}`;
+
+  return {
+    title: `${categoryName} Collection | Babulal Premkumar`,
+    description: `Explore wholesale ${categoryName} at Babulal Premkumar. Regional distribution in Ranchi, Jharkhand.`,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${categoryName} Collection | Babulal Premkumar`,
+      description: `Explore wholesale ${categoryName} at Babulal Premkumar.`,
+      url: canonicalUrl,
+    },
   };
 }
 
@@ -40,7 +65,29 @@ function mapProduct(prod: any) {
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { vertical: verticalSlug, category: categorySlug } = await params;
+  await initDb();
+
+  // 1. If vertical is "textiles", render Textile Category Page for categorySlug
+  if (verticalSlug.toLowerCase() === 'textiles') {
+    return renderTextileCategoryPage(categorySlug);
+  }
+
+  // 2. Check if verticalSlug is a parent Category slug (e.g. /saree/fancy-sarees)
+  const [parentCatRows]: any = await pool.query(
+    'SELECT * FROM categories WHERE LOWER(slug) = ? LIMIT 1',
+    [verticalSlug.toLowerCase()]
+  );
+
+  if (parentCatRows.length > 0) {
+    // verticalSlug is parent category (e.g. 'saree'), categorySlug is subcategory (e.g. 'fancy-sarees')
+    return renderTextileCategoryPage(parentCatRows[0].slug, categorySlug);
+  }
+
   const vertical = Object.values(BUSINESS_VERTICALS).find(v => v.slug === verticalSlug);
+  if (!vertical) {
+    notFound();
+  }
+
   const categoryName = categorySlug.toLowerCase() === 'all' ? 'All Products' : categorySlug.replace(/-/g, ' ');
 
   // Fetch products, categories, and subcategories for the vertical

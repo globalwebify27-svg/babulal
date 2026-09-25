@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import pool, { initDb } from '@/lib/db';
 import { optimizeBase64Image } from '@/lib/image-utils';
+import { generateUniqueSlug } from '@/lib/slug';
 
 function mapCategory(cat: any) {
   if (!cat) return null;
@@ -35,10 +36,8 @@ export async function POST(req: Request) {
     console.log('POST CATEGORY DATA:', data);
     await initDb();
     
-    // Auto-generate slug if not provided
-    if (!data.slug) {
-      data.slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    }
+    // Generate unique slug safely
+    data.slug = await generateUniqueSlug('categories', data.name, undefined, data.slug);
 
     // Automatically optimize images if present
     if (data.image) {
@@ -87,7 +86,9 @@ export async function PATCH(req: Request) {
     // Normalize properties for database durability
     const cleanUpdates: any = {};
     if (updates.name) cleanUpdates.name = updates.name;
-    if (updates.slug) cleanUpdates.slug = updates.slug;
+    if (updates.slug) {
+      cleanUpdates.slug = await generateUniqueSlug('categories', updates.name || '', id, updates.slug);
+    }
     if (updates.image !== undefined) {
       cleanUpdates.image = await optimizeBase64Image(updates.image);
     }

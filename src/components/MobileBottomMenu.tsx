@@ -39,7 +39,7 @@ export default function MobileBottomMenu({ categories = [] }: MobileBottomMenuPr
     if (cat.subcategories && cat.subcategories.length > 0) {
       setActiveCategoryForModal(cat);
     } else {
-      router.push(`/textiles/category/${cat.slug}`);
+      router.push(`/${cat.slug}`);
     }
   };
 
@@ -78,7 +78,7 @@ export default function MobileBottomMenu({ categories = [] }: MobileBottomMenuPr
             onTouchEnd={(e) => e.stopPropagation()}
           >
             {displayCategories.map((cat) => {
-              const active = pathname === `/textiles/category/${cat.slug}`;
+              const active = pathname === `/${cat.slug}`;
               return (
                 <button
                   key={cat.slug}
@@ -146,7 +146,7 @@ export default function MobileBottomMenu({ categories = [] }: MobileBottomMenuPr
                   key={sub.slug}
                   onClick={() => {
                     setActiveCategoryForModal(null);
-                    router.push(`/textiles/category/${activeCategoryForModal.slug}?sub=${sub.slug}`);
+                    router.push(`/${activeCategoryForModal.slug}/${sub.slug}`);
                   }}
                   className="flex items-center justify-between p-3.5 bg-gray-50 hover:bg-red-50 hover:text-[#DA222A] rounded-xl text-left text-xs font-bold uppercase tracking-wider transition-colors border border-gray-100"
                 >
@@ -160,7 +160,7 @@ export default function MobileBottomMenu({ categories = [] }: MobileBottomMenuPr
             <button
               onClick={() => {
                 setActiveCategoryForModal(null);
-                router.push(`/textiles/category/${activeCategoryForModal.slug}`);
+                router.push(`/${activeCategoryForModal.slug}`);
               }}
               className="w-full py-4 bg-[#DA222A] hover:bg-[#DA222A]/90 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-[#DA222A]/20"
             >

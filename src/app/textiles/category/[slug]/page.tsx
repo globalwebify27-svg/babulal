@@ -117,21 +117,8 @@ async function fetchSubSubCategoriesData() {
   }));
 }
 
-export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const params = await props.params;
-  return { title: `${params?.slug?.toUpperCase() || "Category"} Collection` };
-}
-
-export default async function CategoryPage(props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params;
-  const slug = params?.slug;
-
-  if (!slug) return <div className="pt-40 text-center">Invalid Segment</div>;
-
-  // Await the category immediately so the Hero can render
+export async function renderTextileCategoryPage(slug: string, initialSubSlug?: string) {
   const category = await fetchCategoryHeaderData(slug);
-
-  // Do NOT await these! Trigger them in parallel to stream the promises down.
   const subCategoriesPromise = fetchSubCategoriesData(category._id ? category._id.toString() : "0");
   const subSubCategoriesPromise = fetchSubSubCategoriesData();
   const productsPromise = fetchProductsData();
@@ -145,6 +132,21 @@ export default async function CategoryPage(props: { params: Promise<{ slug: stri
       productsPromise={productsPromise}
       navCategoriesPromise={navCategoriesPromise}
       slug={slug}
+      initialSubSlug={initialSubSlug}
     />
   );
+}
+
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
+  return { title: `${params?.slug?.toUpperCase() || "Category"} Collection` };
+}
+
+export default async function CategoryPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
+  const slug = params?.slug;
+
+  if (!slug) return <div className="pt-40 text-center">Invalid Segment</div>;
+
+  return renderTextileCategoryPage(slug);
 }
