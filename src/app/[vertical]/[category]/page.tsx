@@ -12,10 +12,10 @@ import Footer from '@/components/Footer';
 import MobileBottomMenu from '@/components/MobileBottomMenu';
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     vertical: string;
     category: string;
-  };
+  }>;
 }
 
 function mapProduct(prod: any) {

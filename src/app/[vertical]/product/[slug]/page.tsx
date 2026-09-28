@@ -23,10 +23,10 @@ import {
 import SocialShare from '@/components/SocialShare';
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     vertical: string;
     slug: string;
-  };
+  }>;
 }
 
 function mapProduct(prod: any) {
