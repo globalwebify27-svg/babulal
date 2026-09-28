@@ -108,7 +108,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none z-0" />
         
         {/* Background Video */}
-        {embedVideoUrl && (embedVideoUrl.toLowerCase().endsWith('.mp4') || embedVideoUrl.toLowerCase().includes('/uploads/')) && (
+        {embedVideoUrl && (embedVideoUrl.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || embedVideoUrl.includes('res.cloudinary.com') || embedVideoUrl.toLowerCase().includes('/uploads/')) && (
           <>
             {/* Desktop Blurred Background Layer */}
             <video 
