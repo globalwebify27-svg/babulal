@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(process.cwd()),
   },
+  webpack: (config) => {
+    config.resolve.alias['@'] = path.join(process.cwd(), 'src');
+    return config;
+  },
   images: {
     remotePatterns: [
       {
