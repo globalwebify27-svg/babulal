@@ -108,7 +108,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none z-0" />
         
         {/* Background Video */}
-        {embedVideoUrl && embedVideoUrl.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || embedVideoUrl.includes('res.cloudinary.com') && (
+        {embedVideoUrl && (embedVideoUrl.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || embedVideoUrl.includes('res.cloudinary.com')) && (
           <>
             {/* Desktop Blurred Background Layer */}
             <video 
@@ -210,7 +210,7 @@ export default function WelcomeClient({ data }: WelcomeClientProps) {
         </section>
 
         {/* ═══ SHOPPING GUIDE VIDEO ═══ */}
-        {embedVideoUrl && !embedVideoUrl.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || embedVideoUrl.includes('res.cloudinary.com') && (
+        {embedVideoUrl && !(embedVideoUrl.toLowerCase().match(/\.(mp4|webm|ogg|mov)$/) || embedVideoUrl.includes('res.cloudinary.com')) && (
           <section className="bg-white rounded-[2rem] overflow-hidden shadow-2xl border border-slate-100/50 animate-reveal" style={{ animationDelay: '200ms' }}>
             <div className="p-6 border-b border-slate-50 flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
