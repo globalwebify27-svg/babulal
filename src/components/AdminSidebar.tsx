@@ -22,7 +22,7 @@ import {
   Video,
   HeartHandshake
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../lib/utils';
 
 const MENU_ITEMS = [
   { name: 'Dashboard', icon: LayoutDashboard, href: '/admin' },

@@ -12,7 +12,7 @@ import {
   Globe,
   MoreVertical
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 
 const ARTICLES = [
   { id: 1, title: 'The Evolution of Banarasi Silk', vertical: 'Textiles', author: 'Ahmad Sana', status: 'Published', date: '21 Mar 2024' },

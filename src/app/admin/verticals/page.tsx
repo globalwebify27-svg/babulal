@@ -17,7 +17,7 @@ import {
   Plus,
   Trash2
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 
 const VERTICALS = [
   { id: 'TEXTILES', name: 'Babulal Premkumar', color: '#095181' },

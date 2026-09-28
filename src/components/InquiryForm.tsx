@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, CheckCircle2, Loader2, Phone, User, Mail, MapPin } from 'lucide-react';
 import { BUSINESS_VERTICALS, VerticalID } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+import { cn } from '../lib/utils';
 
 interface InquiryFormProps {
   verticalId: VerticalID;

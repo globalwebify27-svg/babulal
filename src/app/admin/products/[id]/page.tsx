@@ -16,7 +16,7 @@ import {
   UploadCloud
 } from 'lucide-react';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../../lib/utils';
 import { BUSINESS_VERTICALS } from '@/lib/constants';
 
 // Group Verticals based on the Business logic

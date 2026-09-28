@@ -15,7 +15,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 
 export default function LoginPage() {
   const router = useRouter();

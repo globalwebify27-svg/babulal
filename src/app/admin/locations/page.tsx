@@ -12,7 +12,7 @@ import {
   Clock,
   CheckCircle2
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 
 const LOCATIONS = [
   { id: 1, name: 'Main HQ / Textiles', address: 'Ranchi, Jharkhand, India', contact: '+91 93347 00444', vertical: 'Textiles', status: 'Active' },

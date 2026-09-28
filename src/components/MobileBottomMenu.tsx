@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Home, Phone, X, ChevronRight, ArrowRight } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { cn } from '../lib/utils';
 
 interface SubCategory {
   id: number | string;

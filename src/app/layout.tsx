@@ -4,7 +4,7 @@ import "./globals.css";
 import NavbarWrapper from "@/components/NavbarWrapper";
 import FooterWrapper from "@/components/FooterWrapper";
 import AuthProvider from "@/components/AuthProvider";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 
 const outfit = Outfit({
   variable: "--font-outfit",
