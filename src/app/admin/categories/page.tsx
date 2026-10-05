@@ -19,7 +19,7 @@ import {
   UploadCloud,
   Globe
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ManageCategoriesPage() {

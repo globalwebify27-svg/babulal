@@ -17,7 +17,7 @@ import {
   Loader2,
   Image as ImageIcon
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 import { BUSINESS_VERTICALS } from '@/lib/constants';
 
 export default function AdminProductsPage() {

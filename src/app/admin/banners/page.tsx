@@ -16,7 +16,7 @@ import {
   CheckCircle2,
   ChevronDown
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const VERTICAL_OPTIONS = ['TEXTILES', 'HONDA', 'BAJAJ', 'TRUCKING', 'MANUFACTURING', 'HOME'];

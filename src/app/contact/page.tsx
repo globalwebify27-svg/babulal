@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Clock, MessageSquare, Building2, ChevronRight } from 'lucide-react';
 import InquiryForm from '@/components/InquiryForm';
 import { BUSINESS_VERTICALS, VerticalID } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 import { Haptics } from '@/lib/haptics';
 
 export default function ContactPage() {

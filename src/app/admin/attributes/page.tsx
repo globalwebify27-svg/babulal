@@ -12,7 +12,7 @@ import {
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 
 const ATTRIBUTES = [
   { id: 1, name: 'Fabric', type: 'Select', values: ['Silk', 'Cotton', 'Chiffon', 'Georgette'], status: 'Active' },
