@@ -23,6 +23,7 @@ import { useSearchParams } from 'next/navigation';
 import MobileBottomMenu from '@/components/MobileBottomMenu';
 import CoverBreadcrumbs from '@/components/CoverBreadcrumbs';
 import { isInventoryCatalogEnabled } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 interface CategoryContentProps {
   initialCategory: any;
@@ -608,11 +609,11 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
       )}
 
       {/* ══ DYNAMIC TOP CATEGORY HEADING & SEO CONTENT (TOP DASH IN RANCHI) ══ */}
-      <section className={`bg-white ${showInventoryCatalog ? 'pb-24' : 'py-16 lg:py-24'}`}>
+      <section className={`bg-white ${showInventoryCatalog ? 'pb-24' : 'pt-10 md:pt-14 pb-16 lg:pb-24'}`}>
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
           {/* DYNAMIC YOUTUBE EMBED SECTION ══ */}
           {youtubeEmbedLink && (
-            <div className="mt-20 p-8 bg-[#fbfbfb] border border-gray-100 rounded-3xl space-y-6">
+            <div className={cn("p-8 bg-[#fbfbfb] border border-gray-100 rounded-3xl space-y-6", showInventoryCatalog ? "mt-16" : "mb-12")}>
               <div className="flex items-center gap-3">
                 <PlayCircle className="w-6 h-6 text-[#DA222A]" />
                 <h3 className="text-xl font-black text-[#0A5181] uppercase tracking-tighter italic">
@@ -632,13 +633,13 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
           )}
 
           {/* ══ DYNAMIC TOP CATEGORY HEADING & SEO CONTENT (REFERENCE IMAGE MATCH) ══ */}
-          <div className="mt-20 pt-12 border-t border-gray-100 text-center">
-             <h2 className="text-2xl lg:text-3xl font-black text-[#0A5181] uppercase tracking-wider inline-block relative mb-12">
+          <div className={cn("text-center", showInventoryCatalog ? "mt-16 lg:mt-20 pt-10 lg:pt-12 border-t border-gray-100" : "mt-0 pt-0 border-t-0")}>
+             <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-wider inline-block relative mb-10 lg:mb-12">
                {dynamicTopHeading}
-               <div className="w-16 h-1 bg-[#DA222A] mx-auto mt-2 rounded-full" />
+               <div className="w-16 h-1 bg-[#DA222A] mx-auto mt-2.5 rounded-full" />
              </h2>
 
-             <div className="max-w-5xl mx-auto space-y-8 text-left">
+             <div className="max-w-6xl mx-auto space-y-8 text-left">
                 {seoContent?.htmlContent ? (
                   <div 
                     className="max-w-none text-[#1a2b4b] text-sm md:text-base leading-relaxed space-y-4 font-normal [&_h2]:text-xl [&_h2]:md:text-2xl [&_h2]:font-bold [&_h2]:text-[#0A5181] [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:md:text-xl [&_h3]:font-bold [&_h3]:text-[#0A5181] [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-base [&_h4]:font-bold [&_h4]:text-[#0A5181] [&_h4]:mt-3 [&_h4]:mb-1 [&_p]:text-sm [&_p]:md:text-base [&_p]:leading-relaxed [&_p]:text-gray-700 [&_p]:my-3 [&_ul]:space-y-2 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:text-sm [&_li]:md:text-base [&_li]:text-gray-700 [&_img]:rounded-2xl [&_img]:shadow-lg [&_img]:my-4"
