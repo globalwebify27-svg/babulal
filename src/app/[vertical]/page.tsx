@@ -2,7 +2,7 @@ import React from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import pool, { initDb } from '@/lib/db';
-import { renderTextileCategoryPage } from '../textiles/category/[slug]/page';
+import { renderTextileCategoryPage } from '@/app/textiles/category/[slug]/render';
 import TextilesPage from '../textiles/page';
 import HondaPage from '../honda/page';
 import BajajPage from '../bajaj/page';

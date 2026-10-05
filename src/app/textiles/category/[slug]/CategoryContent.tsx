@@ -22,6 +22,7 @@ import { Haptics } from '@/lib/haptics';
 import { useSearchParams } from 'next/navigation';
 import MobileBottomMenu from '@/components/MobileBottomMenu';
 import CoverBreadcrumbs from '@/components/CoverBreadcrumbs';
+import { isInventoryCatalogEnabled } from '@/lib/constants';
 
 interface CategoryContentProps {
   initialCategory: any;
@@ -78,6 +79,7 @@ export default function CategoryContent({
              slug={slug}
              initialSubSlug={initialSubSlug}
              setIsStoreModalOpen={setIsStoreModalOpen}
+             allCategories={allCategories}
            />
         </React.Suspense>
       </main>
@@ -88,7 +90,7 @@ export default function CategoryContent({
   );
 }
 
-function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, productsPromise, seoDataPromise, initialCategory, slug, initialSubSlug, setIsStoreModalOpen }: any) {
+function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, productsPromise, seoDataPromise, initialCategory, slug, initialSubSlug, setIsStoreModalOpen, allCategories }: any) {
   // Wait for the data to stream in
   const dbSubCategories = subCategoriesPromise ? (React.use(subCategoriesPromise) as any[]) : [];
   const dbSubSubCategories = subSubCategoriesPromise ? (React.use(subSubCategoriesPromise) as any[]) : [];
@@ -316,6 +318,53 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     return items;
   }, [initialCategory, slug, selectedSubs, selectedSubSubs]);
 
+  const showInventoryCatalog = isInventoryCatalogEnabled(slug);
+
+  const computedRelatedCategories = React.useMemo(() => {
+    if (relatedCategories && relatedCategories.length > 0) {
+      return relatedCategories.map((cat: any) => ({
+        _id: cat._id || cat.id?.toString() || cat.slug,
+        name: cat.name,
+        slug: cat.slug ? (cat.slug.startsWith('/') ? cat.slug : `/${cat.slug}`) : `/textiles/category/${cat.slug}`,
+        image: cat.image || initialCategory?.image || "/bridal_luxury.png"
+      }));
+    }
+
+    const currentNorm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+    const activeSubsNorm = selectedSubs.map(currentNorm);
+    const parentSlug = initialCategory?.slug || slug;
+
+    if (displaySubCategories && displaySubCategories.length > 0) {
+      return displaySubCategories
+        .filter((sub: any) => {
+          const sNorm = currentNorm(sub.name);
+          const slNorm = currentNorm(sub.slug);
+          const activeCatNorm = currentNorm(slug);
+          return !activeSubsNorm.includes(sNorm) && slNorm !== activeCatNorm;
+        })
+        .map((sub: any) => ({
+          _id: sub._id || sub.id?.toString() || sub.slug,
+          name: sub.name,
+          slug: `/${parentSlug}/${sub.slug || sub.name.toLowerCase().replace(/\s+/g, '-')}`,
+          image: sub.image || initialCategory?.image || "/bridal_luxury.png"
+        }));
+    }
+
+    if (allCategories && allCategories.length > 0) {
+      return allCategories
+        .filter((c: any) => currentNorm(c.slug) !== currentNorm(slug))
+        .slice(0, 6)
+        .map((c: any) => ({
+          _id: c._id || c.id?.toString() || c.slug,
+          name: c.name,
+          slug: `/textiles/category/${c.slug}`,
+          image: c.image || "/bridal_luxury.png"
+        }));
+    }
+
+    return [];
+  }, [relatedCategories, displaySubCategories, allCategories, selectedSubs, initialCategory, slug]);
+
   const youtubeEmbedLink = seoContent?.youtubeUrl ? getYouTubeEmbedUrl(seoContent.youtubeUrl) : '';
 
   return (
@@ -344,7 +393,10 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
          </div>
       </section>
 
-      {/* ══ FEATURED PIECES SECTION DIVIDER ══ */}
+      {/* ══ INVENTORY CATALOG SECTION (CONDITIONALLY RENDERED) ══ */}
+      {showInventoryCatalog && (
+        <>
+          {/* ══ FEATURED PIECES SECTION DIVIDER ══ */}
       <section className="bg-white py-12 lg:py-16">
          <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 pb-10">
@@ -547,9 +599,18 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
                   <p className="text-xs uppercase tracking-widest font-bold text-gray-400 text-center max-w-md">Our procurement team is currently curating premium institutional pieces for this vertical. Check back shortly.</p>
                </div>
              )}
-          </div>
+           </div>
+        </div>
+     </div>
+  </div>
+ </section>
+        </>
+      )}
 
-          {/* ══ DYNAMIC YOUTUBE EMBED SECTION ══ */}
+      {/* ══ DYNAMIC TOP CATEGORY HEADING & SEO CONTENT (TOP DASH IN RANCHI) ══ */}
+      <section className={`bg-white ${showInventoryCatalog ? 'pb-24' : 'py-16 lg:py-24'}`}>
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+          {/* DYNAMIC YOUTUBE EMBED SECTION ══ */}
           {youtubeEmbedLink && (
             <div className="mt-20 p-8 bg-[#fbfbfb] border border-gray-100 rounded-3xl space-y-6">
               <div className="flex items-center gap-3">
@@ -659,7 +720,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
                 )}
 
                 {/* ══ RELATED CATEGORIES GRID ══ */}
-                {relatedCategories.length > 0 && (
+                {computedRelatedCategories.length > 0 && (
                   <div className="mt-16 pt-12 border-t border-gray-100">
                     <div className="flex items-center gap-3 mb-8">
                       <Layers className="w-5 h-5 text-[#DA222A]" />
@@ -668,10 +729,10 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
                       </h3>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                      {relatedCategories.map((cat: any) => (
+                      {computedRelatedCategories.map((cat: any) => (
                         <Link 
                           key={cat._id} 
-                          href={`/${cat.slug}`}
+                          href={cat.slug}
                           className="p-4 bg-gray-50 hover:bg-white border border-gray-100 rounded-2xl flex flex-col items-center gap-3 text-center group hover:shadow-lg transition-all"
                         >
                           <div className="w-16 h-16 rounded-xl overflow-hidden bg-white border border-gray-100 relative">
@@ -693,10 +754,8 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
              </div>
           </div>
         </div>
-     </div>
-  </div>
-</section>
-</>
+      </section>
+    </>
   );
 }
 

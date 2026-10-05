@@ -65,3 +65,21 @@ export const BUSINESS_VERTICALS = {
 
 export type VerticalID = keyof typeof BUSINESS_VERTICALS;
 export type Vertical = typeof BUSINESS_VERTICALS[VerticalID];
+
+/**
+ * Inventory Catalog Section Visibility Configuration
+ * Default: false (disabled by default as per Requirement 1).
+ * Designed for future Admin Panel control (site-wide or per-category).
+ */
+export interface InventoryCatalogConfig {
+  enabled: boolean;
+}
+
+export const INVENTORY_CATALOG_CONFIG: InventoryCatalogConfig = {
+  enabled: false,
+};
+
+export function isInventoryCatalogEnabled(_categorySlug?: string): boolean {
+  return INVENTORY_CATALOG_CONFIG.enabled;
+}
+

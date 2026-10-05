@@ -70,6 +70,7 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
   const [bannerAlt, setBannerAlt] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [relatedCategoryIds, setRelatedCategoryIds] = useState<string[]>([]);
+  const [showInventoryCatalog, setShowInventoryCatalog] = useState(false);
 
   // Dynamic Content Sections (Structured)
   const [sections, setSections] = useState<Section[]>([]);
@@ -114,6 +115,11 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
           setBannerAlt(data.seoContent.bannerAlt || '');
           setYoutubeUrl(data.seoContent.youtubeUrl || '');
           setRelatedCategoryIds(data.seoContent.relatedCategoryIds || []);
+          setShowInventoryCatalog(
+            data.seoContent.showInventoryCatalog !== undefined && data.seoContent.showInventoryCatalog !== null 
+              ? !!data.seoContent.showInventoryCatalog 
+              : false
+          );
 
           if (data.seoContent.htmlContent) {
             setActiveTab('word');
@@ -273,6 +279,7 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
         bannerAlt,
         youtubeUrl,
         relatedCategoryIds,
+        showInventoryCatalog,
         sections
       };
 
@@ -541,6 +548,53 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
               onChange={(e) => setIntroContent(e.target.value)}
               className="w-full px-5 py-3.5 bg-[#f8fafc] border border-[#d1d9e6] rounded-2xl text-xs font-medium text-[#1a2b4b] outline-none leading-relaxed"
             />
+          </div>
+        </div>
+
+        {/* SECTION: INVENTORY CATALOG VISIBILITY */}
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-[#d1d9e6] space-y-6">
+          <div className="flex items-center gap-3 border-b border-[#f0f3f8] pb-5">
+            <Eye className="w-6 h-6 text-emerald-600" />
+            <div>
+              <h2 className="text-base font-black text-[#1a2b4b] uppercase italic italic-accent">Inventory Catalog Visibility</h2>
+              <p className="text-[10px] font-bold text-[#1a2b4b]/40 uppercase tracking-widest">Control whether the Inventory Catalog section renders on this public page</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 bg-[#f8fafc] rounded-2xl border border-[#d1d9e6]">
+            <div className="space-y-1">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-black text-[#1a2b4b] uppercase tracking-wide">
+                  Inventory Catalog Section
+                </span>
+                <span className={cn(
+                  "text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded",
+                  showInventoryCatalog 
+                    ? "bg-emerald-100 text-emerald-700" 
+                    : "bg-slate-200 text-slate-600"
+                )}>
+                  {showInventoryCatalog ? 'ENABLED (VISIBLE)' : 'DISABLED (HIDDEN BY DEFAULT)'}
+                </span>
+              </div>
+              <p className="text-[10px] font-bold text-[#1a2b4b]/50 uppercase tracking-wider">
+                {showInventoryCatalog 
+                  ? "The Inventory Catalog filter sidebar, product grid, and empty states are currently visible on the public page."
+                  : "The Inventory Catalog section is hidden. The page naturally collapses and 'Top Dash in Ranchi' moves up directly."}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowInventoryCatalog(!showInventoryCatalog)}
+              className={cn(
+                "px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 shrink-0 cursor-pointer",
+                showInventoryCatalog
+                  ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                  : "bg-slate-800 text-white hover:bg-slate-900"
+              )}
+            >
+              {showInventoryCatalog ? 'Disable Catalog' : 'Enable Catalog'}
+            </button>
           </div>
         </div>
 

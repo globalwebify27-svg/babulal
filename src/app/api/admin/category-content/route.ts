@@ -159,6 +159,7 @@ export async function POST(request: Request) {
       bannerAlt,
       youtubeUrl,
       relatedCategoryIds = [],
+      showInventoryCatalog = false,
       status = 'Published',
       sections = []
     } = body;
@@ -194,19 +195,20 @@ export async function POST(request: Request) {
     }
 
     const relatedJson = JSON.stringify(relatedCategoryIds);
+    const isShowCatalog = !!showInventoryCatalog;
 
     if (seoContentId) {
       await pool.query(
         `UPDATE category_seo_content SET
           h1 = ?, metaTitle = ?, metaDescription = ?, canonicalUrl = ?,
           robotsIndex = ?, robotsFollow = ?, htmlContent = ?, introContent = ?, bannerImage = ?,
-          bannerAlt = ?, youtubeUrl = ?, relatedCategoryIds = ?, status = ?,
+          bannerAlt = ?, youtubeUrl = ?, relatedCategoryIds = ?, showInventoryCatalog = ?, status = ?,
           updatedAt = NOW()
          WHERE id = ?`,
         [
           h1 || null, metaTitle || null, metaDescription || null, canonicalUrl || null,
           robotsIndex, robotsFollow, htmlContent || null, introContent || null, bannerImage || null,
-          bannerAlt || null, youtubeUrl || null, relatedJson, status,
+          bannerAlt || null, youtubeUrl || null, relatedJson, isShowCatalog, status,
           seoContentId
         ]
       );
@@ -215,12 +217,12 @@ export async function POST(request: Request) {
         `INSERT INTO category_seo_content (
           categoryId, subCategoryId, subSubCategoryId, h1, metaTitle, metaDescription, canonicalUrl,
           robotsIndex, robotsFollow, htmlContent, introContent, bannerImage, bannerAlt, youtubeUrl,
-          relatedCategoryIds, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          relatedCategoryIds, showInventoryCatalog, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           numCatId, numSubCatId, numSubSubCatId, h1 || null, metaTitle || null, metaDescription || null, canonicalUrl || null,
           robotsIndex, robotsFollow, htmlContent || null, introContent || null, bannerImage || null, bannerAlt || null, youtubeUrl || null,
-          relatedJson, status
+          relatedJson, isShowCatalog, status
         ]
       );
       seoContentId = insertRes.insertId;

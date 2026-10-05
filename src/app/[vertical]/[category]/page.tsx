@@ -2,7 +2,7 @@ import React from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import pool, { initDb } from '@/lib/db';
-import { BUSINESS_VERTICALS, VerticalID } from '@/lib/constants';
+import { BUSINESS_VERTICALS, VerticalID, isInventoryCatalogEnabled } from '@/lib/constants';
 import InquiryForm from '@/components/InquiryForm';
 import { PlayCircle, FileText, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -13,7 +13,7 @@ import Image from 'next/image';
 import Footer from '@/components/Footer';
 import MobileBottomMenu from '@/components/MobileBottomMenu';
 import CoverBreadcrumbs from '@/components/CoverBreadcrumbs';
-import { renderTextileCategoryPage } from '@/app/textiles/category/[slug]/page';
+import { renderTextileCategoryPage } from '@/app/textiles/category/[slug]/render';
 
 interface CategoryPageProps {
   params: Promise<{
@@ -203,15 +203,17 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       </section>
 
       {/* PRODUCT GRID WITH FILTER SYSTEM */}
-      <section className="py-24 px-6 max-w-7xl mx-auto">
-        <InteractiveCatalog
-          products={products}
-          categories={categories}
-          subCategories={subCategories}
-          verticalSlug={verticalSlug}
-          initialCategorySlug={categorySlug}
-        />
-      </section>
+      {isInventoryCatalogEnabled(categorySlug) && (
+        <section className="py-24 px-6 max-w-7xl mx-auto">
+          <InteractiveCatalog
+            products={products}
+            categories={categories}
+            subCategories={subCategories}
+            verticalSlug={verticalSlug}
+            initialCategorySlug={categorySlug}
+          />
+        </section>
+      )}
 
       {/* LEAD CAPTURE - CONTINUOUS CONVERSION */}
       <section className="py-24 bg-surface-dim px-6" id="inquiry-form-section">

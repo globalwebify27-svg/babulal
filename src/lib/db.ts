@@ -402,6 +402,7 @@ export async function initDb() {
           bannerAlt VARCHAR(255),
           youtubeUrl VARCHAR(500),
           relatedCategoryIds TEXT,
+          showInventoryCatalog BOOLEAN DEFAULT FALSE,
           status VARCHAR(50) DEFAULT 'Published',
           createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -417,6 +418,9 @@ export async function initDb() {
       } catch (e) {}
       try {
         await connection.query(`ALTER TABLE category_seo_content ADD COLUMN htmlContent LONGTEXT AFTER robotsFollow`);
+      } catch (e) {}
+      try {
+        await connection.query(`ALTER TABLE category_seo_content ADD COLUMN showInventoryCatalog BOOLEAN DEFAULT FALSE AFTER relatedCategoryIds`);
       } catch (e) {}
 
       // 12. Create Category SEO Sections table
