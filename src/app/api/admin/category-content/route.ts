@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 
     // Fetch all main categories for related categories selection
     const [allCategories]: any = await pool.query(
-      "SELECT id, name, slug, image FROM categories WHERE status = 'Active' ORDER BY orderIndex ASC"
+      "SELECT id, name, slug, image, cardImage FROM categories WHERE status = 'Active' ORDER BY orderIndex ASC"
     );
 
     let targetInfo: any = null;

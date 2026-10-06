@@ -631,7 +631,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
                     <div className="relative aspect-[4/5] overflow-hidden bg-gray-100 rounded-3xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)]">
                       <div className="absolute inset-0 bg-[#0A5181]/0 group-hover:bg-[#0A5181]/40 transition-all duration-700 z-10" />
                       <Image
-                        src={cat.image || '/textile_factory.png'}
+                        src={cat.cardImage || cat.image || '/textile_factory.png'}
                         alt={cat.name}
                         fill
                         sizes="(max-width: 1024px) 100vw, 33vw"

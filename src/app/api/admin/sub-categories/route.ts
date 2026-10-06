@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import pool, { initDb } from '@/lib/db';
 import { generateUniqueSlug } from '@/lib/slug';
+import { optimizeBase64Image } from '@/lib/image-utils';
 
 function mapSubCategory(sub: any) {
   if (!sub) return null;
@@ -8,6 +9,8 @@ function mapSubCategory(sub: any) {
     ...sub,
     _id: sub.id.toString(),
     category: sub.categoryId ? sub.categoryId.toString() : null,
+    image: sub.image || null,
+    cardImage: sub.cardImage || null,
     order: sub.orderIndex
   };
 }
@@ -42,13 +45,22 @@ export async function POST(req: Request) {
     
     data.slug = await generateUniqueSlug('sub_categories', data.name, undefined, data.slug);
 
+    if (data.image) {
+      data.image = await optimizeBase64Image(data.image);
+    }
+    if (data.cardImage) {
+      data.cardImage = await optimizeBase64Image(data.cardImage);
+    }
+
     const [result]: any = await pool.query(
-      `INSERT INTO sub_categories (name, slug, categoryId, status, orderIndex, brochureUrl)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO sub_categories (name, slug, categoryId, image, cardImage, status, orderIndex, brochureUrl)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.name,
         data.slug,
         data.categoryId || data.category,
+        data.image || null,
+        data.cardImage || null,
         data.status || 'Active',
         data.order !== undefined ? data.order : (data.orderIndex !== undefined ? data.orderIndex : 0),
         data.brochureUrl || null
@@ -83,6 +95,13 @@ export async function PATCH(req: Request) {
     
     await initDb();
     
+    if (updates.image) {
+      updates.image = await optimizeBase64Image(updates.image);
+    }
+    if (updates.cardImage) {
+      updates.cardImage = await optimizeBase64Image(updates.cardImage);
+    }
+
     const keys = Object.keys(updates);
     if (keys.length > 0) {
       const setClause = keys.map(key => {

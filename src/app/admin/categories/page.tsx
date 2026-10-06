@@ -35,6 +35,7 @@ export default function ManageCategoriesPage() {
     slug: '',
     parentVertical: 'textiles',
     image: '',
+    cardImage: '',
     showInHeader: true,
     isCurated: false,
     status: 'Active',
@@ -299,6 +300,7 @@ export default function ManageCategoriesPage() {
         slug: category.slug,
         parentVertical: category.parentVertical,
         image: category.image || '',
+        cardImage: category.cardImage || '',
         showInHeader: category.showInHeader,
         isCurated: category.isCurated || false,
         status: category.status,
@@ -311,6 +313,7 @@ export default function ManageCategoriesPage() {
         slug: '',
         parentVertical: 'textiles',
         image: '',
+        cardImage: '',
         showInHeader: true,
         isCurated: false,
         status: 'Active',
@@ -320,11 +323,20 @@ export default function ManageCategoriesPage() {
     setIsModalOpen(true);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => setFormData({ ...formData, image: reader.result as string });
+      reader.onloadend = () => setFormData(prev => ({ ...prev, image: reader.result as string }));
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCardFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setFormData(prev => ({ ...prev, cardImage: reader.result as string }));
       reader.readAsDataURL(file);
     }
   };
@@ -440,9 +452,22 @@ export default function ManageCategoriesPage() {
                             </div>
                          </td>
                          <td className="px-8 py-6">
-                            <button className="flex items-center gap-2 text-[#1a2b4b] text-[10px] font-bold uppercase tracking-widest hover:text-[#095181] transition-colors">
-                               <Eye className="w-3.5 h-3.5" /> View Media
-                            </button>
+                            <div className="flex flex-col gap-1.5">
+                               <div className="flex items-center gap-2">
+                                  <span className={cn(
+                                     "text-[8px] font-black uppercase px-2 py-0.5 rounded",
+                                     cat.cardImage ? "bg-emerald-100 text-emerald-800 border border-emerald-200" : "bg-gray-100 text-gray-500"
+                                  )}>
+                                     Card: {cat.cardImage ? 'Custom' : 'Fallback'}
+                                  </span>
+                                  <span className={cn(
+                                     "text-[8px] font-black uppercase px-2 py-0.5 rounded",
+                                     cat.image ? "bg-purple-100 text-purple-800 border border-purple-200" : "bg-gray-100 text-gray-500"
+                                  )}>
+                                     Cover: {cat.image ? 'Set' : 'Default'}
+                                  </span>
+                               </div>
+                            </div>
                          </td>
                          <td className="px-8 py-6">
                             <div 
@@ -577,19 +602,48 @@ export default function ManageCategoriesPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-[#1a2b4b]/40 uppercase tracking-widest">Banner Image (Optional)</label>
+                {/* 1. CATEGORY CARD IMAGE */}
+                <div className="space-y-2 p-4 bg-[#f8fafc] rounded-2xl border border-[#d1d9e6]">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-black text-[#1a2b4b] uppercase tracking-widest flex items-center gap-1.5">
+                      <ImageIcon className="w-3.5 h-3.5 text-[#095181]" /> Category Card Image
+                    </label>
+                    <span className="text-[9px] font-bold text-[#1a2b4b]/40 uppercase">Used in related category cards & listings</span>
+                  </div>
                   <div className="flex items-center gap-4">
-                    {formData.image && (
-                      <div className="w-16 h-16 rounded-xl overflow-hidden border border-[#d1d9e6] bg-[#f8fafc]">
-                        <img src={formData.image} className="w-full h-full object-cover" />
+                    {(formData.cardImage || formData.image) && (
+                      <div className="w-16 h-16 rounded-xl overflow-hidden border border-[#d1d9e6] bg-white shrink-0">
+                        <img src={formData.cardImage || formData.image} alt="Card Preview" className="w-full h-full object-cover" />
                       </div>
                     )}
                     <label className="flex-1 cursor-pointer">
-                      <div className="w-full px-5 py-3 bg-[#f8fafc] border border-[#d1d9e6] border-dashed rounded-xl text-[10px] font-black text-[#1a2b4b]/40 uppercase tracking-widest text-center hover:bg-white transition-all">
-                        {formData.image ? 'CHANGE IMAGE' : 'UPLOAD NODE ASSET'}
+                      <div className="w-full px-5 py-3 bg-white border border-[#d1d9e6] border-dashed rounded-xl text-[10px] font-black text-[#1a2b4b]/60 uppercase tracking-widest text-center hover:bg-[#f8fafc] transition-all">
+                        {formData.cardImage ? 'CHANGE CARD IMAGE' : 'UPLOAD CARD IMAGE'}
                       </div>
-                      <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
+                      <input type="file" className="hidden" accept="image/*" onChange={handleCardFileUpload} />
+                    </label>
+                  </div>
+                </div>
+
+                {/* 2. CATEGORY COVER / BANNER IMAGE */}
+                <div className="space-y-2 p-4 bg-[#f8fafc] rounded-2xl border border-[#d1d9e6]">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-black text-[#1a2b4b] uppercase tracking-widest flex items-center gap-1.5">
+                      <ImageIcon className="w-3.5 h-3.5 text-purple-600" /> Category Cover / Banner Image
+                    </label>
+                    <span className="text-[9px] font-bold text-[#1a2b4b]/40 uppercase">Used as page hero banner background</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    {formData.image && (
+                      <div className="w-16 h-16 rounded-xl overflow-hidden border border-[#d1d9e6] bg-white shrink-0">
+                        <img src={formData.image} alt="Cover Preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <label className="flex-1 cursor-pointer">
+                      <div className="w-full px-5 py-3 bg-white border border-[#d1d9e6] border-dashed rounded-xl text-[10px] font-black text-[#1a2b4b]/60 uppercase tracking-widest text-center hover:bg-[#f8fafc] transition-all">
+                        {formData.image ? 'CHANGE COVER IMAGE' : 'UPLOAD COVER IMAGE'}
+                      </div>
+                      <input type="file" className="hidden" accept="image/*" onChange={handleCoverFileUpload} />
                     </label>
                   </div>
                 </div>

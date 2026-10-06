@@ -328,7 +328,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
         _id: cat._id || cat.id?.toString() || cat.slug,
         name: cat.name,
         slug: cat.slug ? (cat.slug.startsWith('/') ? cat.slug : `/${cat.slug}`) : `/textiles/category/${cat.slug}`,
-        image: cat.image || initialCategory?.image || "/bridal_luxury.png"
+        image: cat.cardImage || cat.image || cat.seoBannerImage || initialCategory?.cardImage || initialCategory?.image || "/bridal_luxury.png"
       }));
     }
 
@@ -348,7 +348,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
           _id: sub._id || sub.id?.toString() || sub.slug,
           name: sub.name,
           slug: `/${parentSlug}/${sub.slug || sub.name.toLowerCase().replace(/\s+/g, '-')}`,
-          image: sub.image || initialCategory?.image || "/bridal_luxury.png"
+          image: sub.cardImage || sub.image || sub.seoBannerImage || initialCategory?.cardImage || initialCategory?.image || "/bridal_luxury.png"
         }));
     }
 
@@ -360,7 +360,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
           _id: c._id || c.id?.toString() || c.slug,
           name: c.name,
           slug: `/textiles/category/${c.slug}`,
-          image: c.image || "/bridal_luxury.png"
+          image: c.cardImage || c.image || c.seoBannerImage || "/bridal_luxury.png"
         }));
     }
 
@@ -386,7 +386,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
           _id: sub._id || sub.id?.toString() || subSlug,
           name: sub.name,
           slug: `/${parentSlug}/${subSlug}`,
-          image: sub.image || initialCategory?.image || "/bridal_luxury.png"
+          image: sub.cardImage || sub.image || sub.seoBannerImage || initialCategory?.cardImage || initialCategory?.image || "/bridal_luxury.png"
         };
       });
   }, [displaySubCategories, selectedSubs, initialCategory, slug]);

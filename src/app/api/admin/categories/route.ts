@@ -8,6 +8,7 @@ function mapCategory(cat: any) {
   return {
     ...cat,
     _id: cat.id.toString(),
+    cardImage: cat.cardImage || null,
     order: cat.orderIndex,
     showInHeader: !!cat.showInHeader,
     topBusiness: !!cat.topBusiness,
@@ -43,14 +44,18 @@ export async function POST(req: Request) {
     if (data.image) {
       data.image = await optimizeBase64Image(data.image);
     }
+    if (data.cardImage) {
+      data.cardImage = await optimizeBase64Image(data.cardImage);
+    }
 
     const [result]: any = await pool.query(
-      `INSERT INTO categories (name, slug, image, showInHeader, topBusiness, isCurated, orderIndex, status, parentVertical)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO categories (name, slug, image, cardImage, showInHeader, topBusiness, isCurated, orderIndex, status, parentVertical)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.name,
         data.slug,
         data.image || null,
+        data.cardImage || null,
         data.showInHeader !== undefined ? !!data.showInHeader : true,
         data.topBusiness !== undefined ? !!data.topBusiness : false,
         data.isCurated !== undefined ? !!data.isCurated : false,
@@ -91,6 +96,9 @@ export async function PATCH(req: Request) {
     }
     if (updates.image !== undefined) {
       cleanUpdates.image = await optimizeBase64Image(updates.image);
+    }
+    if (updates.cardImage !== undefined) {
+      cleanUpdates.cardImage = await optimizeBase64Image(updates.cardImage);
     }
     if (updates.showInHeader !== undefined) cleanUpdates.showInHeader = !!updates.showInHeader;
     if (updates.isCurated !== undefined) cleanUpdates.isCurated = !!updates.isCurated;

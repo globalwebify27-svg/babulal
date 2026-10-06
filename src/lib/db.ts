@@ -97,6 +97,7 @@ export async function initDb() {
           name VARCHAR(255) NOT NULL,
           slug VARCHAR(255) NOT NULL UNIQUE,
           image LONGTEXT,
+          cardImage LONGTEXT,
           subCategoryCount INT DEFAULT 0,
           faqCount INT DEFAULT 0,
           showInHeader BOOLEAN DEFAULT TRUE,
@@ -110,6 +111,13 @@ export async function initDb() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
 
+      // Migration: Add cardImage to categories if missing
+      try {
+        await connection.query(`ALTER TABLE categories ADD COLUMN cardImage LONGTEXT AFTER image`);
+      } catch (err) {
+        // Column may already exist
+      }
+
       // 3. Create Sub-Categories table
       await connection.query(`
         CREATE TABLE IF NOT EXISTS sub_categories (
@@ -117,6 +125,8 @@ export async function initDb() {
           name VARCHAR(255) NOT NULL,
           slug VARCHAR(255) NOT NULL,
           categoryId INT NOT NULL,
+          image LONGTEXT,
+          cardImage LONGTEXT,
           status VARCHAR(50) DEFAULT 'Active',
           orderIndex INT DEFAULT 0,
           brochureUrl VARCHAR(500),
@@ -125,6 +135,14 @@ export async function initDb() {
           FOREIGN KEY (categoryId) REFERENCES categories(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
+
+      // Migration: Add image and cardImage to sub_categories if missing
+      try {
+        await connection.query(`ALTER TABLE sub_categories ADD COLUMN image LONGTEXT AFTER categoryId`);
+      } catch (err) {}
+      try {
+        await connection.query(`ALTER TABLE sub_categories ADD COLUMN cardImage LONGTEXT AFTER image`);
+      } catch (err) {}
 
       // 3.5. Create Sub-Sub-Categories table
       await connection.query(`

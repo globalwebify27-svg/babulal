@@ -28,7 +28,12 @@ export async function fetchSubCategoriesData(categoryId: string) {
   await initDb();
   
   const [rows]: any = await pool.query(
-    'SELECT * FROM sub_categories WHERE categoryId = ? ORDER BY orderIndex ASC',
+    `SELECT s.*, seo.bannerImage as seoBannerImage 
+     FROM sub_categories s 
+     LEFT JOIN category_seo_content seo ON s.id = seo.subCategoryId 
+       AND (seo.status IS NULL OR seo.status = 'Published') 
+     WHERE s.categoryId = ? 
+     ORDER BY s.orderIndex ASC`,
     [Number(categoryId)]
   );
 
@@ -36,7 +41,8 @@ export async function fetchSubCategoriesData(categoryId: string) {
     ...sub,
     _id: sub.id.toString(),
     category: sub.categoryId.toString(),
-    order: sub.orderIndex
+    order: sub.orderIndex,
+    seoBannerImage: sub.seoBannerImage || null
   }));
 }
 
@@ -72,7 +78,12 @@ export async function fetchAllCategoriesData() {
       "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
     ),
     pool.query(
-      "SELECT * FROM sub_categories WHERE status = 'Active' ORDER BY orderIndex ASC"
+      `SELECT s.*, seo.bannerImage as seoBannerImage 
+       FROM sub_categories s 
+       LEFT JOIN category_seo_content seo ON s.id = seo.subCategoryId 
+         AND (seo.status IS NULL OR seo.status = 'Published') 
+       WHERE s.status = 'Active' 
+       ORDER BY s.orderIndex ASC`
     )
   ]);
 
@@ -80,7 +91,8 @@ export async function fetchAllCategoriesData() {
     ...sub,
     _id: sub.id.toString(),
     categoryId: sub.categoryId.toString(),
-    order: sub.orderIndex
+    order: sub.orderIndex,
+    seoBannerImage: sub.seoBannerImage || null
   }));
 
   return categoriesRows.map((cat: any) => {
@@ -173,7 +185,7 @@ export async function fetchSeoContentData(catId: string, subSlug?: string, subSu
     if (relatedIds.length > 0) {
       const placeholders = relatedIds.map(() => '?').join(',');
       const [relRows]: any = await pool.query(
-        `SELECT id, name, slug, image FROM categories WHERE id IN (${placeholders}) AND status = 'Active'`,
+        `SELECT id, name, slug, image, cardImage FROM categories WHERE id IN (${placeholders}) AND status = 'Active'`,
         relatedIds
       );
       relatedCategories = relRows.map((c: any) => ({ ...c, _id: c.id.toString() }));
