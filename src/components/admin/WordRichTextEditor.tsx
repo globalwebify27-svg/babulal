@@ -191,16 +191,8 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
   const insertImageIntoEditor = () => {
     if (!imagePreview) return;
 
-    let styleString = '';
-    if (imageFloat === 'right') {
-      styleString = `float: right; margin-left: 24px; margin-bottom: 16px; max-width: ${imageWidth}; width: 100%; border-radius: 16px; shadow: 0 4px 12px rgba(0,0,0,0.1);`;
-    } else if (imageFloat === 'left') {
-      styleString = `float: left; margin-right: 24px; margin-bottom: 16px; max-width: ${imageWidth}; width: 100%; border-radius: 16px; shadow: 0 4px 12px rgba(0,0,0,0.1);`;
-    } else {
-      styleString = `display: block; margin: 20px auto; max-width: 100%; width: 100%; border-radius: 16px; shadow: 0 4px 12px rgba(0,0,0,0.1);`;
-    }
-
-    const imgTag = `<img src="${imagePreview}" alt="${imageAlt || 'SEO Content Image'}" style="${styleString}" />`;
+    const altText = imageAlt || 'SEO Content Image';
+    const imgTag = `<figure className="content-media-figure" data-align="${imageFloat}"><img src="${imagePreview}" alt="${altText}" /></figure>`;
 
     if (editorRef.current) {
       editorRef.current.focus();

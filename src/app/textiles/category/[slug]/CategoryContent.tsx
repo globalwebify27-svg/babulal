@@ -24,6 +24,7 @@ import MobileBottomMenu from '@/components/MobileBottomMenu';
 import CoverBreadcrumbs from '@/components/CoverBreadcrumbs';
 import { isInventoryCatalogEnabled } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import RichContentRenderer from '@/components/RichContentRenderer';
 
 interface CategoryContentProps {
   initialCategory: any;
@@ -665,10 +666,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
 
              <div className="max-w-6xl mx-auto space-y-8 text-left">
                 {seoContent?.htmlContent ? (
-                  <div 
-                    className="max-w-none text-[#1a2b4b] text-sm md:text-base leading-relaxed space-y-4 font-normal [&_h2]:text-xl [&_h2]:md:text-2xl [&_h2]:font-bold [&_h2]:text-[#0A5181] [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:md:text-xl [&_h3]:font-bold [&_h3]:text-[#0A5181] [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-base [&_h4]:font-bold [&_h4]:text-[#0A5181] [&_h4]:mt-3 [&_h4]:mb-1 [&_p]:text-sm [&_p]:md:text-base [&_p]:leading-relaxed [&_p]:text-gray-700 [&_p]:my-3 [&_ul]:space-y-2 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:text-sm [&_li]:md:text-base [&_li]:text-gray-700 [&_img]:rounded-2xl [&_img]:shadow-lg [&_img]:my-4"
-                    dangerouslySetInnerHTML={{ __html: seoContent.htmlContent }}
-                  />
+                  <RichContentRenderer html={seoContent.htmlContent} />
                 ) : seoSections.length > 0 ? (
                   seoSections.map((sec: any) => (
                     <div key={sec.id} className="space-y-4">
@@ -744,7 +742,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
                   </div>
                 )}
 
-                {/* ══ DYNAMIC RELATED SUBCATEGORIES GRID ══ */}
+                {/* ══ DYNAMIC RELATED SUBCATEGORIES GRID (CARD VIEW) ══ */}
                 {dynamicSubCategoryItems.length > 0 && (
                   <div className="mt-16 pt-12 border-t border-gray-100">
                     <div className="flex items-center gap-3 mb-8">
@@ -753,24 +751,32 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
                         Related {initialCategory?.name || 'Category'} Collections
                       </h3>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                       {dynamicSubCategoryItems.map((item: any) => (
                         <Link 
                           key={item._id} 
                           href={item.slug}
-                          className="p-4 bg-gray-50 hover:bg-white border border-gray-100 rounded-2xl flex flex-col items-center gap-3 text-center group hover:shadow-lg transition-all"
+                          className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col"
                         >
-                          <div className="w-16 h-16 rounded-xl overflow-hidden bg-white border border-gray-100 relative">
+                          {/* Top Cover Image */}
+                          <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
                             <Image
                               src={item.image}
                               alt={item.name}
                               fill
-                              className="object-cover group-hover:scale-105 transition-transform"
+                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                              className="object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           </div>
-                          <span className="text-xs font-black uppercase text-[#0A5181] group-hover:text-[#DA222A] transition-colors">
-                            {item.name}
-                          </span>
+                          {/* Bottom Content Area */}
+                          <div className="p-4 flex flex-col justify-between flex-1 bg-white">
+                            <h4 className="text-xs sm:text-sm font-black uppercase text-[#0A5181] tracking-tight group-hover:text-[#DA222A] transition-colors">
+                              {item.name}
+                            </h4>
+                            <span className="text-[9px] sm:text-[10px] font-bold uppercase text-gray-400 tracking-wider mt-1">
+                              {initialCategory?.name || 'Textiles'} Collection
+                            </span>
+                          </div>
                         </Link>
                       ))}
                     </div>
