@@ -730,50 +730,6 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
           )}
         </div>
 
-        {/* SECTION 4: RELATED CATEGORIES LINKING */}
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-[#d1d9e6] space-y-6">
-          <div className="flex items-center gap-3 border-b border-[#f0f3f8] pb-5">
-            <Layers className="w-6 h-6 text-amber-600" />
-            <div>
-              <h2 className="text-base font-black text-[#1a2b4b] uppercase italic italic-accent">4. Related Categories Grid</h2>
-              <p className="text-[10px] font-bold text-[#1a2b4b]/40 uppercase tracking-widest">Select related categories to link at the bottom of this category page</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {allCategories.map((cat: any) => {
-              const isSelected = relatedCategoryIds.includes(cat._id);
-              return (
-                <div
-                  key={cat._id}
-                  onClick={() => toggleRelatedCategory(cat._id)}
-                  className={cn(
-                    "p-4 rounded-2xl border cursor-pointer transition-all flex flex-col items-center gap-3 text-center",
-                    isSelected 
-                      ? "bg-purple-50 border-purple-500 shadow-md ring-2 ring-purple-500/20" 
-                      : "bg-[#f8fafc] border-[#d1d9e6] hover:bg-white"
-                  )}
-                >
-                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-white border border-[#d1d9e6] flex items-center justify-center">
-                    {cat.image ? (
-                      <img src={cat.image} className="w-full h-full object-cover" />
-                    ) : (
-                      <Layers className="w-5 h-5 text-gray-300" />
-                    )}
-                  </div>
-                  <span className="text-xs font-black uppercase text-[#1a2b4b] tracking-tight">{cat.name}</span>
-                  <div className={cn(
-                    "w-4 h-4 rounded-md flex items-center justify-center text-[10px] font-black",
-                    isSelected ? "bg-purple-600 text-white" : "border border-gray-300"
-                  )}>
-                    {isSelected && "✓"}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
         {/* BOTTOM SAVE BAR */}
         <div className="flex justify-end gap-4">
           <Link

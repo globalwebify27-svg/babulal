@@ -366,6 +366,30 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     return [];
   }, [relatedCategories, displaySubCategories, allCategories, selectedSubs, initialCategory, slug]);
 
+  const dynamicSubCategoryItems = React.useMemo(() => {
+    if (!displaySubCategories || displaySubCategories.length === 0) return [];
+    const parentSlug = initialCategory?.slug || slug;
+    const normalize = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+    const activeSubStems = selectedSubs.map(normalize);
+
+    return displaySubCategories
+      .filter((sub: any) => {
+        if (activeSubStems.length === 0) return true;
+        const subNameNorm = normalize(sub.name);
+        const subSlugNorm = normalize(sub.slug);
+        return !activeSubStems.includes(subNameNorm) && !activeSubStems.includes(subSlugNorm);
+      })
+      .map((sub: any) => {
+        const subSlug = sub.slug || sub.name.toLowerCase().replace(/\s+/g, '-');
+        return {
+          _id: sub._id || sub.id?.toString() || subSlug,
+          name: sub.name,
+          slug: `/${parentSlug}/${subSlug}`,
+          image: sub.image || initialCategory?.image || "/bridal_luxury.png"
+        };
+      });
+  }, [displaySubCategories, selectedSubs, initialCategory, slug]);
+
   const youtubeEmbedLink = seoContent?.youtubeUrl ? getYouTubeEmbedUrl(seoContent.youtubeUrl) : '';
 
   return (
@@ -720,32 +744,32 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
                   </div>
                 )}
 
-                {/* ══ RELATED CATEGORIES GRID ══ */}
-                {computedRelatedCategories.length > 0 && (
+                {/* ══ DYNAMIC RELATED SUBCATEGORIES GRID ══ */}
+                {dynamicSubCategoryItems.length > 0 && (
                   <div className="mt-16 pt-12 border-t border-gray-100">
                     <div className="flex items-center gap-3 mb-8">
                       <Layers className="w-5 h-5 text-[#DA222A]" />
                       <h3 className="text-xl lg:text-2xl font-black text-[#0A5181] uppercase tracking-tighter italic">
-                        Explore Related Categories
+                        Related {initialCategory?.name || 'Category'} Collections
                       </h3>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                      {computedRelatedCategories.map((cat: any) => (
+                      {dynamicSubCategoryItems.map((item: any) => (
                         <Link 
-                          key={cat._id} 
-                          href={cat.slug}
+                          key={item._id} 
+                          href={item.slug}
                           className="p-4 bg-gray-50 hover:bg-white border border-gray-100 rounded-2xl flex flex-col items-center gap-3 text-center group hover:shadow-lg transition-all"
                         >
                           <div className="w-16 h-16 rounded-xl overflow-hidden bg-white border border-gray-100 relative">
                             <Image
-                              src={cat.image || "/bridal_luxury.png"}
-                              alt={cat.name}
+                              src={item.image}
+                              alt={item.name}
                               fill
                               className="object-cover group-hover:scale-105 transition-transform"
                             />
                           </div>
                           <span className="text-xs font-black uppercase text-[#0A5181] group-hover:text-[#DA222A] transition-colors">
-                            {cat.name}
+                            {item.name}
                           </span>
                         </Link>
                       ))}
