@@ -18,8 +18,24 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   const title = seoContent?.metaTitle || `${category.name || slug.toUpperCase()} Collection | Babulal Premkumar`;
   const description = seoContent?.metaDescription || `Explore wholesale ${category.name || slug} at Babulal Premkumar. Regional distribution in Ranchi, Jharkhand.`;
   const canonical = seoContent?.canonicalUrl || `https://www.babulalpremsons.com/${slug}`;
-  const isNoIndex = seoContent?.robotsIndex === 'noindex';
-  const isNoFollow = seoContent?.robotsFollow === 'nofollow';
+  let isIndex = false;
+  let isFollow = true;
+
+  if (seoContent) {
+    if (seoContent.robotsIndex === 'noindex' || seoContent.robotsIndex === false || seoContent.robotsIndex === 0) {
+      isIndex = false;
+    } else if (seoContent.robotsIndex === 'index' || seoContent.robotsIndex === true || seoContent.robotsIndex === 1) {
+      isIndex = true;
+    }
+    if (seoContent.robotsFollow === 'nofollow' || seoContent.robotsFollow === false || seoContent.robotsFollow === 0) {
+      isFollow = false;
+    } else if (seoContent.robotsFollow === 'follow' || seoContent.robotsFollow === true || seoContent.robotsFollow === 1) {
+      isFollow = true;
+    }
+  } else if (category) {
+    isIndex = category.robotsIndex !== undefined && category.robotsIndex !== null ? !!category.robotsIndex : false;
+    isFollow = category.robotsFollow !== undefined && category.robotsFollow !== null ? !!category.robotsFollow : true;
+  }
 
   return {
     title,
@@ -28,8 +44,8 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
       canonical
     },
     robots: {
-      index: !isNoIndex,
-      follow: !isNoFollow
+      index: isIndex,
+      follow: isFollow
     },
     openGraph: {
       title,

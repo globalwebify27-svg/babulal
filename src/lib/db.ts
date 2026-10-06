@@ -106,17 +106,23 @@ export async function initDb() {
           orderIndex INT DEFAULT 0,
           status VARCHAR(50) DEFAULT 'Active',
           parentVertical VARCHAR(255) DEFAULT 'textiles',
+          robotsIndex BOOLEAN DEFAULT FALSE,
+          robotsFollow BOOLEAN DEFAULT TRUE,
           createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
 
-      // Migration: Add cardImage to categories if missing
+      // Migration: Add cardImage, robotsIndex, robotsFollow to categories if missing
       try {
         await connection.query(`ALTER TABLE categories ADD COLUMN cardImage LONGTEXT AFTER image`);
-      } catch (err) {
-        // Column may already exist
-      }
+      } catch (err) {}
+      try {
+        await connection.query(`ALTER TABLE categories ADD COLUMN robotsIndex BOOLEAN DEFAULT FALSE`);
+      } catch (err) {}
+      try {
+        await connection.query(`ALTER TABLE categories ADD COLUMN robotsFollow BOOLEAN DEFAULT TRUE`);
+      } catch (err) {}
 
       // 3. Create Sub-Categories table
       await connection.query(`
@@ -130,18 +136,26 @@ export async function initDb() {
           status VARCHAR(50) DEFAULT 'Active',
           orderIndex INT DEFAULT 0,
           brochureUrl VARCHAR(500),
+          robotsIndex BOOLEAN DEFAULT FALSE,
+          robotsFollow BOOLEAN DEFAULT TRUE,
           createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           FOREIGN KEY (categoryId) REFERENCES categories(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
 
-      // Migration: Add image and cardImage to sub_categories if missing
+      // Migration: Add image, cardImage, robotsIndex, robotsFollow to sub_categories if missing
       try {
         await connection.query(`ALTER TABLE sub_categories ADD COLUMN image LONGTEXT AFTER categoryId`);
       } catch (err) {}
       try {
         await connection.query(`ALTER TABLE sub_categories ADD COLUMN cardImage LONGTEXT AFTER image`);
+      } catch (err) {}
+      try {
+        await connection.query(`ALTER TABLE sub_categories ADD COLUMN robotsIndex BOOLEAN DEFAULT FALSE`);
+      } catch (err) {}
+      try {
+        await connection.query(`ALTER TABLE sub_categories ADD COLUMN robotsFollow BOOLEAN DEFAULT TRUE`);
       } catch (err) {}
 
       // 3.5. Create Sub-Sub-Categories table
@@ -153,11 +167,21 @@ export async function initDb() {
           subCategoryId INT NOT NULL,
           status VARCHAR(50) DEFAULT 'Active',
           orderIndex INT DEFAULT 0,
+          robotsIndex BOOLEAN DEFAULT FALSE,
+          robotsFollow BOOLEAN DEFAULT TRUE,
           createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           FOREIGN KEY (subCategoryId) REFERENCES sub_categories(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
+
+      // Migration: Add robotsIndex and robotsFollow to sub_sub_categories if missing
+      try {
+        await connection.query(`ALTER TABLE sub_sub_categories ADD COLUMN robotsIndex BOOLEAN DEFAULT FALSE`);
+      } catch (err) {}
+      try {
+        await connection.query(`ALTER TABLE sub_sub_categories ADD COLUMN robotsFollow BOOLEAN DEFAULT TRUE`);
+      } catch (err) {}
 
       // 4. Create Products table
       await connection.query(`
@@ -412,7 +436,7 @@ export async function initDb() {
           metaTitle VARCHAR(255),
           metaDescription TEXT,
           canonicalUrl VARCHAR(500),
-          robotsIndex VARCHAR(50) DEFAULT 'index',
+          robotsIndex VARCHAR(50) DEFAULT 'noindex',
           robotsFollow VARCHAR(50) DEFAULT 'follow',
           htmlContent LONGTEXT,
           introContent TEXT,
@@ -460,6 +484,14 @@ export async function initDb() {
           FOREIGN KEY (seoContentId) REFERENCES category_seo_content(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
+
+      // Default existing records to noindex for pre-launch
+      try {
+        await connection.query(`UPDATE categories SET robotsIndex = FALSE WHERE robotsIndex = TRUE`);
+        await connection.query(`UPDATE sub_categories SET robotsIndex = FALSE WHERE robotsIndex = TRUE`);
+        await connection.query(`UPDATE sub_sub_categories SET robotsIndex = FALSE WHERE robotsIndex = TRUE`);
+        await connection.query(`UPDATE category_seo_content SET robotsIndex = 'noindex' WHERE robotsIndex = 'index' OR robotsIndex IS NULL`);
+      } catch (e) {}
 
       isDbInitialized = true;
       console.log('✅ MySQL Database and Tables initialized successfully.');

@@ -57,7 +57,7 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
   const [canonicalUrl, setCanonicalUrl] = useState('');
-  const [robotsIndex, setRobotsIndex] = useState('index');
+  const [robotsIndex, setRobotsIndex] = useState('noindex');
   const [robotsFollow, setRobotsFollow] = useState('follow');
   const [status, setStatus] = useState('Published');
 
@@ -106,7 +106,7 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
           setMetaTitle(data.seoContent.metaTitle || '');
           setMetaDescription(data.seoContent.metaDescription || '');
           setCanonicalUrl(data.seoContent.canonicalUrl || '');
-          setRobotsIndex(data.seoContent.robotsIndex || 'index');
+          setRobotsIndex(data.seoContent.robotsIndex || 'noindex');
           setRobotsFollow(data.seoContent.robotsFollow || 'follow');
           setStatus(data.seoContent.status || 'Published');
           setHtmlContent(data.seoContent.htmlContent || '');

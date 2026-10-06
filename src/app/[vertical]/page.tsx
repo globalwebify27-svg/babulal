@@ -45,9 +45,31 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
   if (rows.length > 0) {
     const cat = rows[0];
     const canonicalUrl = `https://www.babulalpremsons.com/${cat.slug}`;
+
+    let isIndex = cat.robotsIndex !== undefined && cat.robotsIndex !== null ? !!cat.robotsIndex : false;
+    let isFollow = cat.robotsFollow !== undefined && cat.robotsFollow !== null ? !!cat.robotsFollow : true;
+
+    try {
+      const [seoRows]: any = await pool.query(
+        'SELECT robotsIndex, robotsFollow FROM category_seo_content WHERE categoryId = ? AND subCategoryId IS NULL AND status = "Published" LIMIT 1',
+        [cat.id]
+      );
+      if (seoRows.length > 0) {
+        if (seoRows[0].robotsIndex === 'index' || seoRows[0].robotsIndex === true || seoRows[0].robotsIndex === 1) isIndex = true;
+        else if (seoRows[0].robotsIndex === 'noindex' || seoRows[0].robotsIndex === false || seoRows[0].robotsIndex === 0) isIndex = false;
+        if (seoRows[0].robotsFollow === 'nofollow' || seoRows[0].robotsFollow === false || seoRows[0].robotsFollow === 0) isFollow = false;
+      }
+    } catch (err) {
+      console.error('Fetch category robots error:', err);
+    }
+
     return {
       title: `${cat.name} Collection | Babulal Premkumar`,
       description: `Explore our premium wholesale ${cat.name} collection at Babulal Premkumar (100+ Years Legacy in Ranchi, Jharkhand).`,
+      robots: {
+        index: isIndex,
+        follow: isFollow,
+      },
       alternates: {
         canonical: canonicalUrl,
       },

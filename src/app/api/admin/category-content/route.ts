@@ -151,7 +151,7 @@ export async function POST(request: Request) {
       metaTitle,
       metaDescription,
       canonicalUrl,
-      robotsIndex = 'index',
+      robotsIndex = 'noindex',
       robotsFollow = 'follow',
       htmlContent,
       introContent,

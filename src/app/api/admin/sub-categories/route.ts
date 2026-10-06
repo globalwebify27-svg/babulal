@@ -11,6 +11,8 @@ function mapSubCategory(sub: any) {
     category: sub.categoryId ? sub.categoryId.toString() : null,
     image: sub.image || null,
     cardImage: sub.cardImage || null,
+    robotsIndex: sub.robotsIndex !== undefined && sub.robotsIndex !== null ? !!sub.robotsIndex : false,
+    robotsFollow: sub.robotsFollow !== undefined && sub.robotsFollow !== null ? !!sub.robotsFollow : true,
     order: sub.orderIndex
   };
 }
@@ -52,9 +54,12 @@ export async function POST(req: Request) {
       data.cardImage = await optimizeBase64Image(data.cardImage);
     }
 
+    const robotsIdx = data.robotsIndex !== undefined ? !!data.robotsIndex : false;
+    const robotsFlw = data.robotsFollow !== undefined ? !!data.robotsFollow : true;
+
     const [result]: any = await pool.query(
-      `INSERT INTO sub_categories (name, slug, categoryId, image, cardImage, status, orderIndex, brochureUrl)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO sub_categories (name, slug, categoryId, image, cardImage, status, orderIndex, brochureUrl, robotsIndex, robotsFollow)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.name,
         data.slug,
@@ -63,7 +68,9 @@ export async function POST(req: Request) {
         data.cardImage || null,
         data.status || 'Active',
         data.order !== undefined ? data.order : (data.orderIndex !== undefined ? data.orderIndex : 0),
-        data.brochureUrl || null
+        data.brochureUrl || null,
+        robotsIdx,
+        robotsFlw
       ]
     );
     

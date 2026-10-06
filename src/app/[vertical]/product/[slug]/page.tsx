@@ -78,11 +78,33 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const catSlug = product.category ? product.category.toLowerCase().replace(/\s+/g, '-') : 'textiles';
   const canonicalUrl = `https://www.babulalpremsons.com/${catSlug}/product/${product.slug}`;
 
+  let isIndex = false;
+  let isFollow = true;
+
+  try {
+    if (product.category) {
+      const [catRows]: any = await pool.query(
+        'SELECT robotsIndex, robotsFollow FROM categories WHERE LOWER(name) = ? OR LOWER(slug) = ? LIMIT 1',
+        [product.category.toLowerCase(), product.category.toLowerCase().replace(/\s+/g, '-')]
+      );
+      if (catRows.length > 0) {
+        isIndex = catRows[0].robotsIndex !== undefined && catRows[0].robotsIndex !== null ? !!catRows[0].robotsIndex : false;
+        isFollow = catRows[0].robotsFollow !== undefined && catRows[0].robotsFollow !== null ? !!catRows[0].robotsFollow : true;
+      }
+    }
+  } catch (err) {
+    console.error('Fetch product category robots error:', err);
+  }
+
   return {
     title: `${product.name} | ${vertical?.name || 'Babulal Premsons'}`,
     description: metaDesc,
     alternates: {
       canonical: canonicalUrl,
+    },
+    robots: {
+      index: isIndex,
+      follow: isFollow
     },
     openGraph: {
       title: `${product.name} | ${vertical?.name || 'Babulal Premsons'}`,

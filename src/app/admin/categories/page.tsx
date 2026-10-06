@@ -39,7 +39,9 @@ export default function ManageCategoriesPage() {
     showInHeader: true,
     isCurated: false,
     status: 'Active',
-    order: 0
+    order: 0,
+    robotsIndex: false,
+    robotsFollow: true
   });
 
   // Sub-Category States
@@ -304,7 +306,9 @@ export default function ManageCategoriesPage() {
         showInHeader: category.showInHeader,
         isCurated: category.isCurated || false,
         status: category.status,
-        order: category.order
+        order: category.order,
+        robotsIndex: category.robotsIndex !== undefined && category.robotsIndex !== null ? !!category.robotsIndex : false,
+        robotsFollow: category.robotsFollow !== undefined && category.robotsFollow !== null ? !!category.robotsFollow : true
       });
     } else {
       setEditingCategory(null);
@@ -317,7 +321,9 @@ export default function ManageCategoriesPage() {
         showInHeader: true,
         isCurated: false,
         status: 'Active',
-        order: categories.length
+        order: categories.length,
+        robotsIndex: false,
+        robotsFollow: true
       });
     }
     setIsModalOpen(true);
@@ -681,6 +687,30 @@ export default function ManageCategoriesPage() {
                     />
                   </div>
                 </div>
+                <div className="grid grid-cols-2 gap-4 p-4 bg-[#f8fafc] rounded-2xl border border-[#d1d9e6]">
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black text-[#1a2b4b]/60 uppercase tracking-widest">Robots Index</label>
+                    <select
+                      value={formData.robotsIndex ? 'true' : 'false'}
+                      onChange={(e) => setFormData({ ...formData, robotsIndex: e.target.value === 'true' })}
+                      className="w-full px-3 py-2 bg-white border border-[#d1d9e6] rounded-xl text-xs font-bold text-[#1a2b4b]"
+                    >
+                      <option value="true">Index (Allowed)</option>
+                      <option value="false">Noindex (Blocked)</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black text-[#1a2b4b]/60 uppercase tracking-widest">Robots Follow</label>
+                    <select
+                      value={formData.robotsFollow ? 'true' : 'false'}
+                      onChange={(e) => setFormData({ ...formData, robotsFollow: e.target.value === 'true' })}
+                      className="w-full px-3 py-2 bg-white border border-[#d1d9e6] rounded-xl text-xs font-bold text-[#1a2b4b]"
+                    >
+                      <option value="true">Follow Links</option>
+                      <option value="false">Nofollow Links</option>
+                    </select>
+                  </div>
+                </div>
 
                 <button 
                   type="submit"
@@ -809,7 +839,18 @@ export default function ManageCategoriesPage() {
                                  </label>
                                  <button
                                    type="button"
-                                   onClick={() => updateSubCategory(sub._id, { status: (!sub.status || sub.status === 'Active') ? 'Inactive' : 'Active' })}
+                                   onClick={() => updateSubCategory(sub._id, { robotsIndex: !sub.robotsIndex })}
+                                    className={cn(
+                                      "text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded border transition-all",
+                                      sub.robotsIndex !== false ? "border-blue-100 text-blue-600 bg-blue-50" : "border-amber-100 text-amber-600 bg-amber-50"
+                                    )}
+                                    title={`Robots Indexing: ${sub.robotsIndex !== false ? 'Index' : 'Noindex'}`}
+                                  >
+                                    {sub.robotsIndex !== false ? 'INDEX' : 'NOINDEX'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => updateSubCategory(sub._id, { status: (!sub.status || sub.status === 'Active') ? 'Inactive' : 'Active' })}
                                    className={cn(
                                      "text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded border transition-all",
                                      (!sub.status || sub.status === 'Active') ? "border-green-100 text-green-600 bg-green-50" : "border-red-100 text-red-500 bg-red-50"
@@ -852,7 +893,18 @@ export default function ManageCategoriesPage() {
                                          </Link>
                                          <button
                                            type="button"
-                                           onClick={() => updateSubSubCategory(subSub._id, { status: (!subSub.status || subSub.status === 'Active') ? 'Inactive' : 'Active' })}
+                                           onClick={() => updateSubSubCategory(subSub._id, { robotsIndex: !subSub.robotsIndex })}
+                                            className={cn(
+                                              "text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded transition-all ml-1",
+                                              subSub.robotsIndex !== false ? "text-blue-600 bg-blue-50" : "text-amber-600 bg-amber-50"
+                                            )}
+                                            title={`Robots Indexing: ${subSub.robotsIndex !== false ? 'Index' : 'Noindex'}`}
+                                          >
+                                            {subSub.robotsIndex !== false ? 'IDX' : 'NOIDX'}
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => updateSubSubCategory(subSub._id, { status: (!subSub.status || subSub.status === 'Active') ? 'Inactive' : 'Active' })}
                                            className={cn(
                                              "text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded transition-all ml-1",
                                              (!subSub.status || subSub.status === 'Active') ? "text-green-600 bg-green-50" : "text-red-500 bg-red-50"

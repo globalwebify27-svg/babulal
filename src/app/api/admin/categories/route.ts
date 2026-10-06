@@ -9,6 +9,8 @@ function mapCategory(cat: any) {
     ...cat,
     _id: cat.id.toString(),
     cardImage: cat.cardImage || null,
+    robotsIndex: cat.robotsIndex !== undefined && cat.robotsIndex !== null ? !!cat.robotsIndex : false,
+    robotsFollow: cat.robotsFollow !== undefined && cat.robotsFollow !== null ? !!cat.robotsFollow : true,
     order: cat.orderIndex,
     showInHeader: !!cat.showInHeader,
     topBusiness: !!cat.topBusiness,
@@ -48,9 +50,12 @@ export async function POST(req: Request) {
       data.cardImage = await optimizeBase64Image(data.cardImage);
     }
 
+    const robotsIdx = data.robotsIndex !== undefined ? !!data.robotsIndex : false;
+    const robotsFlw = data.robotsFollow !== undefined ? !!data.robotsFollow : true;
+
     const [result]: any = await pool.query(
-      `INSERT INTO categories (name, slug, image, cardImage, showInHeader, topBusiness, isCurated, orderIndex, status, parentVertical)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO categories (name, slug, image, cardImage, showInHeader, topBusiness, isCurated, orderIndex, status, parentVertical, robotsIndex, robotsFollow)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.name,
         data.slug,
@@ -61,7 +66,9 @@ export async function POST(req: Request) {
         data.isCurated !== undefined ? !!data.isCurated : false,
         data.order !== undefined ? Number(data.order) : 0,
         data.status || 'Active',
-        data.parentVertical || 'textiles'
+        data.parentVertical || 'textiles',
+        robotsIdx,
+        robotsFlw
       ]
     );
 
@@ -105,6 +112,8 @@ export async function PATCH(req: Request) {
     if (updates.status) cleanUpdates.status = updates.status;
     if (updates.order !== undefined) cleanUpdates.orderIndex = Number(updates.order);
     if (updates.parentVertical) cleanUpdates.parentVertical = updates.parentVertical.toLowerCase();
+    if (updates.robotsIndex !== undefined) cleanUpdates.robotsIndex = !!updates.robotsIndex;
+    if (updates.robotsFollow !== undefined) cleanUpdates.robotsFollow = !!updates.robotsFollow;
 
     const keys = Object.keys(cleanUpdates);
     if (keys.length > 0) {

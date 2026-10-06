@@ -7,6 +7,8 @@ function mapSubSubCategory(sub: any) {
     ...sub,
     _id: sub.id.toString(),
     subCategory: sub.subCategoryId ? sub.subCategoryId.toString() : null,
+    robotsIndex: sub.robotsIndex !== undefined && sub.robotsIndex !== null ? !!sub.robotsIndex : false,
+    robotsFollow: sub.robotsFollow !== undefined && sub.robotsFollow !== null ? !!sub.robotsFollow : true,
     order: sub.orderIndex
   };
 }
@@ -49,15 +51,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'subCategoryId is required' }, { status: 400 });
     }
 
+    const robotsIdx = data.robotsIndex !== undefined ? !!data.robotsIndex : false;
+    const robotsFlw = data.robotsFollow !== undefined ? !!data.robotsFollow : true;
+
     const [result]: any = await pool.query(
-      `INSERT INTO sub_sub_categories (name, slug, subCategoryId, status, orderIndex)
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO sub_sub_categories (name, slug, subCategoryId, status, orderIndex, robotsIndex, robotsFollow)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         data.name,
         data.slug,
         parentSubCategoryId,
         data.status || 'Active',
-        data.order !== undefined ? data.order : (data.orderIndex !== undefined ? data.orderIndex : 0)
+        data.order !== undefined ? data.order : (data.orderIndex !== undefined ? data.orderIndex : 0),
+        robotsIdx,
+        robotsFlw
       ]
     );
     

@@ -31,11 +31,61 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     ? `https://www.babulalpremsons.com/${verticalSlug}/${categorySlug}`
     : `https://www.babulalpremsons.com/${categorySlug}`;
 
+  let isIndex = false;
+  let isFollow = true;
+
+  try {
+    await initDb();
+    const [catRows]: any = await pool.query(
+      'SELECT id, robotsIndex, robotsFollow FROM categories WHERE LOWER(slug) = ? LIMIT 1',
+      [categorySlug.toLowerCase()]
+    );
+    if (catRows.length > 0) {
+      isIndex = catRows[0].robotsIndex !== undefined && catRows[0].robotsIndex !== null ? !!catRows[0].robotsIndex : false;
+      isFollow = catRows[0].robotsFollow !== undefined && catRows[0].robotsFollow !== null ? !!catRows[0].robotsFollow : true;
+
+      const [seoRows]: any = await pool.query(
+        'SELECT robotsIndex, robotsFollow FROM category_seo_content WHERE categoryId = ? AND subCategoryId IS NULL AND status = "Published" LIMIT 1',
+        [catRows[0].id]
+      );
+      if (seoRows.length > 0) {
+        if (seoRows[0].robotsIndex === 'index' || seoRows[0].robotsIndex === true || seoRows[0].robotsIndex === 1) isIndex = true;
+        else if (seoRows[0].robotsIndex === 'noindex' || seoRows[0].robotsIndex === false || seoRows[0].robotsIndex === 0) isIndex = false;
+        if (seoRows[0].robotsFollow === 'nofollow' || seoRows[0].robotsFollow === false || seoRows[0].robotsFollow === 0) isFollow = false;
+      }
+    } else {
+      const [subRows]: any = await pool.query(
+        'SELECT id, robotsIndex, robotsFollow FROM sub_categories WHERE LOWER(slug) = ? LIMIT 1',
+        [categorySlug.toLowerCase()]
+      );
+      if (subRows.length > 0) {
+        isIndex = subRows[0].robotsIndex !== undefined && subRows[0].robotsIndex !== null ? !!subRows[0].robotsIndex : false;
+        isFollow = subRows[0].robotsFollow !== undefined && subRows[0].robotsFollow !== null ? !!subRows[0].robotsFollow : true;
+
+        const [seoRows]: any = await pool.query(
+          'SELECT robotsIndex, robotsFollow FROM category_seo_content WHERE subCategoryId = ? AND status = "Published" LIMIT 1',
+          [subRows[0].id]
+        );
+        if (seoRows.length > 0) {
+          if (seoRows[0].robotsIndex === 'index' || seoRows[0].robotsIndex === true || seoRows[0].robotsIndex === 1) isIndex = true;
+          else if (seoRows[0].robotsIndex === 'noindex' || seoRows[0].robotsIndex === false || seoRows[0].robotsIndex === 0) isIndex = false;
+          if (seoRows[0].robotsFollow === 'nofollow' || seoRows[0].robotsFollow === false || seoRows[0].robotsFollow === 0) isFollow = false;
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Fetch category robots error:', err);
+  }
+
   return {
     title: `${categoryName} Collection | Babulal Premkumar`,
     description: `Explore wholesale ${categoryName} at Babulal Premkumar. Regional distribution in Ranchi, Jharkhand.`,
     alternates: {
       canonical: canonicalUrl,
+    },
+    robots: {
+      index: isIndex,
+      follow: isFollow
     },
     openGraph: {
       title: `${categoryName} Collection | Babulal Premkumar`,
