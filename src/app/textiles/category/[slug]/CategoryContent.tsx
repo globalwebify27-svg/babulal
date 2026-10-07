@@ -25,6 +25,8 @@ import CoverBreadcrumbs from '@/components/CoverBreadcrumbs';
 import { isInventoryCatalogEnabled } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import RichContentRenderer from '@/components/RichContentRenderer';
+import CategoryQuoteButton from '@/components/CategoryQuoteButton';
+import { SITE_URL } from '@/lib/constants';
 
 interface CategoryContentProps {
   initialCategory: any;
@@ -769,13 +771,23 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
                             />
                           </div>
                           {/* Bottom Content Area */}
-                          <div className="p-4 flex flex-col justify-between flex-1 bg-white">
-                            <h4 className="text-xs sm:text-sm font-black uppercase text-[#0A5181] tracking-tight group-hover:text-[#DA222A] transition-colors">
-                              {item.name}
-                            </h4>
-                            <span className="text-[9px] sm:text-[10px] font-bold uppercase text-gray-400 tracking-wider mt-1">
-                              {initialCategory?.name || 'Textiles'} Collection
-                            </span>
+                          <div className="p-4 flex flex-col justify-between flex-1 bg-white gap-3">
+                            <div>
+                              <h4 className="text-xs sm:text-sm font-black uppercase text-[#0A5181] tracking-tight group-hover:text-[#DA222A] transition-colors">
+                                {item.name}
+                              </h4>
+                              <span className="text-[9px] sm:text-[10px] font-bold uppercase text-gray-400 tracking-wider mt-1 block">
+                                {initialCategory?.name || 'Textiles'} Collection
+                              </span>
+                            </div>
+                            <div className="pt-2 border-t border-gray-100/80 flex items-center justify-between">
+                              <CategoryQuoteButton
+                                categoryName={item.name}
+                                parentCategory={initialCategory?.name || 'Textiles'}
+                                categoryUrl={`${SITE_URL}${item.slug.startsWith('/') ? item.slug : `/${item.slug}`}`}
+                                className="w-full"
+                              />
+                            </div>
                           </div>
                         </Link>
                       ))}
