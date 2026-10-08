@@ -306,14 +306,21 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
   });
 
   const breadcrumbItems = React.useMemo(() => {
+    const categorySlug = initialCategory?.slug || slug;
+    const categoryUrl = categorySlug.startsWith('/') ? categorySlug : `/${categorySlug}`;
     const items: { label: string; url?: string }[] = [
       { label: 'Home', url: '/' },
-      { label: 'Textiles', url: '/textiles' },
-      { label: initialCategory?.name || slug, url: `/textiles/category/${slug}` }
+      { label: initialCategory?.name || slug, url: categoryUrl }
     ];
 
     if (selectedSubs.length === 1) {
-      items.push({ label: selectedSubs[0] });
+      const subName = selectedSubs[0];
+      const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+      const subObj = displaySubCategories.find((s: any) => norm(s.name) === norm(subName));
+      const subSlug = subObj?.slug || subName.toLowerCase().replace(/\s+/g, '-');
+      const subUrl = `${categoryUrl}/${subSlug}`;
+
+      items.push({ label: subName, url: subUrl });
       if (selectedSubSubs.length === 1) {
         items.push({ label: selectedSubSubs[0] });
       } else if (selectedSubSubs.length > 1) {
@@ -324,7 +331,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     }
 
     return items;
-  }, [initialCategory, slug, selectedSubs, selectedSubSubs]);
+  }, [initialCategory, slug, displaySubCategories, selectedSubs, selectedSubSubs]);
 
   const showInventoryCatalog = isInventoryCatalogEnabled(slug);
 

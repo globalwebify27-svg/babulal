@@ -216,7 +216,7 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
             <nav className="flex flex-col">
               {/* Combine dynamic categories and static utility links */}
               {[
-                { name: "Home", slug: "home", type: 'utility', href: '/textiles' },
+                { name: "Home", slug: "home", type: 'utility', href: '/' },
                 ...(categories.length > 0 
                   ? categories.map(c => ({ name: c.name, slug: c.slug, type: 'category', subcategories: c.subcategories }))
                   : [
@@ -227,7 +227,7 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
                       { name: "Lehenga", slug: "lehenga", type: 'category', subcategories: [] },
                     ]
                 ),
-                { name: "Retail Hub", slug: "sarees", type: 'utility', href: '/textiles/category/sarees' },
+                { name: "Retail Hub", slug: "sarees", type: 'utility', href: '/saree' },
                 { name: "Blog", slug: "blog", type: 'utility', href: '#blog' },
                 { name: "Contact Us", slug: "contact", type: 'utility', href: '/contact' },
               ].map((item: any, i) => {

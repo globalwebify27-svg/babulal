@@ -28,7 +28,7 @@ export default function MobileBottomMenu({ categories = [] }: MobileBottomMenuPr
   const [activeCategoryForModal, setActiveCategoryForModal] = useState<Category | null>(null);
 
   const handleHomeAction = () => {
-    router.push('/textiles');
+    router.push('/');
   };
 
   const handleCallAction = () => {
@@ -63,7 +63,7 @@ export default function MobileBottomMenu({ categories = [] }: MobileBottomMenuPr
             onClick={handleHomeAction}
             className={cn(
               "flex flex-col items-center justify-center shrink-0 w-16 h-full border-r border-white/10 active:scale-95 transition-transform",
-              pathname === '/textiles' ? "text-white bg-white/5" : "text-white/70"
+              pathname === '/' ? "text-white bg-white/5" : "text-white/70"
             )}
           >
             <Home className="w-4.5 h-4.5" />

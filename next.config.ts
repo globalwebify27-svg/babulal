@@ -30,6 +30,20 @@ const nextConfig: NextConfig = {
     ],
   },
   allowedDevOrigins: ['192.168.1.11'],
+  async redirects() {
+    return [
+      {
+        source: '/textiles',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/textiles/category/:slug*',
+        destination: '/:slug*',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

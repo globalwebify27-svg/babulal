@@ -14,14 +14,14 @@ import {
 } from 'lucide-react';
 
 const DEFAULT_TEXTILE_CATEGORIES = [
-  { name: 'Saree', href: '/textiles/category/sarees' },
-  { name: 'Lehenga', href: '/textiles/category/lehnga' },
-  { name: 'Suits', href: '/textiles/category/suits' },
-  { name: 'Kurti', href: '/textiles/category/kurtis' },
-  { name: "Women's Western Wear", href: '/textiles/category/womens-western-wear' },
-  { name: 'Kids Collection', href: '/textiles/category/kids-wear' },
-  { name: "Men's Wear", href: '/textiles/category/mens-wear' },
-  { name: 'Luggages', href: '/textiles/category/luggages' }
+  { name: 'Saree', href: '/saree' },
+  { name: 'Lehenga', href: '/lehenga' },
+  { name: 'Suits', href: '/suit' },
+  { name: 'Kurti', href: '/kurti' },
+  { name: "Women's Western Wear", href: '/womens-western-wear' },
+  { name: 'Kids Collection', href: '/kids-boys' },
+  { name: "Men's Wear", href: '/mens-wear' },
+  { name: 'Luggages', href: '/luggages' }
 ];
 
 const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
@@ -31,7 +31,7 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
     if (categoriesProp && categoriesProp.length > 0) {
       setCategories(categoriesProp.map((c: any) => ({
         name: c.name,
-        href: `/textiles/category/${c.slug}`
+        href: c.slug ? (c.slug.startsWith('/') ? c.slug : `/${c.slug}`) : `/${c.name.toLowerCase().replace(/\s+/g, '-')}`
       })));
       return;
     }
@@ -44,7 +44,7 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
           if (Array.isArray(data) && data.length > 0) {
             setCategories(data.map((c: any) => ({
               name: c.name,
-              href: `/textiles/category/${c.slug}`
+              href: c.slug ? (c.slug.startsWith('/') ? c.slug : `/${c.slug}`) : `/${c.name.toLowerCase().replace(/\s+/g, '-')}`
             })));
           }
         }
@@ -177,7 +177,7 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
 
             <div className="flex gap-4 pt-6 md:pt-4 border-t border-white/5 justify-center sm:justify-start">
               {[
-                { Icon: Globe, href: '/textiles', label: 'Website' },
+                { Icon: Globe, href: '/', label: 'Website' },
                 { Icon: Mail, href: 'mailto:contact@babulalpremsons.com', label: 'Email' },
                 { Icon: MessageCircle, href: 'https://wa.me/917667985545?text=Hello', label: 'WhatsApp', external: true },
                 { Icon: Send, href: '/contact', label: 'Enquiry' }
