@@ -162,17 +162,42 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
 
                   {hasSubs && (
                     <div className="absolute left-0 top-full pt-1 opacity-0 translate-y-3 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out z-[150] w-[240px]">
-                      <div className="bg-white border border-gray-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] overflow-hidden py-2 backdrop-blur-md">
-                        {cat.subcategories.map((sub: any, idx: number) => (
-                          <Link
-                            key={`${sub.slug}-${idx}`}
-                            href={`/${cat.slug}/${sub.slug}`}
-                            className="flex items-center justify-between px-5 py-3 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:text-red-600 hover:bg-gray-50/50 hover:pl-7 transition-all duration-200 group/item"
-                          >
-                            <span>{sub.name}</span>
-                            <ChevronDown className="w-3.5 h-3.5 -rotate-90 opacity-0 group-hover/item:opacity-100 text-red-600 transition-all duration-200" />
-                          </Link>
-                        ))}
+                      <div className="bg-white border border-gray-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] py-2 backdrop-blur-md">
+                        {cat.subcategories.map((sub: any, idx: number) => {
+                          const hasSubSubs = sub.subSubCategories && sub.subSubCategories.length > 0;
+                          return (
+                            <div key={`${sub.slug}-${idx}`} className="relative group/sub">
+                              <Link
+                                href={`/${cat.slug}/${sub.slug}`}
+                                className="flex items-center justify-between px-5 py-3 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:text-red-600 hover:bg-gray-50/50 hover:pl-7 transition-all duration-200"
+                              >
+                                <span>{sub.name}</span>
+                                {hasSubSubs ? (
+                                  <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-red-600 transition-all duration-200" />
+                                ) : (
+                                  <ChevronDown className="w-3.5 h-3.5 -rotate-90 opacity-0 group-hover/sub:opacity-100 text-red-600 transition-all duration-200" />
+                                )}
+                              </Link>
+
+                              {/* Sub-Sub Category Flyout (opens to the right) */}
+                              {hasSubSubs && (
+                                <div className="absolute left-full top-0 pl-1 opacity-0 -translate-x-2 pointer-events-none group-hover/sub:opacity-100 group-hover/sub:translate-x-0 group-hover/sub:pointer-events-auto transition-all duration-300 ease-out z-[160] w-[220px]">
+                                  <div className="bg-white border border-gray-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] overflow-hidden py-2 backdrop-blur-md">
+                                    {sub.subSubCategories.map((subSub: any, ssIdx: number) => (
+                                      <Link
+                                        key={`${subSub.slug}-${ssIdx}`}
+                                        href={`/${cat.slug}/${sub.slug}/${subSub.slug}`}
+                                        className="flex items-center px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-red-600 hover:bg-gray-50/50 hover:pl-7 transition-all duration-200"
+                                      >
+                                        {subSub.name}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -256,18 +281,38 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
 
                     {/* Subcategories Accordion */}
                     {hasSubs && (
-                      <div className={`overflow-hidden transition-all duration-300 bg-gray-50/50 ${expandedCategory === item.slug ? 'max-h-[300px] border-t border-gray-50' : 'max-h-0'}`}>
-                        <div className="pl-12 pr-8 py-3 flex flex-col gap-4">
-                          {item.subcategories.map((sub: any, idx: number) => (
-                            <Link
-                              key={`${sub.slug}-${idx}`}
-                              href={`/${item.slug}/${sub.slug}`}
-                              onClick={() => setIsMobileMenuOpen(false)}
-                              className="text-[12px] font-black uppercase tracking-widest text-gray-500 hover:text-[#DA222A] py-1 transition-colors"
-                            >
-                              • {sub.name}
-                            </Link>
-                          ))}
+                      <div className={`overflow-hidden transition-all duration-300 bg-gray-50/50 ${expandedCategory === item.slug ? 'max-h-[600px] border-t border-gray-50' : 'max-h-0'}`}>
+                        <div className="pl-12 pr-8 py-3 flex flex-col gap-1">
+                          {item.subcategories.map((sub: any, idx: number) => {
+                            const hasSubSubs = sub.subSubCategories && sub.subSubCategories.length > 0;
+                            return (
+                              <div key={`${sub.slug}-${idx}`}>
+                                <Link
+                                  href={`/${item.slug}/${sub.slug}`}
+                                  onClick={() => setIsMobileMenuOpen(false)}
+                                  className="text-[12px] font-black uppercase tracking-widest text-gray-500 hover:text-[#DA222A] py-2 transition-colors flex items-center gap-2"
+                                >
+                                  • {sub.name}
+                                  {hasSubSubs && <ChevronDown className="w-3 h-3 -rotate-90 text-[#DA222A]" />}
+                                </Link>
+                                {/* Sub-Sub Categories under this sub */}
+                                {hasSubSubs && (
+                                  <div className="pl-4 flex flex-col gap-1 mb-1">
+                                    {sub.subSubCategories.map((subSub: any, ssIdx: number) => (
+                                      <Link
+                                        key={`${subSub.slug}-${ssIdx}`}
+                                        href={`/${item.slug}/${sub.slug}/${subSub.slug}`}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-[#DA222A] py-1.5 transition-colors"
+                                      >
+                                        ↳ {subSub.name}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     )}

@@ -72,7 +72,8 @@ export async function fetchAllCategoriesData() {
   await initDb();
   const [
     [categoriesRows],
-    [subCategoriesRows]
+    [subCategoriesRows],
+    [subSubCategoriesRows]
   ]: any[] = await Promise.all([
     pool.query(
       "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
@@ -84,16 +85,30 @@ export async function fetchAllCategoriesData() {
          AND (seo.status IS NULL OR seo.status = 'Published') 
        WHERE s.status = 'Active' 
        ORDER BY s.orderIndex ASC`
+    ),
+    pool.query(
+      "SELECT * FROM sub_sub_categories WHERE status = 'Active' ORDER BY orderIndex ASC"
     )
   ]);
 
-  const subCategories = subCategoriesRows.map((sub: any) => ({
-    ...sub,
-    _id: sub.id.toString(),
-    categoryId: sub.categoryId.toString(),
-    order: sub.orderIndex,
-    seoBannerImage: sub.seoBannerImage || null
+  const subSubCategories = subSubCategoriesRows.map((ss: any) => ({
+    ...ss,
+    _id: ss.id.toString(),
+    subCategoryId: ss.subCategoryId.toString(),
+    order: ss.orderIndex
   }));
+
+  const subCategories = subCategoriesRows.map((sub: any) => {
+    const subIdStr = sub.id.toString();
+    return {
+      ...sub,
+      _id: subIdStr,
+      categoryId: sub.categoryId.toString(),
+      order: sub.orderIndex,
+      seoBannerImage: sub.seoBannerImage || null,
+      subSubCategories: subSubCategories.filter((ss: any) => ss.subCategoryId === subIdStr)
+    };
+  });
 
   return categoriesRows.map((cat: any) => {
     const catIdStr = cat.id.toString();
@@ -198,13 +213,13 @@ export async function fetchSeoContentData(catId: string, subSlug?: string, subSu
   }
 }
 
-export async function renderTextileCategoryPage(slug: string, initialSubSlug?: string) {
+export async function renderTextileCategoryPage(slug: string, initialSubSlug?: string, initialSubSubSlug?: string) {
   const category = await fetchCategoryHeaderData(slug);
   const subCategoriesPromise = fetchSubCategoriesData(category._id ? category._id.toString() : "0");
   const subSubCategoriesPromise = fetchSubSubCategoriesData();
   const productsPromise = fetchProductsData();
   const navCategoriesPromise = fetchAllCategoriesData();
-  const seoDataPromise = fetchSeoContentData(category._id ? category._id.toString() : "0", initialSubSlug);
+  const seoDataPromise = fetchSeoContentData(category._id ? category._id.toString() : "0", initialSubSlug, initialSubSubSlug);
 
   return (
     <CategoryContent 
@@ -216,6 +231,7 @@ export async function renderTextileCategoryPage(slug: string, initialSubSlug?: s
       seoDataPromise={seoDataPromise}
       slug={slug}
       initialSubSlug={initialSubSlug}
+      initialSubSubSlug={initialSubSubSlug}
     />
   );
 }

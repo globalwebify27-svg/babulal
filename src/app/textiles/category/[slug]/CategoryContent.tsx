@@ -40,6 +40,7 @@ interface CategoryContentProps {
   seoDataPromise?: Promise<{ seoContent: any; seoSections: any[]; relatedCategories: any[] }>;
   slug: string;
   initialSubSlug?: string;
+  initialSubSubSlug?: string;
 }
 
 function getYouTubeEmbedUrl(url: string) {
@@ -60,7 +61,8 @@ export default function CategoryContent({
   navCategoriesPromise,
   seoDataPromise,
   slug,
-  initialSubSlug
+  initialSubSlug,
+  initialSubSubSlug
 }: CategoryContentProps) {
   const [isStoreModalOpen, setIsStoreModalOpen] = React.useState(false);
   const allCategories = React.use(navCategoriesPromise) as any[];
@@ -85,6 +87,7 @@ export default function CategoryContent({
              initialCategory={initialCategory}
              slug={slug}
              initialSubSlug={initialSubSlug}
+             initialSubSubSlug={initialSubSubSlug}
              setIsStoreModalOpen={setIsStoreModalOpen}
              allCategories={allCategories}
            />
@@ -97,7 +100,7 @@ export default function CategoryContent({
   );
 }
 
-function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, productsPromise, seoDataPromise, initialCategory, slug, initialSubSlug, setIsStoreModalOpen, allCategories }: any) {
+function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, productsPromise, seoDataPromise, initialCategory, slug, initialSubSlug, initialSubSubSlug, setIsStoreModalOpen, allCategories }: any) {
   // Wait for the data to stream in
   const dbSubCategories = subCategoriesPromise ? (React.use(subCategoriesPromise) as any[]) : [];
   const dbSubSubCategories = subSubCategoriesPromise ? (React.use(subSubCategoriesPromise) as any[]) : [];
@@ -229,6 +232,20 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
       setSelectedSubs(prev => prev.length !== 0 ? [] : prev);
     }
   }, [subParam, initialSubSlug, displaySubCategories]);
+
+  React.useEffect(() => {
+    if (initialSubSubSlug && dbSubSubCategories) {
+      const match = dbSubSubCategories.find(
+        (ss: any) => ss.slug.toLowerCase() === initialSubSubSlug.toLowerCase()
+      );
+      if (match) {
+        setSelectedSubSubs(prev => prev.includes(match.name) ? prev : [...prev, match.name]);
+      } else {
+        const fallback = initialSubSubSlug.replace(/-/g, ' ');
+        setSelectedSubSubs(prev => prev.includes(fallback) ? prev : [...prev, fallback]);
+      }
+    }
+  }, [initialSubSubSlug, dbSubSubCategories]);
 
   const handleSubToggle = (subName: string, subId: string) => {
     Haptics.light();
