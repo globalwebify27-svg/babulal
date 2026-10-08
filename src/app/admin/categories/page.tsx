@@ -378,25 +378,25 @@ export default function ManageCategoriesPage() {
   );
 
   return (
-    <div className="p-8 bg-[#f5f7fb] min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 bg-[#f5f7fb] min-h-screen">
       
       {/* HEADER ACTIONS */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 bg-white p-8 rounded-3xl shadow-sm border border-[#d1d9e6]">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-[#d1d9e6]">
          <div>
-            <h1 className="text-2xl font-black text-[#1a2b4b] uppercase tracking-tighter italic italic-accent flex items-center gap-3">
+            <h1 className="text-xl sm:text-2xl font-black text-[#1a2b4b] uppercase tracking-tighter italic italic-accent flex items-center gap-3">
                Category Master Control
                {isRefreshing && <RefreshCcw className="w-5 h-5 animate-spin text-accent" />}
             </h1>
             <p className="text-[#1a2b4b]/40 text-[9px] uppercase font-bold tracking-[.3em] mt-1 italic">Managing {categories.length} dynamic vertical nodes</p>
          </div>
          
-         <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
-            <div className="relative group">
+         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            <div className="relative group min-w-0 flex-1 sm:flex-none">
                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1a2b4b]/20 group-focus-within:text-primary transition-colors" />
                <input 
                  type="text" 
                  placeholder="Search Category..."
-                 className="pl-12 pr-6 py-4 bg-[#f8fafc] border border-[#d1d9e6] rounded-xl text-xs font-bold w-full md:w-80 outline-none focus:ring-2 focus:ring-primary/10 transition-all placeholder:text-[#1a2b4b]/20"
+                 className="pl-12 pr-6 py-3.5 bg-[#f8fafc] border border-[#d1d9e6] rounded-xl text-xs font-bold w-full sm:w-64 md:w-80 outline-none focus:ring-2 focus:ring-primary/10 transition-all placeholder:text-[#1a2b4b]/20"
                  value={search}
                  onChange={(e) => setSearch(e.target.value)}
                />
@@ -404,7 +404,7 @@ export default function ManageCategoriesPage() {
             
             <button 
               onClick={() => openModal()}
-              className="bg-[#095181] text-white px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[.2em] shadow-lg shadow-[#095181]/20 flex items-center justify-center gap-2 hover:-translate-y-1 transition-all"
+              className="bg-[#095181] text-white px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-[.2em] shadow-lg shadow-[#095181]/20 flex items-center justify-center gap-2 hover:-translate-y-1 transition-all shrink-0 whitespace-nowrap"
             >
                <Plus className="w-4 h-4" /> Add New Node
             </button>
@@ -414,7 +414,7 @@ export default function ManageCategoriesPage() {
       {/* CATEGORY LIST TABLE */}
       <div className="bg-white rounded-[2rem] shadow-sm border border-[#d1d9e6] overflow-hidden min-h-[400px]">
          {isLoading ? (
-           <div className="p-40 flex flex-col items-center justify-center gap-4 text-primary/20">
+           <div className="p-40 flex flex-col items-center justify-end gap-2 flex-wrap text-primary/20">
               <Loader2 className="w-10 h-10 animate-spin" />
               <span className="text-[10px] font-black uppercase tracking-widest">Accessing MongoDB Vault...</span>
            </div>
@@ -425,26 +425,26 @@ export default function ManageCategoriesPage() {
               <p className="text-[#1a2b4b]/30 text-xs font-bold uppercase tracking-widest mt-2">Start adding nodes to the vertical hierarchy.</p>
            </div>
          ) : (
-           <div className="overflow-x-auto">
-              <table className="w-full text-left">
+           <div className="overflow-x-auto w-full">
+              <table className="w-full text-left min-w-[850px]">
                  <thead>
                     <tr className="bg-[#f8fafc]/50">
-                       <th className="px-8 py-5 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8] w-20">No.</th>
-                       <th className="px-8 py-5 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8]">Category Structure</th>
-                       <th className="px-8 py-5 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8]">Assets</th>
-                       <th className="px-8 py-5 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8]">Header</th>
-                       <th className="px-8 py-5 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8]">Curated</th>
-                       <th className="px-8 py-5 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8]">Priority</th>
-                       <th className="px-8 py-5 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8] w-48 text-center">Actions</th>
+                       <th className="px-5 py-4 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8] w-20">No.</th>
+                       <th className="px-5 py-4 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8]">Category Structure</th>
+                       <th className="px-5 py-4 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8]">Assets</th>
+                       <th className="px-5 py-4 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8]">Header</th>
+                       <th className="px-5 py-4 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8]">Curated</th>
+                       <th className="px-5 py-4 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8]">Priority</th>
+                       <th className="px-5 py-4 text-[9px] font-black text-[#1a2b4b]/40 uppercase tracking-[.2em] border-b border-[#f0f3f8] w-48 text-center">Actions</th>
                     </tr>
                  </thead>
                  <tbody className="divide-y divide-[#f0f3f8]">
                     {filteredCategories.map((cat, idx) => (
                       <tr key={cat._id} className="group hover:bg-[#fcfdfe] transition-all duration-300">
-                         <td className="px-8 py-6">
+                         <td className="px-5 py-4">
                             <span className="text-sm font-bold text-[#1a2b4b]/40">{idx + 1}.</span>
                          </td>
-                         <td className="px-8 py-6">
+                         <td className="px-5 py-4">
                             <div className="space-y-1.5">
                                <div className="text-sm font-black text-[#1a2b4b] uppercase tracking-tight group-hover:text-primary transition-colors flex items-center gap-2">
                                   {cat.name}
@@ -457,7 +457,7 @@ export default function ManageCategoriesPage() {
                                </div>
                             </div>
                          </td>
-                         <td className="px-8 py-6">
+                         <td className="px-5 py-4">
                             <div className="flex flex-col gap-1.5">
                                <div className="flex items-center gap-2">
                                   <span className={cn(
@@ -475,7 +475,7 @@ export default function ManageCategoriesPage() {
                                </div>
                             </div>
                          </td>
-                         <td className="px-8 py-6">
+                         <td className="px-5 py-4">
                             <div 
                               onClick={() => updateCategory(cat._id, { showInHeader: !cat.showInHeader })}
                               className={cn(
@@ -488,7 +488,7 @@ export default function ManageCategoriesPage() {
                                )} />
                             </div>
                          </td>
-                         <td className="px-8 py-6">
+                         <td className="px-5 py-4">
                             {cat.parentVertical?.toLowerCase() === 'textiles' ? (
                               <div 
                                 onClick={() => updateCategory(cat._id, { isCurated: !cat.isCurated })}
@@ -505,7 +505,7 @@ export default function ManageCategoriesPage() {
                               <span className="text-[10px] text-gray-300 font-bold uppercase italic tracking-widest">N/A</span>
                             )}
                          </td>
-                         <td className="px-8 py-6">
+                         <td className="px-5 py-4">
                             <input 
                               type="text" 
                               className="w-16 px-4 py-2 border border-[#d1d9e6] rounded-lg text-xs font-black text-[#1a2b4b] bg-white text-center"
@@ -513,8 +513,8 @@ export default function ManageCategoriesPage() {
                               onBlur={(e) => updateCategory(cat._id, { order: parseInt(e.target.value) })}
                             />
                          </td>
-                         <td className="px-8 py-6">
-                             <div className="flex items-center justify-center gap-4">
+                         <td className="px-5 py-4">
+                             <div className="flex items-center justify-end gap-2 flex-wrap">
                                 <Edit3 
                                   onClick={() => openModal(cat)}
                                   className="w-4 h-4 text-[#1a2b4b]/40 hover:text-[#095181] cursor-pointer transition-all hover:scale-110" 
