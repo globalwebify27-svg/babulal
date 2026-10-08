@@ -335,7 +335,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
       const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
       const subObj = displaySubCategories.find((s: any) => norm(s.name) === norm(subName));
       const subSlug = subObj?.slug || subName.toLowerCase().replace(/\s+/g, '-');
-      const subUrl = `${categoryUrl}/${subSlug}`;
+      const subUrl = `/${subSlug}`;
 
       items.push({ label: subName, url: subUrl });
       if (selectedSubSubs.length === 1) {
@@ -357,7 +357,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
       return relatedCategories.map((cat: any) => ({
         _id: cat._id || cat.id?.toString() || cat.slug,
         name: cat.name,
-        slug: cat.slug ? (cat.slug.startsWith('/') ? cat.slug : `/${cat.slug}`) : `/textiles/category/${cat.slug}`,
+        slug: cat.slug ? (cat.slug.startsWith('/') ? cat.slug : `/${cat.slug}`) : `/${cat.slug}`,
         image: cat.cardImage || cat.image || cat.seoBannerImage || initialCategory?.cardImage || initialCategory?.image || "/bridal_luxury.png"
       }));
     }
@@ -377,7 +377,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
         .map((sub: any) => ({
           _id: sub._id || sub.id?.toString() || sub.slug,
           name: sub.name,
-          slug: `/${parentSlug}/${sub.slug || sub.name.toLowerCase().replace(/\s+/g, '-')}`,
+          slug: `/${sub.slug || sub.name.toLowerCase().replace(/\s+/g, '-')}`,
           image: sub.cardImage || sub.image || sub.seoBannerImage || initialCategory?.cardImage || initialCategory?.image || "/bridal_luxury.png"
         }));
     }
@@ -389,7 +389,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
         .map((c: any) => ({
           _id: c._id || c.id?.toString() || c.slug,
           name: c.name,
-          slug: `/textiles/category/${c.slug}`,
+          slug: `/${c.slug}`,
           image: c.cardImage || c.image || c.seoBannerImage || "/bridal_luxury.png"
         }));
     }
@@ -415,7 +415,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
         return {
           _id: sub._id || sub.id?.toString() || subSlug,
           name: sub.name,
-          slug: `/${parentSlug}/${subSlug}`,
+          slug: `/${subSlug}`,
           image: sub.cardImage || sub.image || sub.seoBannerImage || initialCategory?.cardImage || initialCategory?.image || "/bridal_luxury.png"
         };
       });

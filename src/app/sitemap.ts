@@ -34,7 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       WHERE sc.status = 'Active'
     `);
     const subCategoryEntries: MetadataRoute.Sitemap = subCategories.map((sub: any) => ({
-      url: `${baseUrl}/${sub.catSlug}/${sub.subSlug}`,
+      url: `${baseUrl}/${sub.subSlug}`,
       lastModified: sub.updatedAt ? new Date(sub.updatedAt) : new Date(),
       changeFrequency: 'weekly',
       priority: 0.7,

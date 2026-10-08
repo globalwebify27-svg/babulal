@@ -146,7 +146,7 @@ export default function MobileBottomMenu({ categories = [] }: MobileBottomMenuPr
                   key={sub.slug}
                   onClick={() => {
                     setActiveCategoryForModal(null);
-                    router.push(`/${activeCategoryForModal.slug}/${sub.slug}`);
+                    router.push(`/${sub.slug}`);
                   }}
                   className="flex items-center justify-between p-3.5 bg-gray-50 hover:bg-red-50 hover:text-[#DA222A] rounded-xl text-left text-xs font-bold uppercase tracking-wider transition-colors border border-gray-100"
                 >

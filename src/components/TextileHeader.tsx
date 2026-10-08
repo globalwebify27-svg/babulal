@@ -168,7 +168,7 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
                           return (
                             <div key={`${sub.slug}-${idx}`} className="relative group/sub">
                               <Link
-                                href={`/${cat.slug}/${sub.slug}`}
+                                href={`/${sub.slug}`}
                                 className="flex items-center justify-between px-5 py-3 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:text-red-600 hover:bg-gray-50/50 hover:pl-7 transition-all duration-200"
                               >
                                 <span>{sub.name}</span>
@@ -288,7 +288,7 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
                             return (
                               <div key={`${sub.slug}-${idx}`}>
                                 <Link
-                                  href={`/${item.slug}/${sub.slug}`}
+                                  href={`/${sub.slug}`}
                                   onClick={() => setIsMobileMenuOpen(false)}
                                   className="text-[12px] font-black uppercase tracking-widest text-gray-500 hover:text-[#DA222A] py-2 transition-colors flex items-center gap-2"
                                 >

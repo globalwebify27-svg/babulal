@@ -1,6 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import pool, { initDb } from '@/lib/db';
 import { BUSINESS_VERTICALS, VerticalID, isInventoryCatalogEnabled } from '@/lib/constants';
 import InquiryForm from '@/components/InquiryForm';
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const isSubCategory = verticalSlug.toLowerCase() !== 'textiles' && verticalSlug.toLowerCase() !== 'honda' && verticalSlug.toLowerCase() !== 'bajaj' && verticalSlug.toLowerCase() !== 'trucking';
   
   const canonicalUrl = isSubCategory 
-    ? `https://www.babulalpremsons.com/${verticalSlug}/${categorySlug}`
+    ? `https://www.babulalpremsons.com/${categorySlug}`
     : `https://www.babulalpremsons.com/${categorySlug}`;
 
   let isIndex = false;
@@ -129,8 +129,18 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   );
 
   if (parentCatRows.length > 0) {
-    // verticalSlug is parent category (e.g. 'saree'), categorySlug is subcategory (e.g. 'fancy-sarees')
-    return renderTextileCategoryPage(parentCatRows[0].slug, categorySlug);
+    // Check if the subcategory actually exists
+    const [subCatRows]: any = await pool.query(
+      'SELECT id FROM sub_categories WHERE LOWER(slug) = ? LIMIT 1',
+      [categorySlug.toLowerCase()]
+    );
+    
+    if (subCatRows.length > 0) {
+      // 301 Permanent Redirect to the new root URL
+      redirect(`/${categorySlug.toLowerCase()}`);
+    }
+    
+    notFound();
   }
 
   const vertical = Object.values(BUSINESS_VERTICALS).find(v => v.slug === verticalSlug);
