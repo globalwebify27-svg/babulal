@@ -13,11 +13,14 @@ import {
   Clock,
   FileText,
   PlayCircle,
-  Layers
+  Layers,
+  X
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import TextileHeader from '@/components/TextileHeader';
 import Footer from '@/components/Footer';
 import StoreLocatorModal from '@/components/StoreLocatorModal';
+import InquiryForm from '@/components/InquiryForm';
 import { Haptics } from '@/lib/haptics';
 import { useSearchParams } from 'next/navigation';
 import MobileBottomMenu from '@/components/MobileBottomMenu';
@@ -105,6 +108,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
   const subParam = searchParams ? searchParams.get('sub') : null;
   const [selectedSubs, setSelectedSubs] = React.useState<string[]>([]);
   const [selectedSubSubs, setSelectedSubSubs] = React.useState<string[]>([]);
+  const [isInquiryModalOpen, setIsInquiryModalOpen] = React.useState(false);
 
   // Dynamic Sub-category Extraction (Fallback if subcategories collection is empty)
   const productsInCategory = React.useMemo(() => {
@@ -668,7 +672,13 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
 
              <div className="max-w-6xl mx-auto space-y-8 text-left">
                 {seoContent?.htmlContent ? (
-                  <RichContentRenderer html={seoContent.htmlContent} />
+                  <RichContentRenderer 
+                    html={seoContent.htmlContent} 
+                    onQuoteClick={() => {
+                      Haptics.medium();
+                      setIsInquiryModalOpen(true);
+                    }}
+                  />
                 ) : seoSections.length > 0 ? (
                   seoSections.map((sec: any) => (
                     <div key={sec.id} className="space-y-4">
@@ -708,13 +718,25 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
                       )}
 
                       {sec.image && (
-                        <div className="my-6 relative w-full h-64 lg:h-80 rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+                        <div className="my-6 relative w-full h-64 lg:h-80 rounded-2xl overflow-hidden border border-gray-100 shadow-sm group">
                           <Image
                             src={sec.image}
                             alt={sec.imageAlt || sec.heading || "Section Image"}
                             fill
                             className="object-cover"
                           />
+                          <div className="absolute bottom-4 left-0 right-0 px-4 flex justify-center z-10">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                Haptics.medium();
+                                setIsInquiryModalOpen(true);
+                              }}
+                              className="w-full max-w-[88%] py-3 px-6 bg-[#DA222A] hover:bg-[#0A5181] text-white text-xs sm:text-sm font-black uppercase tracking-[0.18em] rounded-full shadow-xl shadow-[#DA222A]/30 transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-white/20 select-none"
+                            >
+                              GET QUOTE
+                            </button>
+                          </div>
                         </div>
                       )}
 
@@ -798,6 +820,41 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
           </div>
         </div>
       </section>
+
+      {/* ══ INQUIRY POP-UP MODAL ══ */}
+      <AnimatePresence>
+        {isInquiryModalOpen && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsInquiryModalOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden z-10 p-2 sm:p-4 max-h-[90vh] flex flex-col"
+            >
+              <button
+                onClick={() => setIsInquiryModalOpen(false)}
+                className="absolute right-4 top-4 z-20 p-2 text-gray-400 hover:text-[#0A5181] transition-colors rounded-full hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="overflow-y-auto p-2">
+                <InquiryForm
+                  verticalId="TEXTILES"
+                  interestDefault={`${initialCategory?.name || 'Saree'} Collection Quote`}
+                  className="shadow-none border-none p-4 sm:p-6"
+                />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

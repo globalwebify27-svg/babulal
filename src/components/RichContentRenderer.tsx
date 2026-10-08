@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 interface RichContentRendererProps {
   html: string;
   className?: string;
+  onQuoteClick?: () => void;
 }
 
 /**
@@ -41,6 +42,7 @@ function sanitizeDomNode(node: Node) {
  * - Allows text to wrap around the image naturally
  * - Automatically releases text to 100% FULL width after the image ends
  * - On mobile (< 768px), resets float to none and sets image to 100% block width
+ * - Overlays a red GET QUOTE button at the bottom of the image card (matching reference UI)
  */
 function normalizeContentHtml(html: string): string {
   if (!html || typeof window === 'undefined') {
@@ -77,24 +79,39 @@ function normalizeContentHtml(html: string): string {
       figure.setAttribute('data-align', align);
 
       if (align === 'right') {
-        figure.className = 'content-flow-image float-none md:float-right md:ml-8 md:mb-5 md:mt-1 w-full md:w-[360px] max-w-full md:max-w-[42%] rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-md bg-gray-50 my-6 md:my-2 clear-right';
+        figure.className = 'relative content-flow-image float-none md:float-right md:ml-8 md:mb-5 md:mt-1 w-full md:w-[360px] max-w-full md:max-w-[42%] rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-md bg-gray-50 my-6 md:my-2 clear-right group';
       } else if (align === 'left') {
-        figure.className = 'content-flow-image float-none md:float-left md:mr-8 md:mb-5 md:mt-1 w-full md:w-[360px] max-w-full md:max-w-[42%] rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-md bg-gray-50 my-6 md:my-2 clear-left';
+        figure.className = 'relative content-flow-image float-none md:float-left md:mr-8 md:mb-5 md:mt-1 w-full md:w-[360px] max-w-full md:max-w-[42%] rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-md bg-gray-50 my-6 md:my-2 clear-left group';
       } else {
-        figure.className = 'content-flow-image float-none mx-auto my-6 w-full max-w-2xl rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-md bg-gray-50';
+        figure.className = 'relative content-flow-image float-none mx-auto my-6 w-full max-w-2xl rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-md bg-gray-50 group';
       }
 
       // Clean image inline style to prevent overriding responsive float/width rules
       img.removeAttribute('style');
       img.className = 'w-full h-auto max-h-[540px] object-cover object-center rounded-2xl md:rounded-3xl block';
 
+      // Create cloned image
+      const clonedImg = img.cloneNode(true) as HTMLElement;
+      figure.appendChild(clonedImg);
+
+      // Create GET QUOTE button overlay at bottom of image
+      const overlayDiv = doc.createElement('div');
+      overlayDiv.className = 'absolute bottom-4 left-0 right-0 px-4 flex justify-center z-10';
+      
+      const quoteBtn = doc.createElement('button');
+      quoteBtn.type = 'button';
+      quoteBtn.setAttribute('data-action', 'quote-btn');
+      quoteBtn.className = 'w-full max-w-[88%] py-3 px-6 bg-[#DA222A] hover:bg-[#0A5181] text-white text-xs sm:text-sm font-black uppercase tracking-[0.18em] rounded-full shadow-xl shadow-[#DA222A]/30 transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-white/20 select-none';
+      quoteBtn.textContent = 'GET QUOTE';
+
+      overlayDiv.appendChild(quoteBtn);
+      figure.appendChild(overlayDiv);
+
       // Check if image is wrapped inside a parent <p> or <figure>
       const parent = img.parentElement;
       if (parent && (parent.tagName === 'FIGURE' || (parent.tagName === 'P' && parent.childNodes.length === 1))) {
-        figure.appendChild(img.cloneNode(true));
         parent.parentNode?.replaceChild(figure, parent);
       } else {
-        figure.appendChild(img.cloneNode(true));
         img.parentNode?.replaceChild(figure, img);
       }
     });
@@ -106,13 +123,24 @@ function normalizeContentHtml(html: string): string {
   }
 }
 
-export default function RichContentRenderer({ html, className }: RichContentRendererProps) {
+export default function RichContentRenderer({ html, className, onQuoteClick }: RichContentRendererProps) {
   const normalizedHtml = useMemo(() => normalizeContentHtml(html), [html]);
 
   if (!html) return null;
 
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    const btn = target.closest('[data-action="quote-btn"]');
+    if (btn && onQuoteClick) {
+      e.preventDefault();
+      e.stopPropagation();
+      onQuoteClick();
+    }
+  };
+
   return (
     <div 
+      onClick={handleClick}
       className={cn(
         "rich-content-flow w-full max-w-none text-[#1a2b4b] text-sm md:text-base leading-relaxed space-y-4 font-normal",
         "after:content-[''] after:table after:clear-both",
