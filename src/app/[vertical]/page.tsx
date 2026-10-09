@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
 
   if (rows.length > 0) {
     const cat = rows[0];
-    const canonicalUrl = `https://www.babulalpremsons.com/${cat.slug}`;
+    const canonicalUrl = `https://babulalpremsons.com/${cat.slug}`;
 
     let isIndex = cat.robotsIndex !== undefined && cat.robotsIndex !== null ? !!cat.robotsIndex : false;
     let isFollow = cat.robotsFollow !== undefined && cat.robotsFollow !== null ? !!cat.robotsFollow : true;
@@ -91,7 +91,7 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
 
   if (subRows.length > 0) {
     const sub = subRows[0];
-    const canonicalUrl = `https://www.babulalpremsons.com/${sub.slug}`;
+    const canonicalUrl = `https://babulalpremsons.com/${sub.slug}`;
 
     let isIndex = sub.robotsIndex !== undefined && sub.robotsIndex !== null ? !!sub.robotsIndex : false;
     let isFollow = sub.robotsFollow !== undefined && sub.robotsFollow !== null ? !!sub.robotsFollow : true;

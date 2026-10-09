@@ -76,7 +76,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
   const metaDesc = product.seo?.metaDescription || product.shortDescription || product.description?.substring(0, 160) || `Explore ${product.name} from Babulal Premsons Group (100+ Years Legacy).`;
   const catSlug = product.category ? product.category.toLowerCase().replace(/\s+/g, '-') : 'textiles';
-  const canonicalUrl = `https://www.babulalpremsons.com/${catSlug}/product/${product.slug}`;
+  const canonicalUrl = `https://babulalpremsons.com/${catSlug}/product/${product.slug}`;
 
   let isIndex = false;
   let isFollow = true;

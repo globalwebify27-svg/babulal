@@ -28,8 +28,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const isSubCategory = verticalSlug.toLowerCase() !== 'textiles' && verticalSlug.toLowerCase() !== 'honda' && verticalSlug.toLowerCase() !== 'bajaj' && verticalSlug.toLowerCase() !== 'trucking';
   
   const canonicalUrl = isSubCategory 
-    ? `https://www.babulalpremsons.com/${categorySlug}`
-    : `https://www.babulalpremsons.com/${categorySlug}`;
+    ? `https://babulalpremsons.com/${categorySlug}`
+    : `https://babulalpremsons.com/${categorySlug}`;
 
   let isIndex = false;
   let isFollow = true;

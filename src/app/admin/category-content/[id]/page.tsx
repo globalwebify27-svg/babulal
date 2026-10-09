@@ -434,7 +434,7 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
                 <label className="text-[10px] font-black text-[#1a2b4b]/60 uppercase tracking-widest">Canonical URL (Optional Override)</label>
                 <input
                   type="text"
-                  placeholder={targetInfo?.targetUrl ? `https://www.babulalpremsons.com${targetInfo.targetUrl}` : 'https://www.babulalpremsons.com/...'}
+                  placeholder={targetInfo?.targetUrl ? `https://babulalpremsons.com${targetInfo.targetUrl}` : 'https://babulalpremsons.com/...'}
                   value={canonicalUrl}
                   onChange={(e) => setCanonicalUrl(e.target.value)}
                   className="w-full px-5 py-3.5 bg-[#f8fafc] border border-[#d1d9e6] rounded-2xl text-xs font-bold text-[#1a2b4b] outline-none focus:ring-2 focus:ring-purple-500/20"

@@ -83,7 +83,7 @@ export function isInventoryCatalogEnabled(_categorySlug?: string): boolean {
   return INVENTORY_CATALOG_CONFIG.enabled;
 }
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.babulalpremsons.com';
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://babulalpremsons.com';
 export const DEFAULT_WHATSAPP_NUMBER = '+91 76679 85545';
 
 

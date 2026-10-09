@@ -15,7 +15,7 @@ interface SubCategoryPageProps {
 export async function generateMetadata({ params }: SubCategoryPageProps): Promise<Metadata> {
   const { vertical: verticalSlug, category: categorySlug, subCategory: subCategorySlug } = await params;
   const subCategoryName = subCategorySlug.replace(/-/g, ' ');
-  const canonicalUrl = `https://www.babulalpremsons.com/${verticalSlug}/${categorySlug}/${subCategorySlug}`;
+  const canonicalUrl = `https://babulalpremsons.com/${verticalSlug}/${categorySlug}/${subCategorySlug}`;
 
   let isIndex = false;
   let isFollow = true;
