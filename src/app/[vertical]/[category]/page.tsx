@@ -160,7 +160,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     
     // Fetch categories and subcategories for filters
     const [catRows]: any = await pool.query(
-      'SELECT * FROM categories WHERE LOWER(parentVertical) = ? ORDER BY orderIndex ASC',
+      'SELECT * FROM categories WHERE LOWER(parentVertical) = ? AND status = "Active" ORDER BY orderIndex ASC',
       [verticalSlug.toLowerCase()]
     );
 
@@ -168,12 +168,25 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       'SELECT * FROM sub_categories WHERE status = "Active" ORDER BY orderIndex ASC'
     );
 
+    const [subSubRows]: any = await pool.query(
+      'SELECT * FROM sub_sub_categories WHERE status = "Active" ORDER BY orderIndex ASC'
+    );
+
+    // Map sub_sub_categories
+    const allSubSubs = subSubRows.map((ss: any) => ({
+      id: ss.id,
+      name: ss.name,
+      slug: ss.slug,
+      subCategoryId: ss.subCategoryId
+    }));
+
     // Map subcategories
     const allSubs = subRows.map((sub: any) => ({
       id: sub.id,
       name: sub.name,
       slug: sub.slug,
-      categoryId: sub.categoryId
+      categoryId: sub.categoryId,
+      subSubCategories: allSubSubs.filter((ss: any) => ss.subCategoryId === sub.id)
     }));
 
     // Map categories with their subcategories attached

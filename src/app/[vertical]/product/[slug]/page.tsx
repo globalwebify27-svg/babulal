@@ -190,21 +190,35 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
   if (verticalSlug === 'textiles') {
     const [
       [catRows],
-      [subRows]
+      [subRows],
+      [subSubRows]
     ]: any[] = await Promise.all([
       pool.query(
         "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' AND status = 'Active' ORDER BY orderIndex ASC"
       ),
       pool.query(
         "SELECT * FROM sub_categories WHERE status = 'Active' ORDER BY orderIndex ASC"
+      ),
+      pool.query(
+        "SELECT * FROM sub_sub_categories WHERE status = 'Active' ORDER BY orderIndex ASC"
       )
     ]);
-    const subCategories = subRows.map((sub: any) => ({
-      ...sub,
-      _id: sub.id.toString(),
-      categoryId: sub.categoryId.toString(),
-      order: sub.orderIndex
+    const subSubCategories = subSubRows.map((ss: any) => ({
+      ...ss,
+      _id: ss.id.toString(),
+      subCategoryId: ss.subCategoryId.toString(),
+      order: ss.orderIndex
     }));
+    const subCategories = subRows.map((sub: any) => {
+      const subIdStr = sub.id.toString();
+      return {
+        ...sub,
+        _id: subIdStr,
+        categoryId: sub.categoryId.toString(),
+        order: sub.orderIndex,
+        subSubCategories: subSubCategories.filter((ss: any) => ss.subCategoryId === subIdStr)
+      };
+    });
     navCategories = catRows.map((cat: any) => {
       const catIdStr = cat.id.toString();
       return {

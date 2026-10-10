@@ -17,6 +17,7 @@ async function fetchTextileCatalogData() {
   const [
     [categoriesRows],
     [subCategoriesRows],
+    [subSubCategoriesRows],
     [productsRows],
     [bannersRows],
     [reelsRows]
@@ -26,6 +27,9 @@ async function fetchTextileCatalogData() {
     ),
     pool.query(
       "SELECT * FROM sub_categories WHERE status = 'Active' ORDER BY orderIndex ASC"
+    ),
+    pool.query(
+      "SELECT * FROM sub_sub_categories WHERE status = 'Active' ORDER BY orderIndex ASC"
     ),
     pool.query(
       "SELECT * FROM products WHERE LOWER(businessVertical) = 'textiles' ORDER BY createdAt DESC LIMIT 500"
@@ -38,12 +42,23 @@ async function fetchTextileCatalogData() {
     )
   ]);
 
-  const subCategories = subCategoriesRows.map((sub: any) => ({
-    ...sub,
-    _id: sub.id.toString(),
-    categoryId: sub.categoryId.toString(),
-    order: sub.orderIndex
+  const subSubCategories = subSubCategoriesRows.map((ss: any) => ({
+    ...ss,
+    _id: ss.id.toString(),
+    subCategoryId: ss.subCategoryId.toString(),
+    order: ss.orderIndex
   }));
+
+  const subCategories = subCategoriesRows.map((sub: any) => {
+    const subIdStr = sub.id.toString();
+    return {
+      ...sub,
+      _id: subIdStr,
+      categoryId: sub.categoryId.toString(),
+      order: sub.orderIndex,
+      subSubCategories: subSubCategories.filter((ss: any) => ss.subCategoryId === subIdStr)
+    };
+  });
 
   const categories = categoriesRows.map((cat: any) => {
     const catIdStr = cat.id.toString();
