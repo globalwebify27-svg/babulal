@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import pool, { initDb } from '@/lib/db';
 import { generateUniqueSlug } from '@/lib/slug';
 import { optimizeBase64Image } from '@/lib/image-utils';

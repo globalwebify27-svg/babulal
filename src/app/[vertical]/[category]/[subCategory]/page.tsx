@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: SubCategoryPageProps): Promis
   try {
     await initDb();
     const [subSubRows]: any = await pool.query(
-      'SELECT id FROM sub_sub_categories WHERE LOWER(slug) = ? LIMIT 1',
+      'SELECT id FROM sub_sub_categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
       [subCategorySlug.toLowerCase()]
     );
     if (subSubRows.length > 0) {
@@ -64,7 +64,7 @@ export default async function SubCategoryPage({ params }: SubCategoryPageProps) 
 
   // 2. Check if verticalSlug is a parent Category slug (e.g. /kids-collection/boys-wear/shorts)
   const [parentCatRows]: any = await pool.query(
-    'SELECT * FROM categories WHERE LOWER(slug) = ? LIMIT 1',
+    'SELECT * FROM categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
     [verticalSlug.toLowerCase()]
   );
 

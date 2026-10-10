@@ -5,7 +5,7 @@ import pool, { initDb } from "@/lib/db";
 export async function fetchCategoryHeaderData(slug: string) {
   await initDb();
   const [rows]: any = await pool.query(
-    'SELECT * FROM categories WHERE LOWER(slug) = ? LIMIT 1',
+    'SELECT * FROM categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
     [slug.toLowerCase()]
   );
   
@@ -32,7 +32,7 @@ export async function fetchSubCategoriesData(categoryId: string) {
      FROM sub_categories s 
      LEFT JOIN category_seo_content seo ON s.id = seo.subCategoryId 
        AND (seo.status IS NULL OR seo.status = 'Published') 
-     WHERE s.categoryId = ? 
+     WHERE s.categoryId = ? AND s.status = 'Active'
      ORDER BY s.orderIndex ASC`,
     [Number(categoryId)]
   );
@@ -76,7 +76,7 @@ export async function fetchAllCategoriesData() {
     [subSubCategoriesRows]
   ]: any[] = await Promise.all([
     pool.query(
-      "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
+      "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' AND status = 'Active' ORDER BY orderIndex ASC"
     ),
     pool.query(
       `SELECT s.*, seo.bannerImage as seoBannerImage 

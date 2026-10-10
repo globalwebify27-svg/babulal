@@ -138,14 +138,7 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
         <div className="max-w-[1400px] mx-auto px-8 relative">
           <nav className="flex items-center justify-center gap-3 py-1 lg:overflow-visible overflow-x-auto no-scrollbar snap-x">
             {/* DYNAMIC HEADER CATEGORIES */}
-            {(categories.length > 0 ? categories : [
-              { name: "Sarees", slug: "saree" },
-              { name: "Suits", slug: "suit" },
-              { name: "Kurtis", slug: "kurti" },
-              { name: "Kids Wear", slug: "kids-boys" },
-              { name: "Lehenga", slug: "lehenga" },
-              { name: "Mens Wear", slug: "mens-wear" }
-            ]).map((cat) => {
+            {categories.map((cat) => {
               const hasSubs = cat.subcategories && cat.subcategories.length > 0;
               return (
                 <div key={cat.slug} className="group relative shrink-0 snap-start">
@@ -242,16 +235,7 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
               {/* Combine dynamic categories and static utility links */}
               {[
                 { name: "Home", slug: "home", type: 'utility', href: '/' },
-                ...(categories.length > 0 
-                  ? categories.map(c => ({ name: c.name, slug: c.slug, type: 'category', subcategories: c.subcategories }))
-                  : [
-                      { name: "Saree", slug: "sarees", type: 'category', subcategories: [] },
-                      { name: "Suit", slug: "suits", type: 'category', subcategories: [] },
-                      { name: "Kurti", slug: "kurtis", type: 'category', subcategories: [] },
-                      { name: "Kids Wear", slug: "kids-wear", type: 'category', subcategories: [] },
-                      { name: "Lehenga", slug: "lehenga", type: 'category', subcategories: [] },
-                    ]
-                ),
+                ...categories.map(c => ({ name: c.name, slug: c.slug, type: 'category', subcategories: c.subcategories })),
                 { name: "Retail Hub", slug: "sarees", type: 'utility', href: '/saree' },
                 { name: "Blog", slug: "blog", type: 'utility', href: '#blog' },
                 { name: "Contact Us", slug: "contact", type: 'utility', href: '/contact' },

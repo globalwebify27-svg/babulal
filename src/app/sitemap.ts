@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       SELECT sc.slug as subSlug, c.slug as catSlug, sc.updatedAt 
       FROM sub_categories sc 
       JOIN categories c ON sc.categoryId = c.id 
-      WHERE sc.status = 'Active'
+      WHERE sc.status = 'Active' AND c.status = 'Active'
     `);
     const subCategoryEntries: MetadataRoute.Sitemap = subCategories.map((sub: any) => ({
       url: `${baseUrl}/${sub.subSlug}`,

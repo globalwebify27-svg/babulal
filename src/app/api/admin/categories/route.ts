@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import pool, { initDb } from '@/lib/db';
 import { optimizeBase64Image } from '@/lib/image-utils';
 import { generateUniqueSlug } from '@/lib/slug';
@@ -74,6 +75,7 @@ export async function POST(req: Request) {
 
     const [rows]: any = await pool.query('SELECT * FROM categories WHERE id = ?', [result.insertId]);
     console.log('CREATED CATEGORY:', rows[0]);
+    revalidatePath('/', 'layout');
     return NextResponse.json(mapCategory(rows[0]), { status: 201 });
   } catch (error: any) {
     console.error('Category Create Error:', error);
@@ -131,6 +133,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 });
     }
     
+    revalidatePath('/', 'layout');
     return NextResponse.json(mapCategory(rows[0]));
   } catch (error: any) {
     console.error('PATCH ERROR:', error);
@@ -156,6 +159,7 @@ export async function DELETE(req: Request) {
     
     await pool.query('DELETE FROM categories WHERE id = ?', [id]);
     
+    revalidatePath('/', 'layout');
     return NextResponse.json({ message: 'Category deleted successfully' });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 });

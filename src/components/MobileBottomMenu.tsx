@@ -43,14 +43,7 @@ export default function MobileBottomMenu({ categories = [] }: MobileBottomMenuPr
     }
   };
 
-  const displayCategories = categories && categories.length > 0
-    ? categories
-    : [
-        { name: 'Saree', slug: 'saree', subcategories: [] },
-        { name: 'Lehenga', slug: 'lehenga', subcategories: [] },
-        { name: 'Suit', slug: 'suit', subcategories: [] },
-        { name: 'Kurti', slug: 'kurti', subcategories: [] }
-      ];
+  const displayCategories = categories || [];
 
   return (
     <>

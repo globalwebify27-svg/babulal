@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
   
   // 1. Check if it's a main category
   const [rows]: any = await pool.query(
-    'SELECT * FROM categories WHERE LOWER(slug) = ? LIMIT 1',
+    "SELECT * FROM categories WHERE LOWER(slug) = ? AND status = 'Active' LIMIT 1",
     [lowerSlug]
   );
 
@@ -85,7 +85,7 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
 
   // 2. Check if it's a subcategory
   const [subRows]: any = await pool.query(
-    'SELECT * FROM sub_categories WHERE LOWER(slug) = ? LIMIT 1',
+    "SELECT s.* FROM sub_categories s JOIN categories c ON s.categoryId = c.id WHERE LOWER(s.slug) = ? AND s.status = 'Active' AND c.status = 'Active' LIMIT 1",
     [lowerSlug]
   );
 
@@ -160,7 +160,7 @@ export default async function SingleSegmentRoute({ params }: VerticalPageProps) 
   
   // 1. Look up Category by slug
   const [rows]: any = await pool.query(
-    'SELECT * FROM categories WHERE LOWER(slug) = ? LIMIT 1',
+    "SELECT * FROM categories WHERE LOWER(slug) = ? AND status = 'Active' LIMIT 1",
     [lowerSlug]
   );
 
@@ -171,7 +171,7 @@ export default async function SingleSegmentRoute({ params }: VerticalPageProps) 
 
   // 2. Look up Subcategory by slug
   const [subRows]: any = await pool.query(
-    'SELECT s.*, c.slug as parentSlug FROM sub_categories s JOIN categories c ON s.categoryId = c.id WHERE LOWER(s.slug) = ? LIMIT 1',
+    "SELECT s.*, c.slug as parentSlug FROM sub_categories s JOIN categories c ON s.categoryId = c.id WHERE LOWER(s.slug) = ? AND s.status = 'Active' AND c.status = 'Active' LIMIT 1",
     [lowerSlug]
   );
 

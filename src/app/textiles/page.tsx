@@ -23,7 +23,7 @@ async function fetchTextileCatalogData() {
     [reelsRows]
   ]: any[] = await Promise.all([
     pool.query(
-      "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
+      "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' AND status = 'Active' ORDER BY orderIndex ASC"
     ),
     pool.query(
       "SELECT * FROM sub_categories WHERE status = 'Active' ORDER BY orderIndex ASC"

@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   try {
     await initDb();
     const [catRows]: any = await pool.query(
-      'SELECT id, robotsIndex, robotsFollow FROM categories WHERE LOWER(slug) = ? LIMIT 1',
+      'SELECT id, robotsIndex, robotsFollow FROM categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
       [categorySlug.toLowerCase()]
     );
     if (catRows.length > 0) {
@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       }
     } else {
       const [subRows]: any = await pool.query(
-        'SELECT id, robotsIndex, robotsFollow FROM sub_categories WHERE LOWER(slug) = ? LIMIT 1',
+        'SELECT id, robotsIndex, robotsFollow FROM sub_categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
         [categorySlug.toLowerCase()]
       );
       if (subRows.length > 0) {
@@ -124,14 +124,14 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   // 2. Check if verticalSlug is a parent Category slug (e.g. /saree/fancy-sarees)
   const [parentCatRows]: any = await pool.query(
-    'SELECT * FROM categories WHERE LOWER(slug) = ? LIMIT 1',
+    'SELECT * FROM categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
     [verticalSlug.toLowerCase()]
   );
 
   if (parentCatRows.length > 0) {
     // Check if the subcategory actually exists
     const [subCatRows]: any = await pool.query(
-      'SELECT id FROM sub_categories WHERE LOWER(slug) = ? LIMIT 1',
+      'SELECT id FROM sub_categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
       [categorySlug.toLowerCase()]
     );
     

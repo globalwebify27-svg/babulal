@@ -84,7 +84,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   try {
     if (product.category) {
       const [catRows]: any = await pool.query(
-        'SELECT robotsIndex, robotsFollow FROM categories WHERE LOWER(name) = ? OR LOWER(slug) = ? LIMIT 1',
+        'SELECT robotsIndex, robotsFollow FROM categories WHERE (LOWER(name) = ? OR LOWER(slug) = ?) AND status = "Active" LIMIT 1',
         [product.category.toLowerCase(), product.category.toLowerCase().replace(/\s+/g, '-')]
       );
       if (catRows.length > 0) {
@@ -171,7 +171,7 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
   let subCategoryCatalog = null;
   if (product.subCategory) {
     const [subRows]: any = await pool.query(
-      'SELECT * FROM sub_categories WHERE name = ? LIMIT 1',
+      'SELECT * FROM sub_categories WHERE name = ? AND status = "Active" LIMIT 1',
       [product.subCategory]
     );
     if (subRows.length > 0) {
@@ -193,7 +193,7 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
       [subRows]
     ]: any[] = await Promise.all([
       pool.query(
-        "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' ORDER BY orderIndex ASC"
+        "SELECT * FROM categories WHERE LOWER(parentVertical) = 'textiles' AND status = 'Active' ORDER BY orderIndex ASC"
       ),
       pool.query(
         "SELECT * FROM sub_categories WHERE status = 'Active' ORDER BY orderIndex ASC"
