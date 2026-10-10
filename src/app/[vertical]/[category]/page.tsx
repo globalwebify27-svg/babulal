@@ -34,6 +34,10 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   let isIndex = false;
   let isFollow = true;
 
+  let metaTitle = `${categoryName} Collection | Babulal Premkumar`;
+  let metaDescription = `Explore wholesale ${categoryName} at Babulal Premkumar. Regional distribution in Ranchi, Jharkhand.`;
+  let finalCanonicalUrl = canonicalUrl;
+
   try {
     await initDb();
     const [catRows]: any = await pool.query(
@@ -45,13 +49,16 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       isFollow = catRows[0].robotsFollow !== undefined && catRows[0].robotsFollow !== null ? !!catRows[0].robotsFollow : true;
 
       const [seoRows]: any = await pool.query(
-        'SELECT robotsIndex, robotsFollow FROM category_seo_content WHERE categoryId = ? AND subCategoryId IS NULL AND status = "Published" LIMIT 1',
+        'SELECT robotsIndex, robotsFollow, metaTitle, metaDescription, canonicalUrl FROM category_seo_content WHERE categoryId = ? AND subCategoryId IS NULL AND status = "Published" LIMIT 1',
         [catRows[0].id]
       );
       if (seoRows.length > 0) {
         if (seoRows[0].robotsIndex === 'index' || seoRows[0].robotsIndex === true || seoRows[0].robotsIndex === 1) isIndex = true;
         else if (seoRows[0].robotsIndex === 'noindex' || seoRows[0].robotsIndex === false || seoRows[0].robotsIndex === 0) isIndex = false;
         if (seoRows[0].robotsFollow === 'nofollow' || seoRows[0].robotsFollow === false || seoRows[0].robotsFollow === 0) isFollow = false;
+        if (seoRows[0].metaTitle) metaTitle = seoRows[0].metaTitle;
+        if (seoRows[0].metaDescription) metaDescription = seoRows[0].metaDescription;
+        if (seoRows[0].canonicalUrl) finalCanonicalUrl = seoRows[0].canonicalUrl;
       }
     } else {
       const [subRows]: any = await pool.query(
@@ -63,13 +70,16 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
         isFollow = subRows[0].robotsFollow !== undefined && subRows[0].robotsFollow !== null ? !!subRows[0].robotsFollow : true;
 
         const [seoRows]: any = await pool.query(
-          'SELECT robotsIndex, robotsFollow FROM category_seo_content WHERE subCategoryId = ? AND status = "Published" LIMIT 1',
+          'SELECT robotsIndex, robotsFollow, metaTitle, metaDescription, canonicalUrl FROM category_seo_content WHERE subCategoryId = ? AND status = "Published" LIMIT 1',
           [subRows[0].id]
         );
         if (seoRows.length > 0) {
           if (seoRows[0].robotsIndex === 'index' || seoRows[0].robotsIndex === true || seoRows[0].robotsIndex === 1) isIndex = true;
           else if (seoRows[0].robotsIndex === 'noindex' || seoRows[0].robotsIndex === false || seoRows[0].robotsIndex === 0) isIndex = false;
           if (seoRows[0].robotsFollow === 'nofollow' || seoRows[0].robotsFollow === false || seoRows[0].robotsFollow === 0) isFollow = false;
+          if (seoRows[0].metaTitle) metaTitle = seoRows[0].metaTitle;
+          if (seoRows[0].metaDescription) metaDescription = seoRows[0].metaDescription;
+          if (seoRows[0].canonicalUrl) finalCanonicalUrl = seoRows[0].canonicalUrl;
         }
       }
     }
@@ -78,19 +88,19 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   }
 
   return {
-    title: `${categoryName} Collection | Babulal Premkumar`,
-    description: `Explore wholesale ${categoryName} at Babulal Premkumar. Regional distribution in Ranchi, Jharkhand.`,
+    title: metaTitle,
+    description: metaDescription,
     alternates: {
-      canonical: canonicalUrl,
+      canonical: finalCanonicalUrl,
     },
     robots: {
       index: isIndex,
       follow: isFollow
     },
     openGraph: {
-      title: `${categoryName} Collection | Babulal Premkumar`,
-      description: `Explore wholesale ${categoryName} at Babulal Premkumar.`,
-      url: canonicalUrl,
+      title: metaTitle,
+      description: metaDescription,
+      url: finalCanonicalUrl,
     },
   };
 }

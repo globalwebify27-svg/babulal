@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import pool, { initDb } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
 
 export async function GET(request: Request) {
   try {
@@ -282,6 +283,7 @@ export async function POST(request: Request) {
       }
     }
 
+    revalidatePath('/', 'layout');
     return NextResponse.json({ success: true, id: seoContentId });
   } catch (error: any) {
     console.error('Save Category SEO Content Error:', error);
@@ -298,11 +300,13 @@ export async function DELETE(request: Request) {
 
     if (sectionId) {
       await pool.query('DELETE FROM category_seo_sections WHERE id = ?', [Number(sectionId)]);
+      revalidatePath('/', 'layout');
       return NextResponse.json({ success: true });
     }
 
     if (id) {
       await pool.query('DELETE FROM category_seo_content WHERE id = ?', [Number(id)]);
+      revalidatePath('/', 'layout');
       return NextResponse.json({ success: true });
     }
 

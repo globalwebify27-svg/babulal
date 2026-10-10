@@ -20,6 +20,10 @@ export async function generateMetadata({ params }: SubCategoryPageProps): Promis
   let isIndex = false;
   let isFollow = true;
 
+  let metaTitle = `${subCategoryName} Collection | Babulal Premkumar`;
+  let metaDescription = `Explore wholesale ${subCategoryName} at Babulal Premkumar. Regional distribution in Ranchi, Jharkhand.`;
+  let finalCanonicalUrl = canonicalUrl;
+
   try {
     await initDb();
     const [subSubRows]: any = await pool.query(
@@ -28,12 +32,16 @@ export async function generateMetadata({ params }: SubCategoryPageProps): Promis
     );
     if (subSubRows.length > 0) {
       const [seoRows]: any = await pool.query(
-        'SELECT robotsIndex, robotsFollow FROM category_seo_content WHERE subSubCategoryId = ? AND status = "Published" LIMIT 1',
+        'SELECT robotsIndex, robotsFollow, metaTitle, metaDescription, canonicalUrl FROM category_seo_content WHERE subSubCategoryId = ? AND status = "Published" LIMIT 1',
         [subSubRows[0].id]
       );
       if (seoRows.length > 0) {
         if (seoRows[0].robotsIndex === 'index' || seoRows[0].robotsIndex === true || seoRows[0].robotsIndex === 1) isIndex = true;
         if (seoRows[0].robotsFollow === 'nofollow' || seoRows[0].robotsFollow === false || seoRows[0].robotsFollow === 0) isFollow = false;
+        
+        if (seoRows[0].metaTitle) metaTitle = seoRows[0].metaTitle;
+        if (seoRows[0].metaDescription) metaDescription = seoRows[0].metaDescription;
+        if (seoRows[0].canonicalUrl) finalCanonicalUrl = seoRows[0].canonicalUrl;
       }
     }
   } catch (err) {
@@ -41,10 +49,10 @@ export async function generateMetadata({ params }: SubCategoryPageProps): Promis
   }
 
   return {
-    title: `${subCategoryName} Collection | Babulal Premkumar`,
-    description: `Explore wholesale ${subCategoryName} at Babulal Premkumar. Regional distribution in Ranchi, Jharkhand.`,
+    title: metaTitle,
+    description: metaDescription,
     alternates: {
-      canonical: canonicalUrl,
+      canonical: finalCanonicalUrl,
     },
     robots: {
       index: isIndex,
