@@ -111,9 +111,8 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
                  <Link href="/about" className="hover:text-red-600 transition-colors">About Us</Link>
                  <Link href="/contact" className="hover:text-red-600 transition-colors">Contact</Link>
                </div>
-                <button 
-                  onClick={() => setIsCatalogModalOpen(true)}
-                  className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#DA222A] text-white text-[9px] md:text-[11px] font-black uppercase tracking-[0.05em] md:tracking-widest rounded-lg shadow-xl shadow-[#DA222A]/20 hover:bg-black transition-all active:scale-[0.96] animate-blink whitespace-nowrap"
+                <div 
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#DA222A] text-white text-[9px] md:text-[11px] font-black uppercase tracking-[0.05em] md:tracking-widest rounded-lg shadow-xl shadow-[#DA222A]/20 hover:bg-black transition-all animate-blink whitespace-nowrap cursor-default"
                 >
                   <span className="relative flex h-1.5 w-1.5 shrink-0">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
@@ -121,7 +120,7 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
                   </span>
                   <span className="hidden sm:inline">Lowest Rate 365 Days</span>
                   <span className="sm:hidden">Lowest Rate</span>
-                </button>
+                </div>
                <button 
                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                  className="xl:hidden p-2 text-gray-600"
