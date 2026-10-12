@@ -22,6 +22,9 @@ interface CategoryPageProps {
   }>;
 }
 
+// Enable Incremental Static Regeneration (ISR)
+export const revalidate = 60;
+
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { vertical: verticalSlug, category: categorySlug } = await params;
   const categoryName = categorySlug.toLowerCase() === 'all' ? 'All Products' : categorySlug.replace(/-/g, ' ');

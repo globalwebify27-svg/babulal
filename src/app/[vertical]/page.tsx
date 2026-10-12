@@ -15,6 +15,9 @@ interface VerticalPageProps {
   }>;
 }
 
+// Enable Incremental Static Regeneration (ISR)
+export const revalidate = 60;
+
 // Static routes that should not be handled dynamically by [vertical]
 const STATIC_BYPASS_ROUTES = new Set([
   'about',

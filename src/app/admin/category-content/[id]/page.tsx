@@ -127,7 +127,7 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
         } else {
           // Pre-populate sensible defaults if new record
           if (data.targetInfo) {
-            setH1(`Wholesale ${data.targetInfo.name} in Ranchi`);
+            setH1(`TOP ${data.targetInfo.name.toUpperCase()} IN RANCHI`);
             setMetaTitle(`${data.targetInfo.name} Wholesalers & Distributors in Ranchi | Babulal Premkumar`);
             setMetaDescription(`Direct wholesale supply of high-quality ${data.targetInfo.name}. Best prices, century-old legacy, fast regional distribution across Ranchi and Jharkhand.`);
           }
@@ -348,7 +348,29 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
+          {allCategories.length > 0 && (
+            <div className="flex items-center gap-2 bg-[#f8fafc] px-3 py-2 rounded-2xl border border-[#d1d9e6]">
+              <label className="text-[10px] font-black text-[#1a2b4b]/40 uppercase tracking-widest pl-1">Category:</label>
+              <select
+                value={targetIdStr.startsWith('cat-') ? targetIdStr : ''}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    window.location.href = `/admin/category-content/${e.target.value}`;
+                  }
+                }}
+                className="bg-transparent text-xs font-black uppercase text-[#1a2b4b] outline-none cursor-pointer pr-2"
+              >
+                <option value="" disabled>Select Category...</option>
+                {allCategories.map((c: any) => (
+                  <option key={c._id} value={`cat-${c._id}`}>
+                    {c.name} {c.parentVertical ? `(${c.parentVertical.toUpperCase()})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="flex items-center gap-2 bg-[#f8fafc] p-2 rounded-2xl border border-[#d1d9e6]">
             <label className="text-[10px] font-black text-[#1a2b4b]/40 uppercase tracking-widest pl-2">Status:</label>
             <select
@@ -402,17 +424,30 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-[#1a2b4b]/60 uppercase tracking-widest">
-                Category Main Heading (H1 Tag)
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-black text-[#1a2b4b]/60 uppercase tracking-widest flex items-center gap-2">
+                  Category Page Heading (H1)
+                  <span className="text-[9px] font-bold text-purple-600 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
+                    Primary Page H1
+                  </span>
+                </label>
+                {h1 && (
+                  <span className="text-[9px] font-bold text-green-600 bg-green-50 px-2.5 py-0.5 rounded-full border border-green-200 uppercase tracking-wider">
+                    Custom Heading Active
+                  </span>
+                )}
+              </div>
               <input
                 type="text"
-                placeholder={`e.g. Wholesale ${targetInfo?.name || 'Category'} in Ranchi`}
+                placeholder={`e.g. TOP ${targetInfo?.name?.toUpperCase() || 'CATEGORY'} IN RANCHI`}
                 value={h1}
                 onChange={(e) => setH1(e.target.value)}
                 className="w-full px-5 py-4 bg-[#f8fafc] border border-[#d1d9e6] rounded-2xl text-sm font-bold text-[#1a2b4b] outline-none focus:ring-2 focus:ring-purple-500/20"
               />
-              <p className="text-[9px] text-[#1a2b4b]/30 font-bold uppercase tracking-widest">Replaces standard category title in hero section if specified.</p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[9px] text-[#1a2b4b]/40 font-bold uppercase tracking-widest">
+                <p>Controls the main category heading on the public page (e.g. TOP SAREE IN RANCHI).</p>
+                <p className="text-purple-600">Default fallback: TOP {targetInfo?.name?.toUpperCase() || 'CATEGORY'} IN RANCHI</p>
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">

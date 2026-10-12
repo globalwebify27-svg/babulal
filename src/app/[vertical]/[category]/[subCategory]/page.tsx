@@ -12,6 +12,9 @@ interface SubCategoryPageProps {
   }>;
 }
 
+// Enable Incremental Static Regeneration (ISR)
+export const revalidate = 60;
+
 export async function generateMetadata({ params }: SubCategoryPageProps): Promise<Metadata> {
   const { vertical: verticalSlug, category: categorySlug, subCategory: subCategorySlug } = await params;
   const subCategoryName = subCategorySlug.replace(/-/g, ' ');

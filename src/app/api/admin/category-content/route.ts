@@ -1,6 +1,110 @@
 import { NextResponse } from 'next/server';
 import pool, { initDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { getToken } from 'next-auth/jwt';
+
+async function checkAuth(req: Request) {
+  const token = await getToken({ 
+    req: req as any, 
+    secret: process.env.NEXTAUTH_SECRET 
+  });
+  if (process.env.NODE_ENV === 'development') {
+    return true;
+  }
+  return !!token;
+}
+
+async function revalidateCategoryPaths(
+  categoryId: number | null, 
+  subCategoryId: number | null, 
+  subSubCategoryId: number | null
+) {
+  try {
+    const pathsToRevalidate = new Set<string>();
+    pathsToRevalidate.add('/');
+
+    if (subSubCategoryId) {
+      const [rows]: any = await pool.query(
+        `SELECT ss.slug as subSubSlug, s.slug as subSlug, c.slug as catSlug
+         FROM sub_sub_categories ss
+         JOIN sub_categories s ON ss.subCategoryId = s.id
+         JOIN categories c ON s.categoryId = c.id
+         WHERE ss.id = ? LIMIT 1`,
+        [subSubCategoryId]
+      );
+      if (rows.length > 0) {
+        const { subSubSlug, subSlug, catSlug } = rows[0];
+        if (subSubSlug) pathsToRevalidate.add(`/${subSubSlug}`);
+        if (subSlug) pathsToRevalidate.add(`/${subSlug}`);
+        if (catSlug) {
+          pathsToRevalidate.add(`/${catSlug}`);
+          pathsToRevalidate.add(`/textiles/category/${catSlug}`);
+          pathsToRevalidate.add(`/textiles/${catSlug}`);
+          if (subSlug) {
+            pathsToRevalidate.add(`/${catSlug}/${subSlug}`);
+            pathsToRevalidate.add(`/textiles/${catSlug}/${subSlug}`);
+            if (subSubSlug) {
+              pathsToRevalidate.add(`/${catSlug}/${subSlug}/${subSubSlug}`);
+              pathsToRevalidate.add(`/textiles/${catSlug}/${subSlug}/${subSubSlug}`);
+            }
+          }
+        }
+      }
+    } else if (subCategoryId) {
+      const [rows]: any = await pool.query(
+        `SELECT s.slug as subSlug, c.slug as catSlug
+         FROM sub_categories s
+         JOIN categories c ON s.categoryId = c.id
+         WHERE s.id = ? LIMIT 1`,
+        [subCategoryId]
+      );
+      if (rows.length > 0) {
+        const { subSlug, catSlug } = rows[0];
+        if (subSlug) pathsToRevalidate.add(`/${subSlug}`);
+        if (catSlug) {
+          pathsToRevalidate.add(`/${catSlug}`);
+          pathsToRevalidate.add(`/textiles/category/${catSlug}`);
+          pathsToRevalidate.add(`/textiles/${catSlug}`);
+          if (subSlug) {
+            pathsToRevalidate.add(`/${catSlug}/${subSlug}`);
+            pathsToRevalidate.add(`/textiles/${catSlug}/${subSlug}`);
+          }
+        }
+      }
+    } else if (categoryId) {
+      const [rows]: any = await pool.query(
+        'SELECT slug FROM categories WHERE id = ? LIMIT 1',
+        [categoryId]
+      );
+      if (rows.length > 0 && rows[0].slug) {
+        const catSlug = rows[0].slug;
+        pathsToRevalidate.add(`/${catSlug}`);
+        pathsToRevalidate.add(`/textiles/category/${catSlug}`);
+        pathsToRevalidate.add(`/textiles/${catSlug}`);
+      }
+    }
+
+    for (const p of pathsToRevalidate) {
+      try {
+        revalidatePath(p);
+      } catch (e) {
+        console.warn(`revalidatePath(${p}) warning:`, e);
+      }
+    }
+
+    try {
+      revalidatePath('/', 'layout');
+      revalidatePath('/[vertical]', 'page');
+      revalidatePath('/textiles/category/[slug]', 'page');
+      revalidatePath('/[vertical]/[category]', 'page');
+      revalidatePath('/[vertical]/[category]/[subCategory]', 'page');
+    } catch (e) {
+      console.warn('revalidatePath dynamic routes warning:', e);
+    }
+  } catch (err) {
+    console.error('Error revalidating category paths:', err);
+  }
+}
 
 export async function GET(request: Request) {
   try {
@@ -17,7 +121,7 @@ export async function GET(request: Request) {
 
     // Fetch all main categories for related categories selection
     const [allCategories]: any = await pool.query(
-      "SELECT id, name, slug, image, cardImage FROM categories WHERE status = 'Active' ORDER BY orderIndex ASC"
+      "SELECT id, name, slug, image, cardImage, parentVertical FROM categories WHERE status = 'Active' ORDER BY parentVertical ASC, orderIndex ASC"
     );
 
     let targetInfo: any = null;
@@ -130,7 +234,8 @@ export async function GET(request: Request) {
       sections,
       allCategories: allCategories.map((cat: any) => ({
         ...cat,
-        _id: cat.id.toString()
+        _id: cat.id.toString(),
+        parentVertical: cat.parentVertical || 'textiles'
       }))
     });
   } catch (error: any) {
@@ -141,6 +246,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const isAuthorized = await checkAuth(request);
+    if (!isAuthorized) {
+      return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
+    }
+
     await initDb();
     const body = await request.json();
     const {
@@ -283,7 +393,7 @@ export async function POST(request: Request) {
       }
     }
 
-    revalidatePath('/', 'layout');
+    await revalidateCategoryPaths(numCatId, numSubCatId, numSubSubCatId);
     return NextResponse.json({ success: true, id: seoContentId });
   } catch (error: any) {
     console.error('Save Category SEO Content Error:', error);
@@ -293,20 +403,44 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const isAuthorized = await checkAuth(request);
+    if (!isAuthorized) {
+      return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
+    }
+
     await initDb();
     const { searchParams } = new URL(request.url);
     const sectionId = searchParams.get('sectionId');
     const id = searchParams.get('id');
 
     if (sectionId) {
+      const [secRows]: any = await pool.query(
+        `SELECT c.categoryId, c.subCategoryId, c.subSubCategoryId 
+         FROM category_seo_sections s 
+         JOIN category_seo_content c ON s.seoContentId = c.id 
+         WHERE s.id = ? LIMIT 1`,
+        [Number(sectionId)]
+      );
       await pool.query('DELETE FROM category_seo_sections WHERE id = ?', [Number(sectionId)]);
-      revalidatePath('/', 'layout');
+      if (secRows.length > 0) {
+        await revalidateCategoryPaths(secRows[0].categoryId, secRows[0].subCategoryId, secRows[0].subSubCategoryId);
+      } else {
+        revalidatePath('/', 'layout');
+      }
       return NextResponse.json({ success: true });
     }
 
     if (id) {
+      const [contentRows]: any = await pool.query(
+        'SELECT categoryId, subCategoryId, subSubCategoryId FROM category_seo_content WHERE id = ? LIMIT 1',
+        [Number(id)]
+      );
       await pool.query('DELETE FROM category_seo_content WHERE id = ?', [Number(id)]);
-      revalidatePath('/', 'layout');
+      if (contentRows.length > 0) {
+        await revalidateCategoryPaths(contentRows[0].categoryId, contentRows[0].subCategoryId, contentRows[0].subSubCategoryId);
+      } else {
+        revalidatePath('/', 'layout');
+      }
       return NextResponse.json({ success: true });
     }
 

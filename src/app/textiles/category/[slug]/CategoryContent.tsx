@@ -33,10 +33,15 @@ import { SITE_URL } from '@/lib/constants';
 
 interface CategoryContentProps {
   initialCategory: any;
-  subCategoriesPromise: Promise<any[]>;
-  subSubCategoriesPromise: Promise<any[]>;
-  productsPromise: Promise<any[]>;
-  navCategoriesPromise: Promise<any[]>;
+  initialSubCategories?: any[];
+  initialSubSubCategories?: any[];
+  initialProducts?: any[];
+  initialAllCategories?: any[];
+  initialSeoData?: { seoContent: any; seoSections: any[]; relatedCategories: any[] };
+  subCategoriesPromise?: Promise<any[]>;
+  subSubCategoriesPromise?: Promise<any[]>;
+  productsPromise?: Promise<any[]>;
+  navCategoriesPromise?: Promise<any[]>;
   seoDataPromise?: Promise<{ seoContent: any; seoSections: any[]; relatedCategories: any[] }>;
   slug: string;
   initialSubSlug?: string;
@@ -55,6 +60,11 @@ function getYouTubeEmbedUrl(url: string) {
 
 export default function CategoryContent({ 
   initialCategory, 
+  initialSubCategories,
+  initialSubSubCategories,
+  initialProducts,
+  initialAllCategories,
+  initialSeoData,
   subCategoriesPromise, 
   subSubCategoriesPromise,
   productsPromise, 
@@ -65,7 +75,7 @@ export default function CategoryContent({
   initialSubSubSlug
 }: CategoryContentProps) {
   const [isStoreModalOpen, setIsStoreModalOpen] = React.useState(false);
-  const allCategories = React.use(navCategoriesPromise) as any[];
+  const allCategories = (initialAllCategories || (navCategoriesPromise ? React.use(navCategoriesPromise) : [])) as any[];
 
   return (
     <div className="bg-white min-h-screen text-[#0A5181] pb-20 md:pb-0">
@@ -80,6 +90,10 @@ export default function CategoryContent({
       <main className="pt-[100px]">
         <React.Suspense fallback={<ProductSectionSkeleton initialCategory={initialCategory} />}>
            <AsyncProductSection 
+             initialSubCategories={initialSubCategories}
+             initialSubSubCategories={initialSubSubCategories}
+             initialProducts={initialProducts}
+             initialSeoData={initialSeoData}
              subCategoriesPromise={subCategoriesPromise}
              subSubCategoriesPromise={subSubCategoriesPromise}
              productsPromise={productsPromise}
@@ -100,12 +114,28 @@ export default function CategoryContent({
   );
 }
 
-function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, productsPromise, seoDataPromise, initialCategory, slug, initialSubSlug, initialSubSubSlug, setIsStoreModalOpen, allCategories }: any) {
-  // Wait for the data to stream in
-  const dbSubCategories = subCategoriesPromise ? (React.use(subCategoriesPromise) as any[]) : [];
-  const dbSubSubCategories = subSubCategoriesPromise ? (React.use(subSubCategoriesPromise) as any[]) : [];
-  const dbProducts = productsPromise ? (React.use(productsPromise) as any[]) : [];
-  const { seoContent, seoSections = [], relatedCategories = [] } = seoDataPromise ? (React.use(seoDataPromise) as any) : { seoContent: null, seoSections: [], relatedCategories: [] };
+function AsyncProductSection({ 
+  initialSubCategories,
+  initialSubSubCategories,
+  initialProducts,
+  initialSeoData,
+  subCategoriesPromise, 
+  subSubCategoriesPromise, 
+  productsPromise, 
+  seoDataPromise, 
+  initialCategory, 
+  slug, 
+  initialSubSlug, 
+  initialSubSubSlug, 
+  setIsStoreModalOpen, 
+  allCategories 
+}: any) {
+  // Use resolved server data if provided, or resolve streaming promises
+  const dbSubCategories = initialSubCategories || (subCategoriesPromise ? (React.use(subCategoriesPromise) as any[]) : []);
+  const dbSubSubCategories = initialSubSubCategories || (subSubCategoriesPromise ? (React.use(subSubCategoriesPromise) as any[]) : []);
+  const dbProducts = initialProducts || (productsPromise ? (React.use(productsPromise) as any[]) : []);
+  const resolvedSeoData = initialSeoData || (seoDataPromise ? (React.use(seoDataPromise) as any) : { seoContent: null, seoSections: [], relatedCategories: [] });
+  const { seoContent, seoSections = [], relatedCategories = [] } = resolvedSeoData;
 
   const searchParams = useSearchParams();
   const subParam = searchParams ? searchParams.get('sub') : null;
@@ -157,8 +187,13 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     return null;
   }, [selectedSubs, displaySubCategories]);
 
-  // Dynamic Top Category Heading (Matching Reference Image 1)
+  // Dynamic Top Category Heading (Category Page Heading - Semantic H1):
+  // 1. If an explicit H1 was saved in Admin SEO & Content for this category/sub-category, use it.
+  // 2. Otherwise fall back to the existing dynamic heading: "TOP [CATEGORY] IN RANCHI"
   const dynamicTopHeading = React.useMemo(() => {
+    if (seoContent?.h1 && typeof seoContent.h1 === 'string' && seoContent.h1.trim().length > 0) {
+      return seoContent.h1.trim();
+    }
     if (selectedSubs.length === 1) {
       const subName = selectedSubs[0].toUpperCase();
       return `TOP ${subName} IN RANCHI`;
@@ -167,13 +202,10 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     }
     const catName = (initialCategory?.name || slug).toUpperCase();
     return `TOP ${catName} IN RANCHI`;
-  }, [selectedSubs, initialCategory, slug]);
+  }, [seoContent?.h1, selectedSubs, initialCategory, slug]);
 
-  // Dynamic Hero Header Title & Description calculation based on active subcategory selection and published SEO Content
+  // Dynamic Hero Header Title: collection title displayed on top hero banner
   const currentHeroTitle = React.useMemo(() => {
-    if (seoContent?.h1) {
-      return seoContent.h1;
-    }
     if (selectedSubs.length === 1) {
       const subName = selectedSubs[0];
       const upper = subName.toUpperCase();
@@ -185,7 +217,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
       return `${selectedSubs.map(s => s.toUpperCase()).join(' & ')} COLLECTION`;
     }
     return `${initialCategory?.name?.toUpperCase() || 'CATEGORY'} COLLECTION`;
-  }, [seoContent, selectedSubs, initialCategory]);
+  }, [selectedSubs, initialCategory]);
 
   const currentHeroDescription = React.useMemo(() => {
     if (seoContent?.introContent) {
@@ -308,14 +340,14 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
     const matchesSub = selectedSubs.some(s => normalize(s) === pSub);
     if (!matchesSub) return false;
     
-    const selectedParentSub = displaySubCategories.find(s => normalize(s.name) === pSub);
+    const selectedParentSub = displaySubCategories.find((s: any) => normalize(s.name) === pSub);
     if (selectedParentSub) {
       const subSubsForThisSub = dbSubSubCategories.filter((ss: any) => ss.subCategoryId === selectedParentSub._id);
       const activeSubSubsForThisSub = subSubsForThisSub.filter((ss: any) => selectedSubSubs.includes(ss.name));
       
       if (activeSubSubsForThisSub.length > 0) {
         const pSubSub = normalize(p.subSubCategory);
-        return activeSubSubsForThisSub.some(ss => normalize(ss.name) === pSubSub);
+        return activeSubSubsForThisSub.some((ss: any) => normalize(ss.name) === pSubSub);
       }
     }
     
@@ -439,9 +471,9 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
          <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-12 flex flex-col justify-center">
             <CoverBreadcrumbs items={breadcrumbItems} className="mb-4" />
             
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white italic uppercase tracking-tighter leading-[1] mb-6">
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white italic uppercase tracking-tighter leading-[1] mb-6">
                {currentHeroTitle}
-            </h1>
+            </h2>
             
             <p className="max-w-3xl text-sm lg:text-base text-white/90 font-medium italic leading-relaxed">
                {currentHeroDescription}
@@ -689,10 +721,10 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
 
           {/* ══ DYNAMIC TOP CATEGORY HEADING & SEO CONTENT (REFERENCE IMAGE MATCH) ══ */}
           <div className={cn("text-center", showInventoryCatalog ? "mt-16 lg:mt-20 pt-10 lg:pt-12 border-t border-gray-100" : "mt-0 pt-0 border-t-0")}>
-             <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-wider inline-block relative mb-0">
+             <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-wider inline-block relative mb-0">
                {dynamicTopHeading}
                <div className="w-16 h-1 bg-[#DA222A] mx-auto mt-2.5 rounded-full" />
-             </h2>
+             </h1>
 
              <div className="max-w-6xl mx-auto space-y-8 text-left">
                 {seoContent?.htmlContent ? (
@@ -889,9 +921,9 @@ function ProductSectionSkeleton({ initialCategory }: { initialCategory?: any }) 
       <section className="relative w-full h-[300px] lg:h-[400px] overflow-hidden bg-[#0A5181] animate-pulse">
         <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-12 flex flex-col justify-center">
           <div className="h-4 w-32 bg-white/20 rounded mb-4" />
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white/40 italic uppercase tracking-tighter leading-[1] mb-6">
+          <div className="text-3xl md:text-5xl lg:text-6xl font-black text-white/40 italic uppercase tracking-tighter leading-[1] mb-6">
             {initialCategory?.name ? `${initialCategory.name} COLLECTION` : 'LOADING COLLECTION...'}
-          </h1>
+          </div>
           <div className="h-4 w-2/3 bg-white/20 rounded" />
         </div>
       </section>

@@ -215,20 +215,30 @@ export async function fetchSeoContentData(catId: string, subSlug?: string, subSu
 
 export async function renderTextileCategoryPage(slug: string, initialSubSlug?: string, initialSubSubSlug?: string) {
   const category = await fetchCategoryHeaderData(slug);
-  const subCategoriesPromise = fetchSubCategoriesData(category._id ? category._id.toString() : "0");
-  const subSubCategoriesPromise = fetchSubSubCategoriesData();
-  const productsPromise = fetchProductsData();
-  const navCategoriesPromise = fetchAllCategoriesData();
-  const seoDataPromise = fetchSeoContentData(category._id ? category._id.toString() : "0", initialSubSlug, initialSubSubSlug);
+  const catId = category._id ? category._id.toString() : "0";
+
+  const [
+    subCategories,
+    subSubCategories,
+    products,
+    navCategories,
+    seoData
+  ] = await Promise.all([
+    fetchSubCategoriesData(catId),
+    fetchSubSubCategoriesData(),
+    fetchProductsData(),
+    fetchAllCategoriesData(),
+    fetchSeoContentData(catId, initialSubSlug, initialSubSubSlug)
+  ]);
 
   return (
     <CategoryContent 
       initialCategory={category}
-      subCategoriesPromise={subCategoriesPromise}
-      subSubCategoriesPromise={subSubCategoriesPromise}
-      productsPromise={productsPromise}
-      navCategoriesPromise={navCategoriesPromise}
-      seoDataPromise={seoDataPromise}
+      initialSubCategories={subCategories}
+      initialSubSubCategories={subSubCategories}
+      initialProducts={products}
+      initialAllCategories={navCategories}
+      initialSeoData={seoData}
       slug={slug}
       initialSubSlug={initialSubSlug}
       initialSubSubSlug={initialSubSubSlug}
