@@ -592,7 +592,12 @@ export default function BlogsPage() {
 
       {/* ═══ CREATE / EDIT MODAL ═══ */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div 
+          className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsModalOpen(false);
+          }}
+        >
           <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 w-full max-w-4xl max-h-[90vh] flex flex-col my-8 animate-in fade-in zoom-in-95 duration-200">
             
             {/* Modal Header */}
@@ -1043,7 +1048,15 @@ export default function BlogsPage() {
 
       {/* ═══ DELETE CONFIRMATION MODAL ═══ */}
       {isDeleteModalOpen && articleToDelete && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div 
+          className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsDeleteModalOpen(false);
+              setArticleToDelete(null);
+            }
+          }}
+        >
           <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
             <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-4">
               <Trash2 className="w-6 h-6" />
