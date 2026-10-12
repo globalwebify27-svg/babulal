@@ -56,7 +56,7 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
   }, [categoriesProp]);
 
   return (
-    <footer className="relative bg-[#073E62] pt-24 pb-12 overflow-hidden border-t-8 border-[#DA222A]">
+    <footer className="relative bg-[#073E62] pt-10 md:pt-14 pb-8 md:pb-10 overflow-hidden border-t-8 border-[#DA222A]">
       {/* ═══ INSTITUTIONAL WATERMARK ═══ */}
       <div className="absolute top-0 right-0 text-[30vw] md:text-[20vw] font-black text-white/[0.03] select-none pointer-events-none leading-none -mt-12 overflow-hidden">
         BBP
@@ -68,34 +68,34 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
       <div className="max-w-[1700px] mx-auto px-6 md:px-12 lg:px-24 relative z-10">
 
         {/* TOP TIER: BRAND & GLOBAL ACTION */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12 mb-16 lg:mb-24 border-b border-white/5 pb-16">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 lg:gap-12 mb-8 md:mb-12 border-b border-white/5 pb-8 md:pb-10">
           <div className="w-full lg:max-w-xl text-center lg:text-left">
-            <div className="relative w-full max-w-[300px] h-24 lg:max-w-[450px] lg:h-[140px] mb-8 mx-auto lg:mx-0">
+            <div className="relative w-full max-w-[280px] h-20 lg:max-w-[400px] lg:h-[110px] mb-4 md:mb-5 mx-auto lg:mx-0">
               <Image
                 src="/BabulalPremkumar.png"
                 alt="Babulal Premkumar"
                 fill
-                sizes="(max-width: 1024px) 300px, 450px"
+                sizes="(max-width: 1024px) 280px, 400px"
                 className="object-contain object-center lg:object-left"
                 priority
                 loading="eager"
               />
             </div>
-            <p className="text-white/40 text-base md:text-lg font-medium italic leading-relaxed max-w-md mx-auto lg:mx-0">
+            <p className="text-white/40 text-sm md:text-base font-medium italic leading-relaxed max-w-md mx-auto lg:mx-0">
               Babulal Premkumar — A Premium Textile Destination Offering an Exclusive Collection of Sarees, Lehengas, and Suits for Over 100 Years.
             </p>
           </div>
 
-          <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-6 lg:gap-12">
-            <div className="w-full sm:w-auto bg-white/5 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/10 group hover:border-[#DA222A] transition-all duration-500 text-center sm:text-left">
-              <p className="text-[#DA222A] text-[10px] font-black uppercase tracking-[0.3em] mb-4">Institutional Desk</p>
+          <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-4 lg:gap-8">
+            <div className="w-full sm:w-auto bg-white/5 backdrop-blur-md rounded-2xl p-5 md:p-6 border border-white/10 group hover:border-[#DA222A] transition-all duration-500 text-center sm:text-left">
+              <p className="text-[#DA222A] text-[9px] font-black uppercase tracking-[0.3em] mb-2">Institutional Desk</p>
               <Link href="tel:+917667985545" className="text-white text-xl md:text-2xl lg:text-3xl font-black italic tracking-tighter block group-hover:text-[#DA222A] transition-colors">
                 +91 76679 85545
               </Link>
             </div>
             <Link
               href="/contact"
-              className="w-full sm:w-auto px-10 md:px-12 py-5 md:py-6 bg-[#DA222A] text-white text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-[#073E62] transition-all duration-500 rounded-sm flex items-center justify-center shadow-2xl"
+              className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 bg-[#DA222A] text-white text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] hover:bg-white hover:text-[#073E62] transition-all duration-500 rounded-sm flex items-center justify-center shadow-2xl"
             >
               Strategic Enquiry
             </Link>
@@ -103,7 +103,7 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
         </div>
 
         {/* MIDDLE TIER: THE LINK ECOSYSTEM */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-24 mb-16 lg:mb-24 px-2 lg:px-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-16 mb-8 md:mb-12 px-2 lg:px-0">
 
           {/* Vertical Portfolio */}
           <div className="space-y-6 lg:space-y-8 text-center sm:text-left">
@@ -199,7 +199,7 @@ const Footer = ({ categoriesProp }: { categoriesProp?: any[] }) => {
         </div>
 
         {/* BOTTOM TIER: COMPLIANCE & LEGAL */}
-        <div className="pt-8 md:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
+        <div className="pt-6 md:pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-white/30 text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-center w-full justify-between">
             <p>Copyright &copy; 2026 Babulal Premkumar - All Rights Reserved.</p>
             <div className="flex gap-6">

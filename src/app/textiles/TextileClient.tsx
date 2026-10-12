@@ -409,7 +409,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
       </section>
 
       {/* ═══ MANUFACTURING EXCELLENCE — THE ART GALLERY STAGING ═══ */}
-      <section className="relative py-20 bg-white overflow-hidden">
+      <section className="relative pt-12 md:pt-16 pb-6 md:pb-8 bg-white overflow-hidden">
         {/* The Minimalist Signature Pulse */}
         <div className="absolute top-[-20%] left-[-10%] w-[1200px] h-[1200px] border-[100px] border-[#DA222A]/[0.02] rounded-full pointer-events-none" />
         <div className="absolute bottom-[-10%] right-[-5%] w-[800px] h-[800px] border-[1px] border-[#0A5181]/[0.08] rounded-full pointer-events-none" />
@@ -420,16 +420,16 @@ export default function TextileClient({ initialCategories, initialProducts, init
         <div className="absolute top-0 right-[15%] w-[1px] h-full bg-gradient-to-b from-transparent via-[#0A5181]/5 to-transparent pointer-events-none" />
 
         <div className="relative z-10 max-w-[1700px] mx-auto px-6 md:px-12 lg:px-24">
-          <div className="text-center mb-12 md:mb-16 px-4">
-            <div className="flex items-center justify-center gap-4 md:gap-6 mb-6 md:mb-8">
+          <div className="text-center mb-8 md:mb-10 px-4">
+            <div className="flex items-center justify-center gap-4 md:gap-6 mb-4 md:mb-6">
               <div className="w-8 md:w-12 h-[1px] bg-[#0A5181]/20" />
               <span className="text-[#0A5181] text-[10px] md:text-[11px] font-black uppercase tracking-[.4em] md:tracking-[.6em]">Over 100 Years & 5 Generations of Goodwill & Trust</span>
               <div className="w-8 md:w-12 h-[1px] bg-[#0A5181]/20" />
             </div>
-            <h2 className="text-[#0A5181] text-4xl md:text-5xl lg:text-7xl font-black tracking-tighter leading-[1.1] mb-8 md:mb-10">
+            <h2 className="text-[#0A5181] text-4xl md:text-5xl lg:text-7xl font-black tracking-tighter leading-[1.1] mb-5 md:mb-6">
               The Legacy Of <br className="hidden sm:block" /><span className="text-[#DA222A]">Babulal Premkumar.</span>
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               {[
                 { year: "2011 Award", title: "Best Wholesaler of Eastern India", region: "National & Regional Performance Award" },
                 { year: "100+ Years", title: "5 Generations of Goodwill", region: "High-Level Customer Satisfaction & Trust" },
@@ -479,7 +479,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
             ].map((item, i) => (
               <div
                 key={i}
-                className={`flex-1 px-4 py-12 md:px-12 md:py-20 flex flex-col items-center text-center group transition-all duration-700 hover:bg-gray-50/50 ${i % 2 === 0 ? 'border-r border-gray-100/30' : ''
+                className={`flex-1 px-4 py-8 md:px-12 md:py-12 flex flex-col items-center text-center group transition-all duration-700 hover:bg-gray-50/50 ${i % 2 === 0 ? 'border-r border-gray-100/30' : ''
                   } ${i < 2 ? 'border-b lg:border-b-0 border-gray-100/30' : ''} ${i === 1 ? 'lg:border-r border-gray-100/30' : ''}`}
               >
                 <div className="relative mb-8 md:mb-12">
@@ -507,14 +507,14 @@ export default function TextileClient({ initialCategories, initialProducts, init
       </section>
 
       {/* ═══ THE BOUTIQUE EXHIBITION — CURATED COLLECTIONS ═══ */}
-      <section id="collections" className="relative py-24 bg-white overflow-hidden">
+      <section id="collections" className="relative pt-4 md:pt-6 pb-10 md:pb-14 bg-white overflow-hidden">
         {/* Abstract Collection Layers */}
         <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-gray-50 to-transparent pointer-events-none" />
 
         <div className="max-w-[1700px] mx-auto px-5 sm:px-8 lg:px-24">
-          <div className="flex flex-col lg:flex-row justify-between items-end mb-24 gap-12">
+          <div className="flex flex-col lg:flex-row justify-between items-end mb-10 md:mb-14 gap-8">
             <div className="max-w-3xl">
-              <div className="flex items-center gap-6 mb-8">
+              <div className="flex items-center gap-6 mb-6">
                 <div className="w-12 h-[1px] bg-[#DA222A]" />
                 <span className="text-[#DA222A] text-[11px] font-black uppercase tracking-[.6em]">Seasonal Anthology</span>
               </div>
@@ -683,16 +683,16 @@ export default function TextileClient({ initialCategories, initialProducts, init
       </section>
 
       {/* ═══ RANGE OF BRIDAL LEHENGAS — THE BOUTIQUE EXHIBITION ═══ */}
-      <section className="relative py-20 bg-white overflow-hidden border-b border-gray-100">
+      <section className="relative py-10 md:py-14 bg-white overflow-hidden border-b border-gray-100">
         <div className="max-w-[1700px] mx-auto px-5 sm:px-8 lg:px-24">
-          <div className="text-center mb-20 px-4">
-            <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-6 uppercase">
+          <div className="text-center mb-8 md:mb-10 px-4">
+            <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-3 uppercase">
               <span className="text-[#DA222A]">Bridal</span> <span className="text-[#0A5181]">Lehengas</span>
             </h2>
             <p className="text-gray-400 text-sm md:text-base font-medium max-w-4xl mx-auto leading-relaxed tracking-tight">
               Discover The Epitome Of Bridal Grandeur With Our Exquisite Range Of Lehengas. Handcrafted Masterpieces Featuring Royal Zari Work, Luxurious Fabrics, And Breathtaking Designs For Your Special Day.
             </p>
-            <div className="w-24 h-1 bg-[#DA222A]/20 mx-auto mt-8" />
+            <div className="w-24 h-1 bg-[#DA222A]/20 mx-auto mt-5" />
           </div>
 
           <div
@@ -749,16 +749,16 @@ export default function TextileClient({ initialCategories, initialProducts, init
       </section>
 
       {/* ═══ RANGE OF SUITS — THE BOUTIQUE EXHIBITION ═══ */}
-      <section className="relative py-20 bg-gray-50/50 overflow-hidden border-b border-gray-100">
+      <section className="relative py-10 md:py-14 bg-gray-50/50 overflow-hidden border-b border-gray-100">
         <div className="max-w-[1700px] mx-auto px-5 sm:px-8 lg:px-24">
-          <div className="text-center mb-20 px-4">
-            <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-6 uppercase">
+          <div className="text-center mb-8 md:mb-10 px-4">
+            <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-3 uppercase">
               <span className="text-[#DA222A]">Range Of</span> <span className="text-[#0A5181]">Suits</span>
             </h2>
             <p className="text-gray-400 text-sm md:text-base font-medium max-w-4xl mx-auto leading-relaxed tracking-tight">
               Step Into Timeless Sophistication With Our Exquisite Range Of Suits. From Classic Cuts To Contemporary Styles, Discover Impeccable Tailoring And Luxurious Fabrics For Every Occasion.
             </p>
-            <div className="w-24 h-1 bg-[#DA222A]/20 mx-auto mt-8" />
+            <div className="w-24 h-1 bg-[#DA222A]/20 mx-auto mt-5" />
           </div>
 
           <div
@@ -815,16 +815,16 @@ export default function TextileClient({ initialCategories, initialProducts, init
       </section>
 
       {/* ═══ RANGE OF SAREES — THE BOUTIQUE EXHIBITION ═══ */}
-      <section className="relative py-20 bg-gray-50/30 overflow-hidden border-b border-gray-100">
+      <section className="relative py-10 md:py-14 bg-gray-50/30 overflow-hidden border-b border-gray-100">
         <div className="max-w-[1700px] mx-auto px-5 sm:px-8 lg:px-24">
-          <div className="text-center mb-20 px-4">
-            <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-6 uppercase">
+          <div className="text-center mb-8 md:mb-10 px-4">
+            <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-3 uppercase">
               <span className="text-[#DA222A]">Range Of</span> <span className="text-[#0A5181]">Sarees</span>
             </h2>
             <p className="text-gray-400 text-sm md:text-base font-medium max-w-4xl mx-auto leading-relaxed tracking-tight">
               Elevate Your Ethnic Elegance With Our Stunning Range Of Sarees. From Traditional Weaves To Contemporary Designs, Explore A Diverse Collection That Exudes Grace And Sophistication.
             </p>
-            <div className="w-24 h-1 bg-[#DA222A]/20 mx-auto mt-8" />
+            <div className="w-24 h-1 bg-[#DA222A]/20 mx-auto mt-5" />
           </div>
 
           <div
@@ -882,7 +882,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
 
 
       {/* ═══ QUALITY CONTROL — THE INDUSTRIAL COMMAND CENTER ═══ */}
-      <section className="relative py-16 overflow-hidden border-t border-gray-100">
+      <section className="relative py-10 md:py-14 overflow-hidden border-t border-gray-100">
         {/* Cinematic Backdrop Layer */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -895,7 +895,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
         </div>
 
         <div className="relative z-10 max-w-[1700px] mx-auto px-5 sm:px-8 lg:px-24">
-          <div className="text-center mb-12 px-4">
+          <div className="text-center mb-8 px-4">
             <h2 className="text-[#DA222A] text-2xl md:text-3xl font-black tracking-tight mb-4">Quality Control</h2>
             <p className="text-gray-900 text-sm md:text-base font-bold max-w-4xl mx-auto leading-relaxed">
               Quality Control Is Our Priority. With Rigorous Standards And Meticulous Attention To Detail, <br className="hidden lg:block" /> We Ensure Each Garment Meets The Highest Standards Of Craftsmanship.
@@ -940,9 +940,9 @@ export default function TextileClient({ initialCategories, initialProducts, init
       </section>
 
       {/* ═══ EXPLORE OUR LATEST ARRIVALS — THE GALLERIA ═══ */}
-      <section className="relative py-24 bg-white border-b border-gray-100">
+      <section className="relative py-10 md:py-14 bg-white border-b border-gray-100">
         <div className="max-w-[1700px] mx-auto px-5 sm:px-8 lg:px-24">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 md:mb-10 gap-6">
             <div className="max-w-4xl">
               <h2 className="text-[#DA222A] text-3xl md:text-4xl font-black tracking-tight mb-4">Explore Our Latest Arrivals</h2>
               <p className="text-gray-500 text-sm md:text-base font-medium leading-relaxed">
@@ -996,7 +996,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
       </section>
 
       {/* ═══ KIDS COLLECTION — THE MINIATURE GALLERIA ═══ */}
-      <section className="relative py-20 bg-gray-50/20 overflow-hidden border-b border-gray-100">
+      <section className="relative py-10 md:py-14 bg-gray-50/20 overflow-hidden border-b border-gray-100">
         <div className="max-w-[1700px] mx-auto px-12 lg:px-24">
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
 
@@ -1022,9 +1022,9 @@ export default function TextileClient({ initialCategories, initialProducts, init
 
             {/* Right Pillar: The Exhibition Slider */}
             <div className="flex-1 flex flex-col justify-center">
-              <div className="flex justify-between items-end mb-12">
+              <div className="flex justify-between items-end mb-8">
                 <div className="max-w-2xl">
-                  <h2 className="text-[#DA222A] text-3xl md:text-4xl font-black tracking-tight mb-6">Kids Collection</h2>
+                  <h2 className="text-[#DA222A] text-3xl md:text-4xl font-black tracking-tight mb-4">Kids Collection</h2>
                   <p className="text-gray-500 text-sm md:text-base font-medium leading-relaxed">
                     Step Into A World Of Adorable Fashion With Babulal Premkumar Limited&apos;s Kids Collection. <br className="hidden lg:block" /> From Charming Outfits To Playful Accessories, Dress Your Little Ones In Style And Comfort For Every Occasion.
                   </p>
@@ -1101,27 +1101,27 @@ export default function TextileClient({ initialCategories, initialProducts, init
       </section>
 
       {/* ═══ PRODUCTION STRENGTH — THE ASYMMETRICAL SUPPLY WAVE ═══ */}
-      <section className="relative py-32 overflow-hidden bg-white">
+      <section className="relative py-10 md:py-14 overflow-hidden bg-white">
         {/* Technical Blueprint Layer — ENHANCED VISIBILITY */}
         <div className="absolute inset-0 opacity-[0.06] pointer-events-none"
           style={{ backgroundImage: 'radial-gradient(#DA222A 2px, transparent 2px)', backgroundSize: '40px 40px' }}
         />
 
-        <div className="relative z-10 max-w-[1700px] mx-auto px-12 lg:px-24">
-          <div className="text-center mb-28 px-4">
-            <h2 className="text-[#DA222A] text-2xl md:text-3xl font-black tracking-[0.2em] mb-4 uppercase">Institutional Supply Chain</h2>
-            <h3 className="text-[#0A5181] text-3xl md:text-5xl font-black tracking-tight mb-8">Supply Chain Mastery</h3>
+        <div className="relative z-10 max-w-[1700px] mx-auto px-6 md:px-12 lg:px-24">
+          <div className="text-center mb-8 md:mb-10 px-4">
+            <h2 className="text-[#DA222A] text-2xl md:text-3xl font-black tracking-[0.2em] mb-3 uppercase">Institutional Supply Chain</h2>
+            <h3 className="text-[#0A5181] text-3xl md:text-5xl font-black tracking-tight mb-4 md:mb-6">Supply Chain Mastery</h3>
             <p className="text-gray-500 text-sm md:text-base font-medium max-w-4xl mx-auto leading-relaxed">
               Our Supply Chain Excellence Lies In Strategic Sourcing, Innovation, And Operational Efficiency. We Deliver Elite Value, <br className="hidden lg:block" /> Meeting Global Demands With Distribution Leadership And Peerless Trust.
             </p>
           </div>
 
           {/* The Supply Wave Connector */}
-          <div className="relative h-auto lg:h-[650px]">
+          <div className="relative h-auto lg:min-h-[440px]">
             {/* The Cinematic Wave Line (Desktop) — THICKER & MORE VISIBLE */}
             <svg className="absolute top-0 left-0 w-full h-full hidden lg:block opacity-20" preserveAspectRatio="none">
               <path
-                d="M 0 320 C 200 120, 400 520, 600 320 C 800 120, 1000 520, 1200 320 C 1400 120, 1600 320, 1700 320"
+                d="M 0 200 C 200 100, 400 300, 600 200 C 800 100, 1000 300, 1200 200 C 1400 100, 1600 300, 1700 200"
                 fill="none"
                 stroke="#DA222A"
                 strokeWidth="3"
@@ -1129,20 +1129,20 @@ export default function TextileClient({ initialCategories, initialProducts, init
               />
             </svg>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-y-24 gap-x-8 lg:gap-4 h-full pt-32 md:pt-48 lg:pt-64">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-y-16 gap-x-8 lg:gap-4 h-full pt-8 md:pt-12 lg:pt-16">
               {[
-                { name: "Trend Scouting", icon: PenTool, num: "01", offset: "-mt-32" },
-                { name: "Strategic Sourcing", icon: Scissors, num: "02", offset: "mt-32" },
-                { name: "Vendor Aggregation", icon: Shirt, num: "03", offset: "-mt-16" },
-                { name: "Quality Assurance", icon: ClipboardCheck, num: "04", offset: "mt-16" },
-                { name: "Partner Finishing", icon: Flame, num: "05", offset: "-mt-32" },
-                { name: "Secure Vaulting", icon: Box, num: "06", offset: "mt-32" },
-                { name: "Elite Distribution", icon: Truck, num: "07", offset: "mt-0" }
+                { name: "Trend Scouting", icon: PenTool, num: "01" },
+                { name: "Strategic Sourcing", icon: Scissors, num: "02" },
+                { name: "Vendor Aggregation", icon: Shirt, num: "03" },
+                { name: "Quality Assurance", icon: ClipboardCheck, num: "04" },
+                { name: "Partner Finishing", icon: Flame, num: "05" },
+                { name: "Secure Vaulting", icon: Box, num: "06" },
+                { name: "Elite Distribution", icon: Truck, num: "07" }
               ].map((step, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: i % 2 === 0 ? -40 : 40 }}
-                  whileInView={{ opacity: 1, y: i % 2 === 0 ? -60 : 60 }}
+                  initial={{ opacity: 0, y: i % 2 === 0 ? -15 : 15 }}
+                  whileInView={{ opacity: 1, y: i % 2 === 0 ? -25 : 25 }}
                   transition={{ delay: i * 0.1, duration: 0.8 }}
                   className={`relative flex flex-col items-center group ${i === 6 ? 'col-span-2 md:col-span-1' : ''}`}
                 >
@@ -1181,11 +1181,11 @@ export default function TextileClient({ initialCategories, initialProducts, init
       </section>
 
       {/* ═══ BBP STUDIO — FABRICS IN MOTION (REELS) ═══ */}
-      <section className="relative py-28 bg-[#fafafa] overflow-hidden">
-        <div className="max-w-[1700px] mx-auto px-12 lg:px-24">
-          <div className="flex flex-col lg:flex-row justify-between items-end mb-20 gap-10">
+      <section className="relative py-10 md:py-14 bg-[#fafafa] overflow-hidden">
+        <div className="max-w-[1700px] mx-auto px-6 md:px-12 lg:px-24">
+          <div className="flex flex-col lg:flex-row justify-between items-end mb-8 md:mb-10 gap-6">
             <div className="max-w-3xl">
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-1 bg-[#DA222A]" />
                 <span className="text-[#DA222A] text-[10px] font-black uppercase tracking-[0.4em]">Cinematic Showcase</span>
               </div>
@@ -1202,7 +1202,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
           </div>
 
 
-          <div className="mt-16 flex flex-col items-center gap-6">
+          <div className="mt-8 md:mt-10 flex flex-col items-center gap-4">
             <div className="flex items-center gap-3 px-4 py-2 bg-red-50 rounded-full border border-red-100">
               <div className="w-2 h-2 bg-[#DA222A] rounded-full animate-pulse" />
               <span className="text-[#DA222A] text-[10px] font-black uppercase tracking-widest">Live Updates Available @babulalpremkumar</span>
@@ -1219,9 +1219,9 @@ export default function TextileClient({ initialCategories, initialProducts, init
       </section>
 
       {/* ═══ LATEST BLOGS EXHIBITION ═══ */}
-      <section className="relative py-28 bg-white overflow-hidden">
-        <div className="max-w-[1700px] mx-auto px-12 lg:px-24">
-          <div className="text-center mb-20 px-4">
+      <section className="relative py-10 md:py-14 bg-white overflow-hidden">
+        <div className="max-w-[1700px] mx-auto px-6 md:px-12 lg:px-24">
+          <div className="text-center mb-8 md:mb-10 px-4">
             <h2 className="text-[#DA222A] text-2xl md:text-3xl font-black tracking-tight mb-4">Latest Blogs</h2>
             <p className="text-gray-500 text-sm md:text-base font-medium max-w-4xl mx-auto leading-relaxed">
               Explore The Fashion Frontier With Babulal Premkumar Limited&apos;s Latest Blogs. Dive Into Trend Insights, Style Tips, And <br className="hidden lg:block" /> Behind-The-Scenes Stories, Curated To Inspire Your Wardrobe And Elevate Your Fashion Game.
