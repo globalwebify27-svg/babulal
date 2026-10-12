@@ -689,7 +689,7 @@ function AsyncProductSection({ subCategoriesPromise, subSubCategoriesPromise, pr
 
           {/* ══ DYNAMIC TOP CATEGORY HEADING & SEO CONTENT (REFERENCE IMAGE MATCH) ══ */}
           <div className={cn("text-center", showInventoryCatalog ? "mt-16 lg:mt-20 pt-10 lg:pt-12 border-t border-gray-100" : "mt-0 pt-0 border-t-0")}>
-             <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-wider inline-block relative mb-10 lg:mb-12">
+             <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-wider inline-block relative mb-0">
                {dynamicTopHeading}
                <div className="w-16 h-1 bg-[#DA222A] mx-auto mt-2.5 rounded-full" />
              </h2>
