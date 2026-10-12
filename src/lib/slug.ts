@@ -28,7 +28,7 @@ export function generateSlug(name: string): string {
  * Appends '-2', '-3', etc. if collisions occur.
  */
 export async function generateUniqueSlug(
-  tableName: 'categories' | 'sub_categories' | 'sub_sub_categories' | 'products',
+  tableName: 'categories' | 'sub_categories' | 'sub_sub_categories' | 'products' | 'blogs',
   name: string,
   currentId?: string | number,
   customSlug?: string

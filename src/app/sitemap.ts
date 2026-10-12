@@ -12,6 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/muva-industries`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
   ];
 
   try {
@@ -52,7 +53,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       };
     });
 
-    return [...staticEntries, ...categoryEntries, ...subCategoryEntries, ...productEntries];
+    // 4. Fetch Published Blogs
+    let blogEntries: MetadataRoute.Sitemap = [];
+    try {
+      const [blogs]: any = await pool.query('SELECT slug, updatedAt, createdAt FROM blogs WHERE status = "Published"');
+      blogEntries = blogs.map((b: any) => ({
+        url: `${baseUrl}/blog/${b.slug}`,
+        lastModified: b.updatedAt ? new Date(b.updatedAt) : (b.createdAt ? new Date(b.createdAt) : new Date()),
+        changeFrequency: 'weekly',
+        priority: 0.7,
+      }));
+    } catch (e) {
+      // If blogs table is still initializing
+    }
+
+    return [...staticEntries, ...categoryEntries, ...subCategoryEntries, ...productEntries, ...blogEntries];
   } catch (error) {
     console.error('Error generating sitemap:', error);
     return staticEntries;

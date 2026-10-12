@@ -15,7 +15,8 @@ export default function NavbarWrapper() {
                      pathname?.startsWith('/muva-industries') ||
                      pathname?.startsWith('/admin') ||
                      pathname?.startsWith('/auth') ||
-                     pathname?.startsWith('/welcome');
+                     pathname?.startsWith('/welcome') ||
+                     pathname?.startsWith('/blog');
   
   if (shouldHide) return null;
   

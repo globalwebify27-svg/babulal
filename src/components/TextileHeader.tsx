@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -29,6 +30,8 @@ interface TextileHeaderProps {
 }
 
 const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
+  const pathname = usePathname();
+  const isBlogActive = pathname === '/blog' || pathname?.startsWith('/blog/');
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
@@ -38,6 +41,16 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
     "Global Shipping Now Available to 50+ Countries",
     "New Bridal Collection 2026 Launching Soon"
   ]);
+
+  const isMenCategory = (c: any) => {
+    const norm = String(c?.name || c?.slug || '').toLowerCase();
+    return norm.includes('men') || norm.includes('mens');
+  };
+
+  const isLuggageCategory = (c: any) => {
+    const norm = String(c?.name || c?.slug || '').toLowerCase();
+    return norm.includes('luggage') || norm.includes('luggages');
+  };
 
   const toggleCategory = (slug: string) => {
     setExpandedCategory(expandedCategory === slug ? null : slug);
@@ -136,66 +149,113 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
       <div className={`bg-white border-b border-gray-100 shadow-sm transition-all duration-300 hidden lg:block ${isScrolled ? 'shadow-xl bg-white/95 backdrop-blur-xl' : ''}`}>
         <div className="max-w-[1400px] mx-auto px-8 relative">
           <nav className="flex items-center justify-center gap-3 py-1 lg:overflow-visible overflow-x-auto no-scrollbar snap-x">
-            {/* DYNAMIC HEADER CATEGORIES */}
-            {categories.map((cat) => {
-              const hasSubs = cat.subcategories && cat.subcategories.length > 0;
-              return (
-                <div key={cat.slug} className="group relative shrink-0 snap-start">
-                  <Link 
-                    href={`/${cat.slug}`} 
-                    className="relative flex items-center gap-1 px-4 py-3.5 md:py-4.5 text-[10px] md:text-[11.5px] font-black uppercase tracking-[.18em] text-gray-700 hover:text-red-600 transition-colors"
-                  >
-                    {cat.name}
-                    {hasSubs && (
-                      <ChevronDown className="w-3 h-3 text-gray-400 group-hover:text-red-600 group-hover:rotate-180 transition-all duration-300" />
-                    )}
-                    <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-red-600 transition-all duration-300 group-hover:w-full" />
-                  </Link>
+            {/* DYNAMIC HEADER CATEGORIES WITH BLOG INSERTED AFTER MEN'S WEAR AND BEFORE LUGGAGES */}
+            {(() => {
+              const navItems: any[] = [];
+              let blogAdded = false;
 
-                  {hasSubs && (
-                    <div className="absolute left-0 top-full pt-1 opacity-0 translate-y-3 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out z-[150] w-[240px]">
-                      <div className="bg-white border border-gray-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] py-2 backdrop-blur-md">
-                        {cat.subcategories.map((sub: any, idx: number) => {
-                          const hasSubSubs = sub.subSubCategories && sub.subSubCategories.length > 0;
-                          return (
-                            <div key={`${sub.slug}-${idx}`} className="relative group/sub">
-                              <Link
-                                href={`/${sub.slug}`}
-                                className="flex items-center justify-between px-5 py-3 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:text-red-600 hover:bg-gray-50/50 hover:pl-7 transition-all duration-200"
-                              >
-                                <span>{sub.name}</span>
-                                {hasSubSubs ? (
-                                  <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-red-600 transition-all duration-200" />
-                                ) : (
-                                  <ChevronDown className="w-3.5 h-3.5 -rotate-90 opacity-0 group-hover/sub:opacity-100 text-red-600 transition-all duration-200" />
-                                )}
-                              </Link>
+              for (let i = 0; i < categories.length; i++) {
+                const cat = categories[i];
+                if (isLuggageCategory(cat) && !blogAdded) {
+                  navItems.push({ isBlogLink: true });
+                  blogAdded = true;
+                }
+                navItems.push(cat);
+                if (isMenCategory(cat) && !blogAdded) {
+                  navItems.push({ isBlogLink: true });
+                  blogAdded = true;
+                }
+              }
 
-                              {/* Sub-Sub Category Flyout (opens to the right) */}
-                              {hasSubSubs && (
-                                <div className="absolute left-full top-0 pl-1 opacity-0 -translate-x-2 pointer-events-none group-hover/sub:opacity-100 group-hover/sub:translate-x-0 group-hover/sub:pointer-events-auto transition-all duration-300 ease-out z-[160] w-[220px]">
-                                  <div className="bg-white border border-gray-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] overflow-hidden py-2 backdrop-blur-md">
-                                    {sub.subSubCategories.map((subSub: any, ssIdx: number) => (
-                                      <Link
-                                        key={`${subSub.slug}-${ssIdx}`}
-                                        href={`/${cat.slug}/${sub.slug}/${subSub.slug}`}
-                                        className="flex items-center px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-red-600 hover:bg-gray-50/50 hover:pl-7 transition-all duration-200"
-                                      >
-                                        {subSub.name}
-                                      </Link>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
+              if (!blogAdded) {
+                navItems.push({ isBlogLink: true });
+              }
+
+              return navItems.map((item: any, itemIdx: number) => {
+                if (item.isBlogLink) {
+                  return (
+                    <div key="desktop-nav-blog" className="group relative shrink-0 snap-start">
+                      <Link 
+                        href="/blog" 
+                        className={`relative flex items-center gap-1 px-4 py-3.5 md:py-4.5 text-[10px] md:text-[11.5px] font-black uppercase tracking-[.18em] transition-colors ${
+                          isBlogActive ? 'text-red-600' : 'text-gray-700 hover:text-red-600'
+                        }`}
+                      >
+                        Blog
+                        <span className={`absolute bottom-0 left-0 h-[3px] bg-red-600 transition-all duration-300 ${
+                          isBlogActive ? 'w-full' : 'w-0 group-hover:w-full'
+                        }`} />
+                      </Link>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                  );
+                }
+
+                const cat = item;
+                const hasSubs = cat.subcategories && cat.subcategories.length > 0;
+                const isCatActive = pathname === `/${cat.slug}` || pathname?.startsWith(`/${cat.slug}/`);
+
+                return (
+                  <div key={cat.slug || itemIdx} className="group relative shrink-0 snap-start">
+                    <Link 
+                      href={`/${cat.slug}`} 
+                      className={`relative flex items-center gap-1 px-4 py-3.5 md:py-4.5 text-[10px] md:text-[11.5px] font-black uppercase tracking-[.18em] transition-colors ${
+                        isCatActive ? 'text-red-600' : 'text-gray-700 hover:text-red-600'
+                      }`}
+                    >
+                      {cat.name}
+                      {hasSubs && (
+                        <ChevronDown className="w-3 h-3 text-gray-400 group-hover:text-red-600 group-hover:rotate-180 transition-all duration-300" />
+                      )}
+                      <span className={`absolute bottom-0 left-0 h-[3px] bg-red-600 transition-all duration-300 ${
+                        isCatActive ? 'w-full' : 'w-0 group-hover:w-full'
+                      }`} />
+                    </Link>
+
+                    {hasSubs && (
+                      <div className="absolute left-0 top-full pt-1 opacity-0 translate-y-3 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out z-[150] w-[240px]">
+                        <div className="bg-white border border-gray-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] py-2 backdrop-blur-md">
+                          {cat.subcategories.map((sub: any, idx: number) => {
+                            const hasSubSubs = sub.subSubCategories && sub.subSubCategories.length > 0;
+                            return (
+                              <div key={`${sub.slug}-${idx}`} className="relative group/sub">
+                                <Link
+                                  href={`/${sub.slug}`}
+                                  className="flex items-center justify-between px-5 py-3 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:text-red-600 hover:bg-gray-50/50 hover:pl-7 transition-all duration-200"
+                                >
+                                  <span>{sub.name}</span>
+                                  {hasSubSubs ? (
+                                    <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-red-600 transition-all duration-200" />
+                                  ) : (
+                                    <ChevronDown className="w-3.5 h-3.5 -rotate-90 opacity-0 group-hover/sub:opacity-100 text-red-600 transition-all duration-200" />
+                                  )}
+                                </Link>
+
+                                {/* Sub-Sub Category Flyout (opens to the right) */}
+                                {hasSubSubs && (
+                                  <div className="absolute left-full top-0 pl-1 opacity-0 -translate-x-2 pointer-events-none group-hover/sub:opacity-100 group-hover/sub:translate-x-0 group-hover/sub:pointer-events-auto transition-all duration-300 ease-out z-[160] w-[220px]">
+                                    <div className="bg-white border border-gray-100 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] overflow-hidden py-2 backdrop-blur-md">
+                                      {sub.subSubCategories.map((subSub: any, ssIdx: number) => (
+                                        <Link
+                                          key={`${subSub.slug}-${ssIdx}`}
+                                          href={`/${cat.slug}/${sub.slug}/${subSub.slug}`}
+                                          className="flex items-center px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-red-600 hover:bg-gray-50/50 hover:pl-7 transition-all duration-200"
+                                        >
+                                          {subSub.name}
+                                        </Link>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              });
+            })()}
           </nav>
         </div>
       </div>
@@ -232,13 +292,33 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
             {/* Menu Links */}
             <nav className="flex flex-col">
               {/* Combine dynamic categories and static utility links */}
-              {[
-                { name: "Home", slug: "home", type: 'utility', href: '/' },
-                ...categories.map(c => ({ name: c.name, slug: c.slug, type: 'category', subcategories: c.subcategories })),
-                { name: "Retail Hub", slug: "sarees", type: 'utility', href: '/saree' },
-                { name: "Blog", slug: "blog", type: 'utility', href: '#blog' },
-                { name: "Contact Us", slug: "contact", type: 'utility', href: '/contact' },
-              ].map((item: any, i) => {
+              {(() => {
+                const mobileCategories: any[] = [];
+                let mobileBlogAdded = false;
+
+                for (const c of categories) {
+                  if (isLuggageCategory(c) && !mobileBlogAdded) {
+                    mobileCategories.push({ name: "Blog", slug: "blog", type: 'utility', href: '/blog' });
+                    mobileBlogAdded = true;
+                  }
+                  mobileCategories.push({ name: c.name, slug: c.slug, type: 'category', subcategories: c.subcategories });
+                  if (isMenCategory(c) && !mobileBlogAdded) {
+                    mobileCategories.push({ name: "Blog", slug: "blog", type: 'utility', href: '/blog' });
+                    mobileBlogAdded = true;
+                  }
+                }
+
+                if (!mobileBlogAdded) {
+                  mobileCategories.push({ name: "Blog", slug: "blog", type: 'utility', href: '/blog' });
+                }
+
+                return [
+                  { name: "Home", slug: "home", type: 'utility', href: '/' },
+                  ...mobileCategories,
+                  { name: "Retail Hub", slug: "sarees", type: 'utility', href: '/saree' },
+                  { name: "Contact Us", slug: "contact", type: 'utility', href: '/contact' },
+                ];
+              })().map((item: any, i) => {
                 const isCategory = item.type === 'category';
                 const hasSubs = isCategory && item.subcategories && item.subcategories.length > 0;
                 

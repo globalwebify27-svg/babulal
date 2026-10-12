@@ -485,6 +485,107 @@ export async function initDb() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
 
+      // 13. Create Blogs table
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS blogs (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          title VARCHAR(255) NOT NULL,
+          slug VARCHAR(255) NOT NULL UNIQUE,
+          subtitle VARCHAR(255) DEFAULT NULL,
+          excerpt TEXT DEFAULT NULL,
+          content LONGTEXT NOT NULL,
+          featuredImage LONGTEXT DEFAULT NULL,
+          imageAlt VARCHAR(255) DEFAULT NULL,
+          author VARCHAR(255) DEFAULT 'Babulal Premsons Editorial',
+          authorRole VARCHAR(255) DEFAULT 'Fashion & Textile Specialist',
+          category VARCHAR(255) DEFAULT 'Fashion & Trends',
+          tags TEXT DEFAULT NULL,
+          status VARCHAR(50) DEFAULT 'Draft',
+          isFeatured BOOLEAN DEFAULT FALSE,
+          readTime VARCHAR(50) DEFAULT '5 min read',
+          metaTitle VARCHAR(255) DEFAULT NULL,
+          metaDescription TEXT DEFAULT NULL,
+          canonicalUrl VARCHAR(500) DEFAULT NULL,
+          publishedAt DATETIME DEFAULT NULL,
+          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          INDEX idx_blog_slug (slug),
+          INDEX idx_blog_status (status),
+          INDEX idx_blog_featured (isFeatured)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      // Seed initial high-quality blog posts if table is empty
+      try {
+        const [blogsCount]: any = await connection.query('SELECT COUNT(*) as count FROM blogs');
+        if (blogsCount[0].count === 0) {
+          await connection.query(`
+            INSERT INTO blogs (
+              title, slug, subtitle, excerpt, content, featuredImage, imageAlt, author, authorRole, category, tags, status, isFeatured, readTime, metaTitle, metaDescription, publishedAt
+            ) VALUES 
+            (
+              'The Evolution of Banarasi Silk: A Century of Timeless Royalty',
+              'the-evolution-of-banarasi-silk',
+              'Exploring the weaving techniques, royal heritage, and enduring luxury of Varanasi handlooms.',
+              'Discover the centuries-old legacy of Banarasi silk, from ancient royal courts to the modern bridal runway, and how Babulal Premsons preserves this heritage.',
+              '<h2>The Royal Origins of Banarasi Silk</h2><p>Banarasi silk sarees represent the absolute pinnacle of Indian handloom artistry. With roots tracing back centuries to the sacred ghats of Varanasi, these sarees have adorned royal brides, Mughal queens, and connoisseurs of luxury across eras.</p><h3>The Artistry of Zari Weaving</h3><p>What sets an authentic Banarasi drape apart is its signature brocade weaving—traditionally accomplished with pure gold and silver threads known as Zari. Intricate floral motifs (butis), royal paisleys (kalka), and architectural jaal patterns are woven over weeks of painstaking artisan handwork.</p><h3>Styling for Modern Celebrations</h3><p>In contemporary Indian fashion, the classic Banarasi drape continues to evolve. Designers and modern brides pair traditional Katan and Kadiyal weaves with minimalist blouses, statement temple jewelry, and contemporary silhouettes.</p><p>At Babulal Premsons, our century-old heritage connects you directly with the master weavers of Varanasi, bringing timeless authenticity and Eastern India\\'s most revered collections straight to your wardrobe.</p>',
+              '/silk_saree_royal.png',
+              'Royal Banarasi Silk Saree Weaving Craftsmanship',
+              'Ahmad Sana',
+              'Heritage Textiles Curator',
+              'Heritage & Craft',
+              '["Banarasi Silk", "Handloom", "Bridal Saree", "Textile Heritage"]',
+              'Published',
+              TRUE,
+              '6 min read',
+              'The Evolution of Banarasi Silk | Babulal Premsons Journal',
+              'Explore the royal history, intricate Zari craft, and contemporary styling of authentic Banarasi silk sarees at Babulal Premsons.',
+              NOW()
+            ),
+            (
+              'Bridal Lehenga Trends 2026: Royal Zari, Pastel Hues & Regal Velvets',
+              'bridal-lehenga-trends-2026',
+              'A comprehensive trend forecast for the modern Indian bride seeking timeless grandeur.',
+              'From dreamy blush pastels to opulent heritage velvets, delve into the defining bridal lehenga silhouettes and embroidery trends for this wedding season.',
+              '<h2>The New Era of Indian Bridal Couture</h2><p>The bridal fashion landscape in 2026 is an exquisite confluence of royal heritage and contemporary comfort. Brides today seek ensembles that honor generational traditions while offering fluid grace and distinctive personality.</p><h3>1. The Renaissance of Deep Crimson and Royal Velvet</h3><p>While experimental palettes have had their moment, deep royal crimsons, sindoori reds, and midnight maroon velvets remain supreme. Embellished with antique dabka, tilla, and zardozi embroidery, these masterworks exude regal authority.</p><h3>2. The Rise of Ethereal Pastels and Floral Zari</h3><p>For daylight pheras and destination ceremonies, brides are gravitating towards blush pinks, powdered mint, and ivory gold palettes layered with tonal sequins and delicate resham work.</p><h3>3. Unbundled Procurement: The Babulal Premsons Advantage</h3><p>At Babulal Premsons Ranchi, we empower our bridal shoppers with complete transparency and direct wholesale pricing throughout the year—allowing you to handpick exactly what completes your bridal dream.</p>',
+              '/bridal_luxury.png',
+              'Luxury Bridal Lehenga Collection 2026',
+              'Pooja Agarwal',
+              'Senior Bridal Stylist',
+              'Bridal Couture',
+              '["Bridal Lehenga", "Wedding Trends 2026", "Royal Zari", "Ethnic Couture"]',
+              'Published',
+              FALSE,
+              '5 min read',
+              'Bridal Lehenga Trends 2026 | Babulal Premsons Group',
+              'Discover top bridal lehenga trends for 2026 including royal velvets, pastels, and intricate Zari craftsmanship.',
+              NOW()
+            ),
+            (
+              'Fabric Care Guide: How to Preserve Handloom Sarees for Generations',
+              'fabric-care-guide-preserve-handloom-sarees',
+              'Practical conservation techniques to maintain the lustre, strength, and beauty of heirloom silks.',
+              'Handloom sarees are not just garments; they are heirlooms. Learn essential preservation and storage tips to keep your precious silks vibrant for decades.',
+              '<h2>Heirlooms that Stand the Test of Time</h2><p>A pure silk or handloom saree is crafted to outlive generations. When maintained with proper care, a treasured piece passed down from a grandmother retains its vibrant luster, delicate zari, and supple feel.</p><h3>Storage Essentials: Say No to Plastic</h3><p>Never store pure silks in plastic bags, as lack of air circulation can cause moisture retention and discoloration of gold zari. Instead, wrap sarees individually in unbleached muslin cloth or soft pure cotton bags.</p><h3>Refolding Rituals</h3><p>Every six months, take your heirloom sarees out, air them in mild indirect shade, and refold them along different creases to prevent fiber breakage along folded edges.</p><h3>Professional Dry Cleaning</h3><p>Always trust delicate zari and raw silks to reputable dry cleaners. Never attempt home machine washing or harsh chemical spot cleaning on hand-woven weaves.</p>',
+              '/textile_factory.png',
+              'Heirloom Handloom Silk Preservation and Storage Guide',
+              'Babulal Premsons Editorial',
+              'Textile Care Specialists',
+              'Care & Styling',
+              '["Fabric Care", "Silk Saree Care", "Heirloom Textiles", "Handloom Maintenance"]',
+              'Published',
+              FALSE,
+              '4 min read',
+              'How to Care for Pure Silk & Handloom Sarees | Care Guide',
+              'Step-by-step master guide to preserving handloom silk sarees, preventing zari tarnishing, and maintaining heirloom fabrics.',
+              NOW()
+            );
+          `);
+        }
+      } catch (err) {
+        console.error('Failed to seed blogs:', err);
+      }
+
       // Default existing records to noindex for pre-launch
       try {
         await connection.query(`UPDATE categories SET robotsIndex = FALSE WHERE robotsIndex = TRUE`);
