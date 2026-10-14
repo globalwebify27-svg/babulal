@@ -1,10 +1,50 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import pool, { initDb } from "@/lib/db";
 import TextileClient from "./textiles/TextileClient";
+import { getHomepageSeoData } from "@/lib/homepage-seo";
 
 // CRITICAL: Enable Incremental Static Regeneration (ISR)
 // This caches the page, making loads nearly instant for subsequent users.
 export const revalidate = 60; 
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getHomepageSeoData();
+
+  const title = seo.metaTitle || "Babulal Premkumar | 100+ Years Legacy";
+  const description = seo.metaDescription || "Babulal Premkumar - A premium textile destination offering an exclusive collection of Sarees, Lehengas, Suits, and more. Based in Ranchi, Jharkhand with over 100+ Years Legacy.";
+  const canonical = seo.canonicalUrl || "https://babulalpremsons.com";
+  const isIndex = seo.robotsIndex !== 'noindex';
+  const isFollow = seo.robotsFollow !== 'nofollow';
+
+  return {
+    metadataBase: new URL(canonical.startsWith('http') ? canonical : 'https://babulalpremsons.com'),
+    title,
+    description,
+    keywords: seo.metaKeywords || undefined,
+    alternates: {
+      canonical
+    },
+    robots: {
+      index: isIndex,
+      follow: isFollow
+    },
+    openGraph: {
+      title: seo.ogTitle || title,
+      description: seo.ogDescription || description,
+      url: canonical,
+      siteName: "Babulal Premkumar",
+      images: seo.ogImage ? [{ url: seo.ogImage }] : undefined,
+      type: (seo.ogType as any) || "website"
+    },
+    twitter: {
+      card: (seo.twitterCard as any) || "summary_large_image",
+      title: seo.twitterTitle || seo.ogTitle || title,
+      description: seo.twitterDescription || seo.ogDescription || description,
+      images: seo.twitterImage ? [seo.twitterImage] : undefined
+    }
+  };
+}
 
 /**
  * ═══ DATA RESOLVER (OPTIMIZED) ═══
@@ -112,7 +152,12 @@ async function fetchTextileCatalogData() {
 }
 
 export default async function HomePage() {
-  const { categories, products, banners, reels } = await fetchTextileCatalogData();
+  const [catalogData, seoData] = await Promise.all([
+    fetchTextileCatalogData(),
+    getHomepageSeoData()
+  ]);
+
+  const { categories, products, banners, reels } = catalogData;
 
   return (
     <TextileClient 
@@ -120,6 +165,7 @@ export default async function HomePage() {
       initialProducts={products}
       initialBanners={banners}
       initialReels={reels}
+      seoData={seoData}
     />
   );
 }

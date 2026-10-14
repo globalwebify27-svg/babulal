@@ -43,6 +43,11 @@ import Footer from '@/components/Footer';
 import InquiryForm from '@/components/InquiryForm';
 import { Haptics } from '@/lib/haptics';
 import MobileBottomMenu from '@/components/MobileBottomMenu';
+import HomepageSeoSection from '@/components/HomepageSeoSection';
+import { HomepageSeoData, DEFAULT_VISUAL_SECTIONS } from '@/lib/homepage-seo-types';
+
+const PILLAR_ICONS = [Star, TrendingUp, PackageCheck, ShoppingBag];
+const METRIC_ICONS = [Award, Users, Globe, Factory];
 
 const HERO_SLIDES = [
   {
@@ -110,6 +115,7 @@ interface TextileClientProps {
   initialProducts: any[];
   initialBanners?: any[];
   initialReels?: any[];
+  seoData?: HomepageSeoData;
 }
 
 const DEFAULT_REELS = [
@@ -121,7 +127,10 @@ const DEFAULT_REELS = [
   { id: "DQ_iBc5EqHZ", title: "Bridal Masterpiece", category: "Wedding Special", img: "/reels/bridal.png" }
 ];
 
-export default function TextileClient({ initialCategories, initialProducts, initialBanners, initialReels }: TextileClientProps) {
+export default function TextileClient({ initialCategories, initialProducts, initialBanners, initialReels, seoData }: TextileClientProps) {
+  // Dynamic SEO Visual Sections with 100% resilient fallbacks
+  const visual = seoData?.visualSections || DEFAULT_VISUAL_SECTIONS;
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const sareeScrollRef = useRef<HTMLDivElement>(null);
   const suitScrollRef = useRef<HTMLDivElement>(null);
@@ -319,12 +328,21 @@ export default function TextileClient({ initialCategories, initialProducts, init
                   {banners[currentSlide].accent || "SEASONAL COLLECTION"}
                 </div>
 
-                <h1 className="font-extrabold tracking-tighter leading-none mb-8 md:mb-10 drop-shadow-2xl">
-                  <span className="text-[#FFD700] block text-4xl md:text-6xl lg:text-8xl mb-2 md:mb-4 drop-shadow-2xl uppercase">{banners[currentSlide].title}</span>
-                  {banners[currentSlide].subtitle && (
-                    <span className="text-white block text-2xl md:text-3xl lg:text-5xl italic leading-tight drop-shadow-2xl mt-2">{banners[currentSlide].subtitle}</span>
-                  )}
-                </h1>
+                {seoData ? (
+                  <h2 className="font-extrabold tracking-tighter leading-none mb-8 md:mb-10 drop-shadow-2xl">
+                    <span className="text-[#FFD700] block text-4xl md:text-6xl lg:text-8xl mb-2 md:mb-4 drop-shadow-2xl uppercase">{banners[currentSlide].title}</span>
+                    {banners[currentSlide].subtitle && (
+                      <span className="text-white block text-2xl md:text-3xl lg:text-5xl italic leading-tight drop-shadow-2xl mt-2">{banners[currentSlide].subtitle}</span>
+                    )}
+                  </h2>
+                ) : (
+                  <h1 className="font-extrabold tracking-tighter leading-none mb-8 md:mb-10 drop-shadow-2xl">
+                    <span className="text-[#FFD700] block text-4xl md:text-6xl lg:text-8xl mb-2 md:mb-4 drop-shadow-2xl uppercase">{banners[currentSlide].title}</span>
+                    {banners[currentSlide].subtitle && (
+                      <span className="text-white block text-2xl md:text-3xl lg:text-5xl italic leading-tight drop-shadow-2xl mt-2">{banners[currentSlide].subtitle}</span>
+                    )}
+                  </h1>
+                )}
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-start">
                   <button
@@ -388,22 +406,20 @@ export default function TextileClient({ initialCategories, initialProducts, init
       <section className="bg-[#0A5181] py-6 md:py-10 border-b border-white/10">
         <div className="max-w-[1700px] mx-auto px-4 sm:px-6 md:px-12 lg:px-24">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-12">
-            {[
-              { title: "Latest Collection", sub: "Fresh Seasonal Inventory", icon: Star },
-              { title: "Lowest Rate 365 Days", sub: "No Sales, Just Honesty", icon: TrendingUp },
-              { title: "No Bundling", sub: "Buy Precisely What You Need", icon: PackageCheck },
-              { title: "Lowest Price 365 Days", sub: "Direct Retail Pricing", icon: ShoppingBag }
-            ].map((pillar, i) => (
-              <div key={i} className="flex items-center gap-2 sm:gap-3 md:gap-4 text-white group min-w-0">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-[#DA222A] transition-colors">
-                  <pillar.icon className="w-4 h-4 sm:w-5 h-5 md:w-6 md:h-6 text-white" />
+            {(visual.valuePillars || DEFAULT_VISUAL_SECTIONS.valuePillars).map((pillar, i) => {
+              const IconComponent = PILLAR_ICONS[i] || Star;
+              return (
+                <div key={i} className="flex items-center gap-2 sm:gap-3 md:gap-4 text-white group min-w-0">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-[#DA222A] transition-colors">
+                    <IconComponent className="w-4 h-4 sm:w-5 h-5 md:w-6 md:h-6 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] xl:text-[13px] font-black uppercase tracking-wider sm:tracking-widest whitespace-nowrap overflow-hidden text-ellipsis">{pillar.title}</h4>
+                    <p className="text-white/40 text-[7px] sm:text-[8px] md:text-[9px] font-bold uppercase tracking-wider sm:tracking-widest mt-1 whitespace-nowrap overflow-hidden text-ellipsis">{pillar.sub}</p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h4 className="text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] xl:text-[13px] font-black uppercase tracking-wider sm:tracking-widest whitespace-nowrap overflow-hidden text-ellipsis">{pillar.title}</h4>
-                  <p className="text-white/40 text-[7px] sm:text-[8px] md:text-[9px] font-bold uppercase tracking-wider sm:tracking-widest mt-1 whitespace-nowrap overflow-hidden text-ellipsis">{pillar.sub}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -423,18 +439,17 @@ export default function TextileClient({ initialCategories, initialProducts, init
           <div className="text-center mb-8 md:mb-10 px-4">
             <div className="flex items-center justify-center gap-4 md:gap-6 mb-4 md:mb-6">
               <div className="w-8 md:w-12 h-[1px] bg-[#0A5181]/20" />
-              <span className="text-[#0A5181] text-[10px] md:text-[11px] font-black uppercase tracking-[.4em] md:tracking-[.6em]">Over 100 Years & 5 Generations of Goodwill & Trust</span>
+              <span className="text-[#0A5181] text-[10px] md:text-[11px] font-black uppercase tracking-[.4em] md:tracking-[.6em]">
+                {visual.legacy.eyebrow || DEFAULT_VISUAL_SECTIONS.legacy.eyebrow}
+              </span>
               <div className="w-8 md:w-12 h-[1px] bg-[#0A5181]/20" />
             </div>
             <h2 className="text-[#0A5181] text-4xl md:text-5xl lg:text-7xl font-black tracking-tighter leading-[1.1] mb-5 md:mb-6">
-              The Legacy Of <br className="hidden sm:block" /><span className="text-[#DA222A]">Babulal Premkumar.</span>
+              {visual.legacy.titlePrefix || DEFAULT_VISUAL_SECTIONS.legacy.titlePrefix} <br className="hidden sm:block" />
+              <span className="text-[#DA222A]">{visual.legacy.titleHighlight || DEFAULT_VISUAL_SECTIONS.legacy.titleHighlight}</span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              {[
-                { year: "2011 Award", title: "Best Wholesaler of Eastern India", region: "National & Regional Performance Award" },
-                { year: "100+ Years", title: "5 Generations of Goodwill", region: "High-Level Customer Satisfaction & Trust" },
-                { year: "Multi-Branded", title: "Fabrics & Garments Hub", region: "Women's, Men's & Home Furnishing" }
-              ].map((award, idx) => (
+              {(visual.legacy.awards || DEFAULT_VISUAL_SECTIONS.legacy.awards).map((award, idx) => (
                 <div key={idx} className="bg-white p-6 border-l-4 border-[#DA222A] shadow-sm text-left">
                   <div className="text-[#DA222A] text-[9px] font-black uppercase tracking-widest mb-1">{award.year}</div>
                   <h5 className="text-[#0A5181] text-xs font-black uppercase tracking-widest">{award.title}</h5>
@@ -443,65 +458,43 @@ export default function TextileClient({ initialCategories, initialProducts, init
               ))}
             </div>
             <p className="text-gray-700 text-base md:text-xl lg:text-2xl font-medium max-w-5xl mx-auto italic leading-relaxed">
-              Babulal Premkumar is a Textile and Garments Distributor in Ranchi, Jharkhand. We are one of the oldest and most reputed firms in the region of Jharkhand. We have been serving customers for over 100 years and have built great relationships with them that date back to five generations—a true proof of our goodwill, high-level customer satisfaction, and trust.
+              {visual.legacy.primaryNarrative || DEFAULT_VISUAL_SECTIONS.legacy.primaryNarrative}
             </p>
             <p className="text-gray-500 text-sm md:text-base font-normal max-w-4xl mx-auto mt-6 leading-relaxed">
-              We deal with multi-branded fabrics for women, men, and home furnishing. From luxurious sarees that exude elegance to durable denim that defines durability, our textile distribution services cater to a diverse array of demands.
+              {visual.legacy.secondaryNarrative || DEFAULT_VISUAL_SECTIONS.legacy.secondaryNarrative}
             </p>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-0 bg-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.06)] border border-gray-100 rounded-2xl md:rounded-3xl overflow-hidden">
-            {[
-              {
-                pre: "Legacy Of",
-                stat: "100+ YEARS",
-                post: "Five Generations of Trust",
-                Icon: Award
-              },
-              {
-                pre: "Supply Hub For",
-                stat: "2000+",
-                post: "B2B Partners Across 6 States",
-                Icon: Users
-              },
-              {
-                pre: "Operational Legacy",
-                stat: "100+ YEARS",
-                post: "Century of Immutable Trust",
-                Icon: Globe
-              },
-              {
-                pre: "Inventory Scale",
-                stat: "10K+ SKUS",
-                post: "Massive Warehousing Hub",
-                Icon: Factory
-              }
-            ].map((item, i) => (
-              <div
-                key={i}
-                className={`flex-1 px-4 py-8 md:px-12 md:py-12 flex flex-col items-center text-center group transition-all duration-700 hover:bg-gray-50/50 ${i % 2 === 0 ? 'border-r border-gray-100/30' : ''
-                  } ${i < 2 ? 'border-b lg:border-b-0 border-gray-100/30' : ''} ${i === 1 ? 'lg:border-r border-gray-100/30' : ''}`}
-              >
-                <div className="relative mb-8 md:mb-12">
-                  <div className="absolute inset-0 bg-[#0A5181]/10 rounded-full blur-xl md:blur-2xl group-hover:bg-[#DA222A]/10 transition-all duration-700" />
-                  <div className="relative w-16 h-16 md:w-24 md:h-24 bg-[#DA222A] rounded-full flex items-center justify-center text-white shadow-2xl border-4 md:border-[6px] border-white ring-1 ring-[#0A5181]/20">
-                    <item.Icon className="w-6 h-6 md:w-10 md:h-10" />
+            {(visual.metrics || DEFAULT_VISUAL_SECTIONS.metrics).map((item, i) => {
+              const MetricIcon = METRIC_ICONS[i] || Award;
+              return (
+                <div
+                  key={i}
+                  className={`flex-1 px-4 py-8 md:px-12 md:py-12 flex flex-col items-center text-center group transition-all duration-700 hover:bg-gray-50/50 ${i % 2 === 0 ? 'border-r border-gray-100/30' : ''
+                    } ${i < 2 ? 'border-b lg:border-b-0 border-gray-100/30' : ''} ${i === 1 ? 'lg:border-r border-gray-100/30' : ''}`}
+                >
+                  <div className="relative mb-8 md:mb-12">
+                    <div className="absolute inset-0 bg-[#0A5181]/10 rounded-full blur-xl md:blur-2xl group-hover:bg-[#DA222A]/10 transition-all duration-700" />
+                    <div className="relative w-16 h-16 md:w-24 md:h-24 bg-[#DA222A] rounded-full flex items-center justify-center text-white shadow-2xl border-4 md:border-[6px] border-white ring-1 ring-[#0A5181]/20">
+                      <MetricIcon className="w-6 h-6 md:w-10 md:h-10" />
+                    </div>
+                  </div>
+
+                  <div className="text-gray-400 text-[8px] md:text-[10px] font-black uppercase tracking-[.4em] mb-2 md:mb-4 group-hover:text-[#0A5181] transition-colors">
+                    {item.pre}
+                  </div>
+
+                  <div className="text-[#DA222A] text-2xl md:text-5xl font-black tracking-tighter mb-2 md:mb-4 group-hover:translate-y-[-4px] transition-all duration-500">
+                    {item.stat}
+                  </div>
+
+                  <div className="text-gray-900 text-[9px] md:text-[11px] font-black uppercase tracking-[.2em] px-2">
+                    {item.post}
                   </div>
                 </div>
-
-                <div className="text-gray-400 text-[8px] md:text-[10px] font-black uppercase tracking-[.4em] mb-2 md:mb-4 group-hover:text-[#0A5181] transition-colors">
-                  {item.pre}
-                </div>
-
-                <div className="text-[#DA222A] text-2xl md:text-5xl font-black tracking-tighter mb-2 md:mb-4 group-hover:translate-y-[-4px] transition-all duration-500">
-                  {item.stat}
-                </div>
-
-                <div className="text-gray-900 text-[9px] md:text-[11px] font-black uppercase tracking-[.2em] px-2">
-                  {item.post}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -516,13 +509,16 @@ export default function TextileClient({ initialCategories, initialProducts, init
             <div className="max-w-3xl">
               <div className="flex items-center gap-6 mb-6">
                 <div className="w-12 h-[1px] bg-[#DA222A]" />
-                <span className="text-[#DA222A] text-[11px] font-black uppercase tracking-[.6em]">Seasonal Anthology</span>
+                <span className="text-[#DA222A] text-[11px] font-black uppercase tracking-[.6em]">
+                  {visual.curated.eyebrow || DEFAULT_VISUAL_SECTIONS.curated.eyebrow}
+                </span>
               </div>
               <h2 className="text-[#0A5181] text-5xl lg:text-7xl font-black tracking-tighter leading-[1.1] mb-4">
-                Curated <br /><span className="text-[#DA222A]">Collections.</span>
+                {visual.curated.titlePrefix || DEFAULT_VISUAL_SECTIONS.curated.titlePrefix} <br />
+                <span className="text-[#DA222A]">{visual.curated.titleHighlight || DEFAULT_VISUAL_SECTIONS.curated.titleHighlight}</span>
               </h2>
               <p className="text-gray-400 text-lg md:text-xl font-medium max-w-xl italic mt-6 leading-relaxed">
-                A cinematic showcase of Ranchi&apos;s finest textile engineering. <br className="hidden lg:block" /> Retail excellence for global partners.
+                {visual.curated.subtitle || DEFAULT_VISUAL_SECTIONS.curated.subtitle}
               </p>
             </div>
             <div className="w-full lg:max-w-md bg-white border-2 border-[#DA222A]/20 shadow-[0_20px_50px_rgba(218,34,42,0.06)] hover:border-[#DA222A] hover:shadow-[0_24px_60px_rgba(218,34,42,0.12)] rounded-3xl p-6 md:p-8 flex flex-col gap-6 transition-all duration-500">
@@ -1278,6 +1274,9 @@ export default function TextileClient({ initialCategories, initialProducts, init
           </div>
         </div>
       </section>
+
+      {/* ═══ DYNAMIC HOMEPAGE SEO SECTION (MANAGED VIA ADMIN PANEL) ═══ */}
+      {seoData && <HomepageSeoSection seoData={seoData} />}
 
 
 

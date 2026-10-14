@@ -586,6 +586,63 @@ export async function initDb() {
         console.error('Failed to seed blogs:', err);
       }
 
+      // 14. Create Homepage SEO table
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS homepage_seo (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          pageIdentifier VARCHAR(50) NOT NULL UNIQUE DEFAULT 'home',
+          metaTitle VARCHAR(255) DEFAULT NULL,
+          metaDescription TEXT DEFAULT NULL,
+          metaKeywords TEXT DEFAULT NULL,
+          canonicalUrl VARCHAR(500) DEFAULT NULL,
+          robotsIndex VARCHAR(50) DEFAULT 'index',
+          robotsFollow VARCHAR(50) DEFAULT 'follow',
+          ogTitle VARCHAR(255) DEFAULT NULL,
+          ogDescription TEXT DEFAULT NULL,
+          ogImage LONGTEXT DEFAULT NULL,
+          ogType VARCHAR(50) DEFAULT 'website',
+          twitterCard VARCHAR(50) DEFAULT 'summary_large_image',
+          twitterTitle VARCHAR(255) DEFAULT NULL,
+          twitterDescription TEXT DEFAULT NULL,
+          twitterImage LONGTEXT DEFAULT NULL,
+          h1 VARCHAR(255) DEFAULT NULL,
+          h1Subtext TEXT DEFAULT NULL,
+          introParagraph LONGTEXT DEFAULT NULL,
+          visualSections LONGTEXT DEFAULT NULL,
+          status VARCHAR(50) DEFAULT 'Published',
+          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          INDEX idx_homepage_seo_identifier (pageIdentifier)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      // Migration check for visualSections column
+      try {
+        await connection.query(`ALTER TABLE homepage_seo ADD COLUMN visualSections LONGTEXT DEFAULT NULL AFTER introParagraph`);
+      } catch (e) {}
+
+      // 15. Create Homepage SEO Sections table
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS homepage_seo_sections (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          homepageSeoId INT NOT NULL,
+          heading VARCHAR(255) DEFAULT NULL,
+          headingLevel VARCHAR(10) DEFAULT 'H2',
+          content LONGTEXT DEFAULT NULL,
+          bulletPoints TEXT DEFAULT NULL,
+          internalLinks TEXT DEFAULT NULL,
+          image LONGTEXT DEFAULT NULL,
+          imageAlt VARCHAR(255) DEFAULT NULL,
+          videoUrl VARCHAR(500) DEFAULT NULL,
+          orderIndex INT DEFAULT 0,
+          isActive BOOLEAN DEFAULT TRUE,
+          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          INDEX idx_homepage_seo_id (homepageSeoId),
+          FOREIGN KEY (homepageSeoId) REFERENCES homepage_seo(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
       // Default existing records to noindex for pre-launch
       try {
         await connection.query(`UPDATE categories SET robotsIndex = FALSE WHERE robotsIndex = TRUE`);
