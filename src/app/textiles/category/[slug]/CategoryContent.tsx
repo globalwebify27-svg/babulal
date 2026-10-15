@@ -78,7 +78,7 @@ export default function CategoryContent({
   const allCategories = (initialAllCategories || (navCategoriesPromise ? React.use(navCategoriesPromise) : [])) as any[];
 
   return (
-    <div className="bg-white min-h-screen text-[#0A5181] pb-20 md:pb-0">
+    <div className="bg-white min-h-screen text-[#0A5181] pt-24 lg:pt-[140px] pb-20 md:pb-0">
       <TextileHeader categories={allCategories.filter((c: any) => c.showInHeader)} />
       
       <StoreLocatorModal 
@@ -87,7 +87,7 @@ export default function CategoryContent({
         vertical="textile"
       />
 
-      <main className="pt-[100px]">
+      <main>
         <React.Suspense fallback={<ProductSectionSkeleton initialCategory={initialCategory} />}>
            <AsyncProductSection 
              initialSubCategories={initialSubCategories}

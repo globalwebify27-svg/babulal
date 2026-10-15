@@ -27,9 +27,10 @@ const CATEGORIES = [
 
 interface TextileHeaderProps {
   categories?: any[];
+  sticky?: boolean;
 }
 
-const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
+const TextileHeader = ({ categories = [], sticky = true }: TextileHeaderProps) => {
   const pathname = usePathname();
   const isBlogActive = pathname === '/blog' || pathname?.startsWith('/blog/');
   const [isScrolled, setIsScrolled] = useState(false);
@@ -57,10 +58,11 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
   };
 
   useEffect(() => {
+    if (!sticky) return;
     const handleScroll = () => setIsScrolled(window.scrollY > 80);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [sticky]);
 
   useEffect(() => {
     const fetchMarquee = async () => {
@@ -80,7 +82,7 @@ const TextileHeader = ({ categories = [] }: TextileHeaderProps) => {
   const repeatedMarquees = [...marqueeTexts, ...marqueeTexts, ...marqueeTexts, ...marqueeTexts];
 
   return (
-    <header className="w-full fixed top-0 left-0 z-[100] transition-all duration-300">
+    <header className={sticky ? "w-full fixed top-0 left-0 z-[100] transition-all duration-300" : "w-full relative z-[100]"}>
       
       {/* ═══ THE HIDING DECK (Tiers 1 & 2) ═══ */}
       <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isScrolled ? 'lg:opacity-0 lg:max-h-0 lg:pointer-events-none lg:translate-y-[-100%]' : 'opacity-100 max-h-[400px] translate-y-0'}`}>

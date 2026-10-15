@@ -6,19 +6,11 @@ import Navbar from './Navbar';
 export default function NavbarWrapper() {
   const pathname = usePathname();
   
-  // Hide the global Navbar on vertical-specific pages that have their own header
-  const shouldHide = pathname === '/' || 
-                     pathname?.startsWith('/textiles') || 
-                     pathname?.startsWith('/honda') || 
-                     pathname?.startsWith('/bajaj') ||
-                     pathname?.startsWith('/trucking') ||
-                     pathname?.startsWith('/muva-industries') ||
-                     pathname?.startsWith('/admin') ||
-                     pathname?.startsWith('/auth') ||
-                     pathname?.startsWith('/welcome') ||
-                     pathname?.startsWith('/blog');
+  // Only render global Navbar on pages like /about and /contact that do not embed their own header.
+  // All vertical pages, category pages (/saree, /saree/fancy-sarees), product pages, and homepage render their own Header/Navbar.
+  const shouldShowGlobalNavbar = pathname === '/about' || pathname === '/contact';
   
-  if (shouldHide) return null;
+  if (!shouldShowGlobalNavbar) return null;
   
   return <Navbar />;
 }
