@@ -608,7 +608,7 @@ export default function TextileClient({ initialCategories, initialProducts, init
                   transition={{ duration: 0.8, delay: i * 0.1 }}
                   className="group cursor-pointer flex flex-col"
                 >
-                  <Link href={`/textiles/category/${cat.slug}`} className="block h-full">
+                  <Link href={`/${cat.slug}`} className="block h-full">
                     {/* Category Meta Above Image */}
                     <div className="flex justify-between items-center px-4 mb-6">
                       <div>

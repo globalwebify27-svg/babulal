@@ -10,117 +10,122 @@ interface RichContentRendererProps {
 }
 
 /**
- * Clean & sanitize DOM nodes to prevent XSS attacks while preserving formatting
+ * Clean & sanitize HTML string to prevent XSS attacks while preserving formatting.
+ * Safe for both Server (Node.js) and Client (Browser) environments.
  */
-function sanitizeDomNode(node: Node) {
-  if (node.nodeType === Node.ELEMENT_NODE) {
-    const el = node as HTMLElement;
-    const tagName = el.tagName.toLowerCase();
+function sanitizeHtml(html: string): string {
+  if (!html) return '';
+  let out = html;
 
-    // Remove unsafe script or style tags
-    if (tagName === 'script' || tagName === 'style') {
-      el.remove();
-      return;
-    }
+  // 1. Strip script and style blocks
+  out = out.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  out = out.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
 
-    // Remove inline event handlers (onload, onerror, onclick, etc.)
-    const attrs = Array.from(el.attributes);
-    for (const attr of attrs) {
-      if (attr.name.startsWith('on') || attr.value.toLowerCase().startsWith('javascript:')) {
-        el.removeAttribute(attr.name);
-      }
-    }
+  // 2. Strip inline event handlers (onload, onerror, onclick, etc.)
+  out = out.replace(/\s+on[a-z]+=(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
 
-    // Recursively sanitize children
-    Array.from(el.childNodes).forEach(sanitizeDomNode);
+  // 3. Strip javascript: URIs
+  out = out.replace(/(href|src)=["']javascript:[^"']*["']/gi, '$1=""');
+
+  return out;
+}
+
+/**
+ * Transforms an image tag or media block into a standardized responsive floating figure card
+ * with a 'GET QUOTE' button overlay matching the brand reference design.
+ */
+function transformMediaElement(parentAttrs: string, innerHtml: string): string {
+  const imgMatch = innerHtml.match(/<img\b([^>]+)>/i);
+  if (!imgMatch) {
+    return innerHtml;
   }
+
+  const imgAttrs = imgMatch[1];
+
+  // Extract src
+  const srcMatch = imgAttrs.match(/src=["']([^"']+)["']/i);
+  if (!srcMatch) return innerHtml;
+  const src = srcMatch[1];
+
+  // Extract alt
+  const altMatch = imgAttrs.match(/alt=["']([^"']*)["']/i);
+  const alt = (altMatch && altMatch[1]) ? altMatch[1] : 'Category Media';
+
+  // Determine alignment (checks parent figure data-align/style and image attributes)
+  const combinedAttrs = `${parentAttrs || ''} ${imgAttrs || ''}`;
+  let align = 'right';
+
+  const alignMatch = combinedAttrs.match(/data-align=["']([^"']+)["']/i);
+  if (alignMatch) {
+    const a = alignMatch[1].toLowerCase();
+    if (a === 'left' || a === 'none' || a === 'right') {
+      align = a;
+    }
+  } else if (/float:\s*left/i.test(combinedAttrs)) {
+    align = 'left';
+  } else if (/margin:\s*20px\s*auto|display:\s*block/i.test(combinedAttrs) && !/float/i.test(combinedAttrs)) {
+    align = 'none';
+  }
+
+  let figureClasses = '';
+  if (align === 'right') {
+    figureClasses = 'relative content-flow-image float-none md:float-right md:ml-8 md:mb-5 md:mt-1 w-full md:w-[360px] max-w-full md:max-w-[42%] rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-md bg-gray-50 my-6 md:my-2 clear-right group';
+  } else if (align === 'left') {
+    figureClasses = 'relative content-flow-image float-none md:float-left md:mr-8 md:mb-5 md:mt-1 w-full md:w-[360px] max-w-full md:max-w-[42%] rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-md bg-gray-50 my-6 md:my-2 clear-left group';
+  } else {
+    figureClasses = 'relative content-flow-image float-none mx-auto my-6 w-full max-w-2xl rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-md bg-gray-50 group';
+  }
+
+  return `<figure data-align="${align}" class="${figureClasses}"><img src="${src}" alt="${alt}" class="w-full h-auto max-h-[540px] object-cover object-center rounded-2xl md:rounded-3xl block" /><div class="absolute bottom-4 left-0 right-0 px-4 flex justify-center z-10"><button type="button" data-action="quote-btn" class="w-full max-w-[88%] py-3 px-6 bg-[#DA222A] hover:bg-[#0A5181] text-white text-xs sm:text-sm font-black uppercase tracking-[0.18em] rounded-full shadow-xl shadow-[#DA222A]/30 transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-white/20 select-none">GET QUOTE</button></div></figure>`;
 }
 
 /**
  * Normalizes raw HTML content for natural document flow:
+ * - Deterministic & Isomorphic: runs identically on both Server (Node.js SSR) and Client (Browser)
+ * - Eliminates React 19 hydration mismatches on dangerouslySetInnerHTML
  * - Floats images to the right (or left if specified) on desktop/tablet
  * - Allows text to wrap around the image naturally
- * - Automatically releases text to 100% FULL width after the image ends
+ * - Automatically releases text to 100% full width after the image ends
  * - On mobile (< 768px), resets float to none and sets image to 100% block width
  * - Overlays a red GET QUOTE button at the bottom of the image card (matching reference UI)
+ * - Safely unwraps any non-image content accidentally nested inside figures
  */
 function normalizeContentHtml(html: string): string {
-  if (!html || typeof window === 'undefined') {
-    return html || '';
-  }
+  if (!html || typeof html !== 'string') return '';
 
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
+  let clean = sanitizeHtml(html);
 
-    // Clean dangerous elements/attributes
-    Array.from(doc.body.childNodes).forEach(sanitizeDomNode);
+  // 1. Remove empty figure tags like <figure ...><br></figure> or <figure ...></figure>
+  clean = clean.replace(/<figure\b[^>]*>\s*(?:<br\s*\/?>)?\s*<\/figure>/gi, '');
 
-    // Normalize images and image wrappers (<figure>, <p><img ...></p>, <img>)
-    const imgElements = Array.from(doc.body.querySelectorAll('img'));
-    
-    imgElements.forEach((img) => {
-      const src = img.getAttribute('src');
-      if (!src) return;
+  // 2. Unwrap any <figure ...> that does NOT contain an <img> (e.g. text blocks accidentally wrapped in figure)
+  clean = clean.replace(/<figure\b[^>]*>((?:(?!<figure\b|<img\b)[\s\S])*?)<\/figure>/gi, (match, figInner) => {
+    if (!/<img\b/i.test(figInner)) {
+      return `<div>${figInner}</div>`;
+    }
+    return match;
+  });
 
-      const alt = img.getAttribute('alt') || 'Category Media';
-      const existingStyle = img.getAttribute('style') || '';
-      const existingAlign = img.getAttribute('data-align') || '';
-      
-      let align = 'right';
-      if (existingAlign === 'left' || existingStyle.includes('float: left') || existingStyle.includes('float:left')) {
-        align = 'left';
-      } else if (existingAlign === 'none' || existingStyle.includes('margin: 20px auto') || existingStyle.includes('display: block')) {
-        align = 'none';
-      }
+  // 3. Transform figures containing an <img>
+  clean = clean.replace(/<figure\b([^>]*)>([\s\S]*?<img\b[^>]+>[\s\S]*?)<\/figure>/gi, (match, figAttrs, figInner) => {
+    return transformMediaElement(figAttrs, figInner);
+  });
 
-      // Create a controlled figure element
-      const figure = doc.createElement('figure');
-      figure.setAttribute('data-align', align);
+  // 4. Transform <p> tags containing ONLY an <img>
+  clean = clean.replace(/<p\b[^>]*>\s*(<img\b[^>]+>)\s*<\/p>/gi, (match, imgTag) => {
+    if (/data-action="quote-btn"/i.test(match)) return match;
+    return transformMediaElement('', imgTag);
+  });
 
-      if (align === 'right') {
-        figure.className = 'relative content-flow-image float-none md:float-right md:ml-8 md:mb-5 md:mt-1 w-full md:w-[360px] max-w-full md:max-w-[42%] rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-md bg-gray-50 my-6 md:my-2 clear-right group';
-      } else if (align === 'left') {
-        figure.className = 'relative content-flow-image float-none md:float-left md:mr-8 md:mb-5 md:mt-1 w-full md:w-[360px] max-w-full md:max-w-[42%] rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-md bg-gray-50 my-6 md:my-2 clear-left group';
-      } else {
-        figure.className = 'relative content-flow-image float-none mx-auto my-6 w-full max-w-2xl rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-md bg-gray-50 group';
-      }
+  // 5. Transform standalone <img> tags that are NOT inside a content-flow-image figure
+  clean = clean.replace(/<img\b([^>]+)>/gi, (match, imgAttrs) => {
+    if (/object-cover/i.test(imgAttrs) && /rounded-2xl/i.test(imgAttrs)) {
+      return match;
+    }
+    return transformMediaElement('', match);
+  });
 
-      // Clean image inline style to prevent overriding responsive float/width rules
-      img.removeAttribute('style');
-      img.className = 'w-full h-auto max-h-[540px] object-cover object-center rounded-2xl md:rounded-3xl block';
-
-      // Create cloned image
-      const clonedImg = img.cloneNode(true) as HTMLElement;
-      figure.appendChild(clonedImg);
-
-      // Create GET QUOTE button overlay at bottom of image
-      const overlayDiv = doc.createElement('div');
-      overlayDiv.className = 'absolute bottom-4 left-0 right-0 px-4 flex justify-center z-10';
-      
-      const quoteBtn = doc.createElement('button');
-      quoteBtn.type = 'button';
-      quoteBtn.setAttribute('data-action', 'quote-btn');
-      quoteBtn.className = 'w-full max-w-[88%] py-3 px-6 bg-[#DA222A] hover:bg-[#0A5181] text-white text-xs sm:text-sm font-black uppercase tracking-[0.18em] rounded-full shadow-xl shadow-[#DA222A]/30 transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-white/20 select-none';
-      quoteBtn.textContent = 'GET QUOTE';
-
-      overlayDiv.appendChild(quoteBtn);
-      figure.appendChild(overlayDiv);
-
-      // Check if image is wrapped inside a parent <p> or <figure>
-      const parent = img.parentElement;
-      if (parent && (parent.tagName === 'FIGURE' || (parent.tagName === 'P' && parent.childNodes.length === 1))) {
-        parent.parentNode?.replaceChild(figure, parent);
-      } else {
-        img.parentNode?.replaceChild(figure, img);
-      }
-    });
-
-    return doc.body.innerHTML;
-  } catch (err) {
-    console.error('Failed to normalize HTML content flow:', err);
-    return html;
-  }
+  return clean;
 }
 
 export default function RichContentRenderer({ html, className, onQuoteClick }: RichContentRendererProps) {
@@ -141,6 +146,7 @@ export default function RichContentRenderer({ html, className, onQuoteClick }: R
   return (
     <div 
       onClick={handleClick}
+      suppressHydrationWarning
       className={cn(
         "rich-content-flow w-full max-w-none text-[#1a2b4b] text-sm md:text-base leading-relaxed space-y-4 font-normal",
         "after:content-[''] after:table after:clear-both",

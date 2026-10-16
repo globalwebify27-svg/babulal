@@ -192,7 +192,7 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
     if (!imagePreview) return;
 
     const altText = imageAlt || 'SEO Content Image';
-    const imgTag = `<figure className="content-media-figure" data-align="${imageFloat}"><img src="${imagePreview}" alt="${altText}" /></figure>`;
+    const imgTag = `<figure class="content-media-figure" data-align="${imageFloat}"><img src="${imagePreview}" alt="${altText}" /></figure><p><br></p>`;
 
     if (editorRef.current) {
       editorRef.current.focus();

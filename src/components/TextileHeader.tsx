@@ -99,7 +99,7 @@ const TextileHeader = ({ categories = [], sticky = true }: TextileHeaderProps) =
         {/* TIER 2: BRANDING */}
         <div className={`bg-white border-b border-gray-100 py-2 md:py-2 transition-all ${isScrolled ? 'shadow-lg' : ''}`}>
           <div className="max-w-[1700px] mx-auto px-4 md:px-12 flex items-center justify-between gap-4 md:gap-10">
-            <Link href="/textiles" className="relative w-48 md:w-72 lg:w-[480px] h-10 md:h-14 lg:h-16 transition-transform hover:scale-[1.01]">
+            <Link href="/" className="relative w-48 md:w-72 lg:w-[480px] h-10 md:h-14 lg:h-16 transition-transform hover:scale-[1.01]">
               <Image 
                 src="/BabulalPremkumar.png" 
                 alt="Babulal Premkumar" 

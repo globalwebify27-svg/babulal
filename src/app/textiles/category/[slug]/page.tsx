@@ -5,6 +5,7 @@ import {
   fetchCategoryHeaderData, 
   fetchSeoContentData 
 } from './render';
+import { redirect } from 'next/navigation';
 
 // CRITICAL: Enable Incremental Static Regeneration (ISR)
 export const revalidate = 60; 
@@ -61,5 +62,6 @@ export default async function CategoryPage(props: { params: Promise<{ slug: stri
 
   if (!slug) return <div className="pt-40 text-center">Invalid Segment</div>;
 
-  return renderTextileCategoryPage(slug);
+  // Clean canonical redirect: /textiles/category/[slug] -> /[slug]
+  redirect(`/${slug}`);
 }
