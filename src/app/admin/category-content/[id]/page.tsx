@@ -53,6 +53,7 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
   const [seoId, setSeoId] = useState<number | null>(null);
 
   // SEO Form Fields
+  const [heroTitle, setHeroTitle] = useState('');
   const [h1, setH1] = useState('');
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
@@ -102,6 +103,7 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
 
         if (data.seoContent) {
           setSeoId(data.seoContent.id);
+          setHeroTitle(data.seoContent.heroTitle || '');
           setH1(data.seoContent.h1 || '');
           setMetaTitle(data.seoContent.metaTitle || '');
           setMetaDescription(data.seoContent.metaDescription || '');
@@ -266,6 +268,7 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
         categoryId,
         subCategoryId,
         subSubCategoryId,
+        heroTitle,
         h1,
         metaTitle,
         metaDescription,
@@ -525,6 +528,34 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
             <div>
               <h2 className="text-base font-black text-[#1a2b4b] uppercase italic italic-accent">2. Category Banner & Video Media</h2>
               <p className="text-[10px] font-bold text-[#1a2b4b]/40 uppercase tracking-widest">Category Hero Image & YouTube Video Embeds</p>
+            </div>
+          </div>
+
+          {/* HERO BANNER HEADING */}
+          <div className="space-y-2 pb-6 border-b border-[#f0f3f8]">
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-black text-[#1a2b4b]/60 uppercase tracking-widest flex items-center gap-2">
+                Hero Banner Heading
+                <span className="text-[9px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                  Hero Cover Title
+                </span>
+              </label>
+              {heroTitle && (
+                <span className="text-[9px] font-bold text-green-600 bg-green-50 px-2.5 py-0.5 rounded-full border border-green-200 uppercase tracking-wider">
+                  Custom Hero Heading Active
+                </span>
+              )}
+            </div>
+            <input
+              type="text"
+              placeholder={`e.g. ${targetInfo?.name?.toUpperCase() || 'CATEGORY'} COLLECTION`}
+              value={heroTitle}
+              onChange={(e) => setHeroTitle(e.target.value)}
+              className="w-full px-5 py-4 bg-[#f8fafc] border border-[#d1d9e6] rounded-2xl text-sm font-bold text-[#1a2b4b] outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[9px] text-[#1a2b4b]/40 font-bold uppercase tracking-widest">
+              <p>Controls the large hero banner heading on the public category page (e.g. SAREE COLLECTION).</p>
+              <p className="text-blue-600">Default fallback: {targetInfo?.name?.toUpperCase() || 'CATEGORY'} COLLECTION</p>
             </div>
           </div>
 

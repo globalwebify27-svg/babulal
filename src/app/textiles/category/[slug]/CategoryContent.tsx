@@ -205,7 +205,12 @@ function AsyncProductSection({
   }, [seoContent?.h1, selectedSubs, initialCategory, slug]);
 
   // Dynamic Hero Header Title: collection title displayed on top hero banner
+  // 1. If an explicit Hero Title was saved in Admin SEO & Content for this category/subcategory, use it.
+  // 2. Otherwise fall back to the existing dynamic collection title: "[CATEGORY] COLLECTION"
   const currentHeroTitle = React.useMemo(() => {
+    if (seoContent?.heroTitle && typeof seoContent.heroTitle === 'string' && seoContent.heroTitle.trim().length > 0) {
+      return seoContent.heroTitle.trim();
+    }
     if (selectedSubs.length === 1) {
       const subName = selectedSubs[0];
       const upper = subName.toUpperCase();
@@ -217,7 +222,7 @@ function AsyncProductSection({
       return `${selectedSubs.map(s => s.toUpperCase()).join(' & ')} COLLECTION`;
     }
     return `${initialCategory?.name?.toUpperCase() || 'CATEGORY'} COLLECTION`;
-  }, [selectedSubs, initialCategory]);
+  }, [seoContent?.heroTitle, selectedSubs, initialCategory]);
 
   const currentHeroDescription = React.useMemo(() => {
     if (seoContent?.introContent) {

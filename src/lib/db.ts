@@ -432,6 +432,7 @@ export async function initDb() {
           categoryId INT DEFAULT NULL,
           subCategoryId INT DEFAULT NULL,
           subSubCategoryId INT DEFAULT NULL,
+          heroTitle VARCHAR(255) DEFAULT NULL,
           h1 VARCHAR(255),
           metaTitle VARCHAR(255),
           metaDescription TEXT,
@@ -457,6 +458,9 @@ export async function initDb() {
       // Migration checks for existing category_seo_content columns
       try {
         await connection.query(`ALTER TABLE category_seo_content ADD COLUMN subSubCategoryId INT DEFAULT NULL AFTER subCategoryId`);
+      } catch (e) {}
+      try {
+        await connection.query(`ALTER TABLE category_seo_content ADD COLUMN heroTitle VARCHAR(255) DEFAULT NULL AFTER subSubCategoryId`);
       } catch (e) {}
       try {
         await connection.query(`ALTER TABLE category_seo_content ADD COLUMN htmlContent LONGTEXT AFTER robotsFollow`);

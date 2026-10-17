@@ -15,7 +15,7 @@ export default async function CategoryContentIndexPage() {
 
   // Fetch all published/draft category seo contents
   const [seoRows]: any = await pool.query(
-    "SELECT categoryId, h1, metaTitle, status FROM category_seo_content WHERE categoryId IS NOT NULL"
+    "SELECT categoryId, heroTitle, h1, metaTitle, status FROM category_seo_content WHERE categoryId IS NOT NULL"
   );
 
   const seoMap = new Map<number, any>();
@@ -37,7 +37,7 @@ export default async function CategoryContentIndexPage() {
             Category Page Headings &amp; SEO
           </h1>
           <p className="text-xs text-[#1a2b4b]/60 font-medium mt-1">
-            Manage public page headings (H1), meta titles, descriptions, and rich content across all business verticals.
+            Manage hero banner headings, public page headings (H1), meta titles, descriptions, and rich content across all business verticals.
           </p>
         </div>
         <Link
@@ -55,7 +55,7 @@ export default async function CategoryContentIndexPage() {
             Active Categories ({categories.length})
           </h2>
           <span className="text-[10px] font-bold text-[#1a2b4b]/40 uppercase tracking-widest">
-            Select a category to customize its Category Page Heading (H1)
+            Select a category to customize its Hero Banner Heading and Category Page Heading (H1)
           </span>
         </div>
 
@@ -65,6 +65,7 @@ export default async function CategoryContentIndexPage() {
               <tr>
                 <th className="py-4 px-6">Category Name</th>
                 <th className="py-4 px-6">Business Vertical</th>
+                <th className="py-4 px-6">Hero Banner Heading</th>
                 <th className="py-4 px-6">Category Page Heading (H1)</th>
                 <th className="py-4 px-6">SEO Status</th>
                 <th className="py-4 px-6 text-right">Actions</th>
@@ -73,8 +74,10 @@ export default async function CategoryContentIndexPage() {
             <tbody className="divide-y divide-[#f0f3f8] text-xs font-bold text-[#1a2b4b]">
               {categories.map((cat: any) => {
                 const seo = seoMap.get(cat.id);
+                const currentHero = seo?.heroTitle?.trim() || `${cat.name.toUpperCase()} COLLECTION (Default)`;
+                const isCustomHero = Boolean(seo?.heroTitle?.trim());
                 const currentH1 = seo?.h1?.trim() || `TOP ${cat.name.toUpperCase()} IN RANCHI (Default)`;
-                const isCustom = Boolean(seo?.h1?.trim());
+                const isCustomH1 = Boolean(seo?.h1?.trim());
 
                 return (
                   <tr key={cat.id} className="hover:bg-[#f8fafc]/60 transition-colors">
@@ -89,10 +92,22 @@ export default async function CategoryContentIndexPage() {
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-2">
-                        <span className={isCustom ? "font-black text-[#1a2b4b]" : "font-medium text-gray-400 italic"}>
+                        <span className={isCustomHero ? "font-black text-[#1a2b4b]" : "font-medium text-gray-400 italic"}>
+                          {currentHero}
+                        </span>
+                        {isCustomHero && (
+                          <span className="text-[8px] font-black uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full">
+                            Custom Hero
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-2">
+                        <span className={isCustomH1 ? "font-black text-[#1a2b4b]" : "font-medium text-gray-400 italic"}>
                           {currentH1}
                         </span>
-                        {isCustom && (
+                        {isCustomH1 && (
                           <span className="text-[8px] font-black uppercase tracking-wider bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">
                             Custom H1
                           </span>

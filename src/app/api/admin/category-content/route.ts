@@ -258,6 +258,7 @@ export async function POST(request: Request) {
       categoryId,
       subCategoryId,
       subSubCategoryId,
+      heroTitle,
       h1,
       metaTitle,
       metaDescription,
@@ -311,13 +312,13 @@ export async function POST(request: Request) {
     if (seoContentId) {
       await pool.query(
         `UPDATE category_seo_content SET
-          h1 = ?, metaTitle = ?, metaDescription = ?, canonicalUrl = ?,
+          heroTitle = ?, h1 = ?, metaTitle = ?, metaDescription = ?, canonicalUrl = ?,
           robotsIndex = ?, robotsFollow = ?, htmlContent = ?, introContent = ?, bannerImage = ?,
           bannerAlt = ?, youtubeUrl = ?, relatedCategoryIds = ?, showInventoryCatalog = ?, status = ?,
           updatedAt = NOW()
          WHERE id = ?`,
         [
-          h1 || null, metaTitle || null, metaDescription || null, canonicalUrl || null,
+          heroTitle || null, h1 || null, metaTitle || null, metaDescription || null, canonicalUrl || null,
           robotsIndex, robotsFollow, htmlContent || null, introContent || null, bannerImage || null,
           bannerAlt || null, youtubeUrl || null, relatedJson, isShowCatalog, status,
           seoContentId
@@ -326,12 +327,12 @@ export async function POST(request: Request) {
     } else {
       const [insertRes]: any = await pool.query(
         `INSERT INTO category_seo_content (
-          categoryId, subCategoryId, subSubCategoryId, h1, metaTitle, metaDescription, canonicalUrl,
+          categoryId, subCategoryId, subSubCategoryId, heroTitle, h1, metaTitle, metaDescription, canonicalUrl,
           robotsIndex, robotsFollow, htmlContent, introContent, bannerImage, bannerAlt, youtubeUrl,
           relatedCategoryIds, showInventoryCatalog, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-          numCatId, numSubCatId, numSubSubCatId, h1 || null, metaTitle || null, metaDescription || null, canonicalUrl || null,
+          numCatId, numSubCatId, numSubSubCatId, heroTitle || null, h1 || null, metaTitle || null, metaDescription || null, canonicalUrl || null,
           robotsIndex, robotsFollow, htmlContent || null, introContent || null, bannerImage || null, bannerAlt || null, youtubeUrl || null,
           relatedJson, isShowCatalog, status
         ]
