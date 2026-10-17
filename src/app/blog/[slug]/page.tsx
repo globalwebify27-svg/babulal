@@ -24,7 +24,7 @@ import {
 
 export const revalidate = 60;
 
-const SITE_URL = 'https://babulalpremsons.com';
+const SITE_URL = 'https://babulalpremkumar.com';
 
 interface BlogPageProps {
   params: Promise<{ slug: string }>;
@@ -44,7 +44,10 @@ export async function generateMetadata(props: BlogPageProps): Promise<Metadata> 
 
   const title = blog.metaTitle || `${blog.title} | Babulal Premsons Journal`;
   const description = blog.metaDescription || blog.excerpt || 'Read this in-depth guide from Babulal Premsons.';
-  const canonical = blog.canonicalUrl || `${SITE_URL}/blog/${blog.slug}`;
+  let canonical = blog.canonicalUrl || `${SITE_URL}/blog/${blog.slug}`;
+  if (canonical.includes('babulalpremsons.com')) {
+    canonical = canonical.replace('babulalpremsons.com', 'babulalpremkumar.com');
+  }
   const imageUrl = blog.featuredImage?.startsWith('http')
     ? blog.featuredImage
     : `${SITE_URL}${blog.featuredImage || '/silk_saree_royal.png'}`;
@@ -149,7 +152,10 @@ export default async function BlogPostPage(props: BlogPageProps) {
     getRelatedBlogs(blog.slug, blog.category, 3)
   ]);
 
-  const canonicalUrl = blog.canonicalUrl || `${SITE_URL}/blog/${blog.slug}`;
+  let canonicalUrl = blog.canonicalUrl || `${SITE_URL}/blog/${blog.slug}`;
+  if (canonicalUrl.includes('babulalpremsons.com')) {
+    canonicalUrl = canonicalUrl.replace('babulalpremsons.com', 'babulalpremkumar.com');
+  }
   const imageUrl = blog.featuredImage?.startsWith('http')
     ? blog.featuredImage
     : `${SITE_URL}${blog.featuredImage || '/silk_saree_royal.png'}`;

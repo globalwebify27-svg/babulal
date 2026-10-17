@@ -10,7 +10,7 @@ import CoverBreadcrumbs from '@/components/CoverBreadcrumbs';
 
 export const revalidate = 60; // Incremental Static Regeneration
 
-const SITE_URL = 'https://babulalpremsons.com';
+const SITE_URL = 'https://babulalpremkumar.com';
 
 export const metadata: Metadata = {
   title: 'Blog & Editorial Journal | Babulal Premsons',

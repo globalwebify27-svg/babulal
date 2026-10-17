@@ -31,8 +31,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const isSubCategory = verticalSlug.toLowerCase() !== 'textiles' && verticalSlug.toLowerCase() !== 'honda' && verticalSlug.toLowerCase() !== 'bajaj' && verticalSlug.toLowerCase() !== 'trucking';
   
   const canonicalUrl = isSubCategory 
-    ? `https://babulalpremsons.com/${categorySlug}`
-    : `https://babulalpremsons.com/${categorySlug}`;
+    ? `https://babulalpremkumar.com/${categorySlug}`
+    : `https://babulalpremkumar.com/${categorySlug}`;
 
   let isIndex = false;
   let isFollow = true;
@@ -61,7 +61,9 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
         if (seoRows[0].robotsFollow === 'nofollow' || seoRows[0].robotsFollow === false || seoRows[0].robotsFollow === 0) isFollow = false;
         if (seoRows[0].metaTitle) metaTitle = seoRows[0].metaTitle;
         if (seoRows[0].metaDescription) metaDescription = seoRows[0].metaDescription;
-        if (seoRows[0].canonicalUrl) finalCanonicalUrl = seoRows[0].canonicalUrl;
+        if (seoRows[0].canonicalUrl) {
+          finalCanonicalUrl = seoRows[0].canonicalUrl.replace('babulalpremsons.com', 'babulalpremkumar.com');
+        }
       }
     } else {
       const [subRows]: any = await pool.query(
@@ -82,7 +84,9 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
           if (seoRows[0].robotsFollow === 'nofollow' || seoRows[0].robotsFollow === false || seoRows[0].robotsFollow === 0) isFollow = false;
           if (seoRows[0].metaTitle) metaTitle = seoRows[0].metaTitle;
           if (seoRows[0].metaDescription) metaDescription = seoRows[0].metaDescription;
-          if (seoRows[0].canonicalUrl) finalCanonicalUrl = seoRows[0].canonicalUrl;
+          if (seoRows[0].canonicalUrl) {
+            finalCanonicalUrl = seoRows[0].canonicalUrl.replace('babulalpremsons.com', 'babulalpremkumar.com');
+          }
         }
       }
     }

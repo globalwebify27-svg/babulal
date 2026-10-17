@@ -136,7 +136,7 @@ export const DEFAULT_HOMEPAGE_SEO: HomepageSeoData = {
   metaTitle: 'Babulal Premkumar | 100+ Years Legacy - Premium Textiles in Ranchi',
   metaDescription: 'Babulal Premkumar - A premium textile destination offering an exclusive collection of Sarees, Lehengas, Suits, and more. Based in Ranchi, Jharkhand with over 100+ Years Legacy.',
   metaKeywords: 'Babulal Premkumar, Ranchi, Textiles, Sarees, Lehengas, Suits, Kurtis, Mens Wear, Womens Western Wear, Kids Collection',
-  canonicalUrl: 'https://babulalpremsons.com',
+  canonicalUrl: 'https://babulalpremkumar.com',
   robotsIndex: 'index',
   robotsFollow: 'follow',
   ogTitle: 'Babulal Premkumar | 100+ Years Legacy',

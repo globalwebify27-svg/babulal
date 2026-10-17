@@ -18,7 +18,7 @@ export const revalidate = 60;
 export async function generateMetadata({ params }: SubCategoryPageProps): Promise<Metadata> {
   const { vertical: verticalSlug, category: categorySlug, subCategory: subCategorySlug } = await params;
   const subCategoryName = subCategorySlug.replace(/-/g, ' ');
-  const canonicalUrl = `https://babulalpremsons.com/${verticalSlug}/${categorySlug}/${subCategorySlug}`;
+  const canonicalUrl = `https://babulalpremkumar.com/${verticalSlug}/${categorySlug}/${subCategorySlug}`;
 
   let isIndex = false;
   let isFollow = true;
@@ -44,7 +44,9 @@ export async function generateMetadata({ params }: SubCategoryPageProps): Promis
         
         if (seoRows[0].metaTitle) metaTitle = seoRows[0].metaTitle;
         if (seoRows[0].metaDescription) metaDescription = seoRows[0].metaDescription;
-        if (seoRows[0].canonicalUrl) finalCanonicalUrl = seoRows[0].canonicalUrl;
+        if (seoRows[0].canonicalUrl) {
+          finalCanonicalUrl = seoRows[0].canonicalUrl.replace('babulalpremsons.com', 'babulalpremkumar.com');
+        }
       }
     }
   } catch (err) {

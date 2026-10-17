@@ -18,7 +18,10 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
 
   const title = seoContent?.metaTitle || `${category.name || slug.toUpperCase()} Collection | Babulal Premkumar`;
   const description = seoContent?.metaDescription || `Explore wholesale ${category.name || slug} at Babulal Premkumar. Regional distribution in Ranchi, Jharkhand.`;
-  const canonical = seoContent?.canonicalUrl || `https://babulalpremsons.com/${slug}`;
+  let canonical = seoContent?.canonicalUrl || `https://babulalpremkumar.com/${slug}`;
+  if (canonical.includes('babulalpremsons.com')) {
+    canonical = canonical.replace('babulalpremsons.com', 'babulalpremkumar.com');
+  }
   let isIndex = false;
   let isFollow = true;
 

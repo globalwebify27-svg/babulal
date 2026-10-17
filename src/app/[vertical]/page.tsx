@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
 
   if (rows.length > 0) {
     const cat = rows[0];
-    const canonicalUrl = `https://babulalpremsons.com/${cat.slug}`;
+    const canonicalUrl = `https://babulalpremkumar.com/${cat.slug}`;
 
     let isIndex = cat.robotsIndex !== undefined && cat.robotsIndex !== null ? !!cat.robotsIndex : false;
     let isFollow = cat.robotsFollow !== undefined && cat.robotsFollow !== null ? !!cat.robotsFollow : true;
@@ -64,6 +64,10 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
         else if (seoRows[0].robotsIndex === 'noindex' || seoRows[0].robotsIndex === false || seoRows[0].robotsIndex === 0) isIndex = false;
         if (seoRows[0].robotsFollow === 'nofollow' || seoRows[0].robotsFollow === false || seoRows[0].robotsFollow === 0) isFollow = false;
         
+        const finalCanonical = seoRows[0].canonicalUrl 
+          ? seoRows[0].canonicalUrl.replace('babulalpremsons.com', 'babulalpremkumar.com')
+          : canonicalUrl;
+
         return {
           title: seoRows[0].metaTitle || `${cat.name} Collection | Babulal Premkumar`,
           description: seoRows[0].metaDescription || `Explore our premium wholesale ${cat.name} collection at Babulal Premkumar (100+ Years Legacy in Ranchi, Jharkhand).`,
@@ -72,12 +76,12 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
             follow: isFollow,
           },
           alternates: {
-            canonical: seoRows[0].canonicalUrl || canonicalUrl,
+            canonical: finalCanonical,
           },
           openGraph: {
             title: seoRows[0].metaTitle || `${cat.name} Collection | Babulal Premkumar`,
             description: seoRows[0].metaDescription || `Explore our premium wholesale ${cat.name} collection at Babulal Premkumar.`,
-            url: seoRows[0].canonicalUrl || canonicalUrl,
+            url: finalCanonical,
           },
         };
       }
@@ -111,7 +115,7 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
 
   if (subRows.length > 0) {
     const sub = subRows[0];
-    const canonicalUrl = `https://babulalpremsons.com/${sub.slug}`;
+    const canonicalUrl = `https://babulalpremkumar.com/${sub.slug}`;
 
     let isIndex = sub.robotsIndex !== undefined && sub.robotsIndex !== null ? !!sub.robotsIndex : false;
     let isFollow = sub.robotsFollow !== undefined && sub.robotsFollow !== null ? !!sub.robotsFollow : true;
@@ -126,6 +130,10 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
         else if (seoRows[0].robotsIndex === 'noindex' || seoRows[0].robotsIndex === false || seoRows[0].robotsIndex === 0) isIndex = false;
         if (seoRows[0].robotsFollow === 'nofollow' || seoRows[0].robotsFollow === false || seoRows[0].robotsFollow === 0) isFollow = false;
         
+        const finalCanonical = seoRows[0].canonicalUrl 
+          ? seoRows[0].canonicalUrl.replace('babulalpremsons.com', 'babulalpremkumar.com')
+          : canonicalUrl;
+
         return {
           title: seoRows[0].metaTitle || `${sub.name} Collection | Babulal Premkumar`,
           description: seoRows[0].metaDescription || `Explore wholesale ${sub.name} at Babulal Premkumar. Regional distribution in Ranchi, Jharkhand.`,
@@ -134,12 +142,12 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
             follow: isFollow,
           },
           alternates: {
-            canonical: seoRows[0].canonicalUrl || canonicalUrl,
+            canonical: finalCanonical,
           },
           openGraph: {
             title: seoRows[0].metaTitle || `${sub.name} Collection | Babulal Premkumar`,
             description: seoRows[0].metaDescription || `Explore wholesale ${sub.name} at Babulal Premkumar.`,
-            url: seoRows[0].canonicalUrl || canonicalUrl,
+            url: finalCanonical,
           },
         };
       }

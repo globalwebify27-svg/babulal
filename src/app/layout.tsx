@@ -19,6 +19,7 @@ export const viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://babulalpremkumar.com'),
   title: "Babulal Premkumar | 100+ Years Legacy",
   description: "Babulal Premkumar - A premium textile destination offering an exclusive collection of Sarees, Lehengas, Suits, and more. Based in Ranchi, Jharkhand with over 100+ Years Legacy.",
   keywords: "Babulal Premkumar, Ranchi, Textiles, Sarees, Lehengas, Suits, Kurtis, Mens Wear, Womens Western Wear, Kids Collection",

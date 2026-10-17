@@ -13,12 +13,15 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const title = seo.metaTitle || "Babulal Premkumar | 100+ Years Legacy";
   const description = seo.metaDescription || "Babulal Premkumar - A premium textile destination offering an exclusive collection of Sarees, Lehengas, Suits, and more. Based in Ranchi, Jharkhand with over 100+ Years Legacy.";
-  const canonical = seo.canonicalUrl || "https://babulalpremsons.com";
+  let canonical = seo.canonicalUrl || "https://babulalpremkumar.com";
+  if (canonical.includes('babulalpremsons.com')) {
+    canonical = canonical.replace('babulalpremsons.com', 'babulalpremkumar.com');
+  }
   const isIndex = seo.robotsIndex !== 'noindex';
   const isFollow = seo.robotsFollow !== 'nofollow';
 
   return {
-    metadataBase: new URL(canonical.startsWith('http') ? canonical : 'https://babulalpremsons.com'),
+    metadataBase: new URL(canonical.startsWith('http') ? canonical : 'https://babulalpremkumar.com'),
     title,
     description,
     keywords: seo.metaKeywords || undefined,
