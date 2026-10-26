@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 
 import SocialShare from '@/components/SocialShare';
+import { toSafeImageUrl, sanitizeProductImages } from '@/lib/media-helper';
 
 interface ProductPageProps {
   params: Promise<{
@@ -31,10 +32,11 @@ interface ProductPageProps {
 
 function mapProduct(prod: any) {
   if (!prod) return null;
+  const rawImages = prod.images ? JSON.parse(prod.images) : [];
   return {
     ...prod,
     _id: prod.id.toString(),
-    images: prod.images ? JSON.parse(prod.images) : [],
+    images: sanitizeProductImages(prod.id, rawImages),
     attributes: prod.attributes ? JSON.parse(prod.attributes) : {},
     isFeatured: !!prod.isFeatured,
     isActive: !!prod.isActive,
@@ -52,6 +54,8 @@ function mapCategory(cat: any) {
   return {
     ...cat,
     _id: cat.id.toString(),
+    image: toSafeImageUrl('categories', cat.id, cat.image),
+    cardImage: cat.cardImage ? toSafeImageUrl('categories', cat.id, cat.cardImage, undefined, 'cardImage') : null,
     order: cat.orderIndex,
     showInHeader: !!cat.showInHeader,
     topBusiness: !!cat.topBusiness,
@@ -96,6 +100,14 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     console.error('Fetch product category robots error:', err);
   }
 
+  const firstImg = product.images?.[0];
+  let ogImageUrl: string | null = null;
+  if (firstImg && typeof firstImg === 'string' && !firstImg.startsWith('data:')) {
+    ogImageUrl = firstImg.startsWith('http')
+      ? firstImg
+      : `https://babulalpremkumar.com${firstImg.startsWith('/') ? '' : '/'}${firstImg}`;
+  }
+
   return {
     title: `${product.name} | ${vertical?.name || 'Babulal Premsons'}`,
     description: metaDesc,
@@ -110,7 +122,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       title: `${product.name} | ${vertical?.name || 'Babulal Premsons'}`,
       description: metaDesc,
       url: canonicalUrl,
-      images: product.images?.[0] ? [product.images[0]] : [],
+      images: ogImageUrl ? [{ url: ogImageUrl }] : [],
     },
   };
 }

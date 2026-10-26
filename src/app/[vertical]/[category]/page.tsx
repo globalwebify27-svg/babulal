@@ -14,6 +14,7 @@ import Footer from '@/components/Footer';
 import MobileBottomMenu from '@/components/MobileBottomMenu';
 import CoverBreadcrumbs from '@/components/CoverBreadcrumbs';
 import { renderTextileCategoryPage } from '@/app/textiles/category/[slug]/render';
+import { toSafeImageUrl, sanitizeProductImages } from '@/lib/media-helper';
 
 interface CategoryPageProps {
   params: Promise<{
@@ -114,10 +115,11 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 function mapProduct(prod: any) {
   if (!prod) return null;
+  const rawImages = prod.images ? JSON.parse(prod.images) : [];
   return {
     ...prod,
     _id: prod.id.toString(),
-    images: prod.images ? JSON.parse(prod.images) : [],
+    images: sanitizeProductImages(prod.id, rawImages),
     attributes: prod.attributes ? JSON.parse(prod.attributes) : {},
     isFeatured: !!prod.isFeatured,
     isActive: !!prod.isActive,
@@ -213,7 +215,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         id: cat.id,
         name: cat.name,
         slug: cat.slug,
-        image: cat.image,
+        image: toSafeImageUrl('categories', cat.id, cat.image),
         showInHeader: !!cat.showInHeader,
         topBusiness: !!cat.topBusiness,
         isCurated: !!cat.isCurated,
@@ -267,7 +269,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             fill
             sizes="100vw"
             className="object-cover opacity-25 object-center"
-            priority
+            priority={typeof heroBgImage === 'string' && !heroBgImage.startsWith('data:')}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A5181] via-[#0A5181]/80 to-transparent" />
         </div>

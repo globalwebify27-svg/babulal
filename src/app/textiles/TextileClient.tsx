@@ -290,7 +290,10 @@ export default function TextileClient({ initialCategories, initialProducts, init
                 banners[currentSlide].alignment === 'top' ? "object-top" :
                   banners[currentSlide].alignment === 'bottom' ? "object-bottom" : "object-center"
               )}
-              priority
+              priority={
+                typeof (banners[currentSlide].image || banners[currentSlide].img) === 'string' &&
+                !(banners[currentSlide].image || banners[currentSlide].img).startsWith('data:')
+              }
             />
             {/* High-Contrast Gradient Masking — Flipped for Left Alignment */}
             <div className="absolute inset-0 bg-gradient-to-l from-black/80 via-black/40 to-black/50" />

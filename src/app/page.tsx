@@ -4,6 +4,8 @@ import pool, { initDb } from "@/lib/db";
 import TextileClient from "./textiles/TextileClient";
 import { getHomepageSeoData } from "@/lib/homepage-seo";
 
+import { toSafeImageUrl, sanitizeProductImages } from "@/lib/media-helper";
+
 // CRITICAL: Enable Incremental Static Regeneration (ISR)
 // This caches the page, making loads nearly instant for subsequent users.
 export const revalidate = 60; 
@@ -97,6 +99,7 @@ async function fetchTextileCatalogData() {
     return {
       ...sub,
       _id: subIdStr,
+      image: toSafeImageUrl('sub_categories', sub.id, sub.image),
       categoryId: sub.categoryId.toString(),
       order: sub.orderIndex,
       subSubCategories: subSubCategories.filter((ss: any) => ss.subCategoryId === subIdStr)
@@ -108,6 +111,8 @@ async function fetchTextileCatalogData() {
     return {
       ...cat,
       _id: catIdStr,
+      image: toSafeImageUrl('categories', cat.id, cat.image),
+      cardImage: cat.cardImage ? toSafeImageUrl('categories', cat.id, cat.cardImage, undefined, 'cardImage') : null,
       order: cat.orderIndex,
       showInHeader: !!cat.showInHeader,
       topBusiness: !!cat.topBusiness,
@@ -116,24 +121,29 @@ async function fetchTextileCatalogData() {
     };
   });
 
-  const products = productsRows.map((prod: any) => ({
-    ...prod,
-    _id: prod.id.toString(),
-    images: prod.images ? JSON.parse(prod.images) : [],
-    attributes: prod.attributes ? JSON.parse(prod.attributes) : {},
-    isFeatured: !!prod.isFeatured,
-    isActive: !!prod.isActive,
-    seo: {
-      h1: prod.h1,
-      metaTitle: prod.metaTitle,
-      metaDescription: prod.metaDescription,
-      altText: prod.altText
-    }
-  }));
+  const products = productsRows.map((prod: any) => {
+    const rawImages = prod.images ? JSON.parse(prod.images) : [];
+    return {
+      ...prod,
+      _id: prod.id.toString(),
+      images: sanitizeProductImages(prod.id, rawImages),
+      attributes: prod.attributes ? JSON.parse(prod.attributes) : {},
+      isFeatured: !!prod.isFeatured,
+      isActive: !!prod.isActive,
+      seo: {
+        h1: prod.h1,
+        metaTitle: prod.metaTitle,
+        metaDescription: prod.metaDescription,
+        altText: prod.altText
+      }
+    };
+  });
 
   const banners = bannersRows.map((ban: any) => ({
     ...ban,
     _id: ban.id.toString(),
+    image: toSafeImageUrl('banners', ban.id, ban.image),
+    img: toSafeImageUrl('banners', ban.id, ban.img || ban.image),
     order: ban.orderIndex,
     isActive: !!ban.isActive
   }));

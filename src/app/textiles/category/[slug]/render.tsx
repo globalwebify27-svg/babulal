@@ -1,6 +1,7 @@
 import React from 'react';
 import CategoryContent from "./CategoryContent";
 import pool, { initDb } from "@/lib/db";
+import { toSafeImageUrl, sanitizeProductImages, sanitizeHtmlImages } from "@/lib/media-helper";
 
 export async function fetchCategoryHeaderData(slug: string) {
   await initDb();
@@ -17,6 +18,8 @@ export async function fetchCategoryHeaderData(slug: string) {
   return {
     ...cat,
     _id: cat.id.toString(),
+    image: toSafeImageUrl('categories', cat.id, cat.image),
+    cardImage: cat.cardImage ? toSafeImageUrl('categories', cat.id, cat.cardImage, undefined, 'cardImage') : null,
     order: cat.orderIndex,
     showInHeader: !!cat.showInHeader,
     topBusiness: !!cat.topBusiness,
@@ -40,9 +43,10 @@ export async function fetchSubCategoriesData(categoryId: string) {
   return rows.map((sub: any) => ({
     ...sub,
     _id: sub.id.toString(),
+    image: toSafeImageUrl('sub_categories', sub.id, sub.image),
     category: sub.categoryId.toString(),
     order: sub.orderIndex,
-    seoBannerImage: sub.seoBannerImage || null
+    seoBannerImage: sub.seoBannerImage ? toSafeImageUrl('category_seo_content', sub.id, sub.seoBannerImage) : null
   }));
 }
 
@@ -52,20 +56,23 @@ export async function fetchProductsData() {
     "SELECT * FROM products WHERE LOWER(businessVertical) = 'textiles' ORDER BY createdAt DESC LIMIT 150"
   );
   
-  return rows.map((prod: any) => ({
-    ...prod,
-    _id: prod.id.toString(),
-    images: prod.images ? JSON.parse(prod.images) : [],
-    attributes: prod.attributes ? JSON.parse(prod.attributes) : {},
-    isFeatured: !!prod.isFeatured,
-    isActive: !!prod.isActive,
-    seo: {
-      h1: prod.h1,
-      metaTitle: prod.metaTitle,
-      metaDescription: prod.metaDescription,
-      altText: prod.altText
-    }
-  }));
+  return rows.map((prod: any) => {
+    const rawImages = prod.images ? JSON.parse(prod.images) : [];
+    return {
+      ...prod,
+      _id: prod.id.toString(),
+      images: sanitizeProductImages(prod.id, rawImages),
+      attributes: prod.attributes ? JSON.parse(prod.attributes) : {},
+      isFeatured: !!prod.isFeatured,
+      isActive: !!prod.isActive,
+      seo: {
+        h1: prod.h1,
+        metaTitle: prod.metaTitle,
+        metaDescription: prod.metaDescription,
+        altText: prod.altText
+      }
+    };
+  });
 }
 
 export async function fetchAllCategoriesData() {
@@ -103,9 +110,10 @@ export async function fetchAllCategoriesData() {
     return {
       ...sub,
       _id: subIdStr,
+      image: toSafeImageUrl('sub_categories', sub.id, sub.image),
       categoryId: sub.categoryId.toString(),
       order: sub.orderIndex,
-      seoBannerImage: sub.seoBannerImage || null,
+      seoBannerImage: sub.seoBannerImage ? toSafeImageUrl('category_seo_content', sub.id, sub.seoBannerImage) : null,
       subSubCategories: subSubCategories.filter((ss: any) => ss.subCategoryId === subIdStr)
     };
   });
@@ -115,6 +123,8 @@ export async function fetchAllCategoriesData() {
     return {
       ...cat,
       _id: catIdStr,
+      image: toSafeImageUrl('categories', cat.id, cat.image),
+      cardImage: cat.cardImage ? toSafeImageUrl('categories', cat.id, cat.cardImage, undefined, 'cardImage') : null,
       order: cat.orderIndex,
       showInHeader: !!cat.showInHeader,
       topBusiness: !!cat.topBusiness,
@@ -184,7 +194,13 @@ export async function fetchSeoContentData(catId: string, subSlug?: string, subSu
       return { seoContent: null, seoSections: [], relatedCategories: [] };
     }
 
-    const seoContent = seoRows[0];
+    const rawSeo = seoRows[0];
+    const seoContent = {
+      ...rawSeo,
+      bannerImage: toSafeImageUrl('category_seo_content', rawSeo.id, rawSeo.bannerImage),
+      htmlContent: sanitizeHtmlImages('category_seo_content', rawSeo.id, rawSeo.htmlContent)
+    };
+
     const [secRows]: any = await pool.query(
       'SELECT * FROM category_seo_sections WHERE seoContentId = ? AND isActive = TRUE ORDER BY orderIndex ASC',
       [seoContent.id]
@@ -203,7 +219,12 @@ export async function fetchSeoContentData(catId: string, subSlug?: string, subSu
         `SELECT id, name, slug, image, cardImage FROM categories WHERE id IN (${placeholders}) AND status = 'Active'`,
         relatedIds
       );
-      relatedCategories = relRows.map((c: any) => ({ ...c, _id: c.id.toString() }));
+      relatedCategories = relRows.map((c: any) => ({
+        ...c,
+        _id: c.id.toString(),
+        image: toSafeImageUrl('categories', c.id, c.image),
+        cardImage: c.cardImage ? toSafeImageUrl('categories', c.id, c.cardImage, undefined, 'cardImage') : null
+      }));
     }
 
     return { seoContent, seoSections, relatedCategories };

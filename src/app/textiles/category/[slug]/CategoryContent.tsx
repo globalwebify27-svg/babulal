@@ -469,7 +469,7 @@ function AsyncProductSection({
            alt={seoContent?.bannerAlt || initialCategory?.name || "Category Header"} 
            fill 
            className="object-cover opacity-70"
-           priority
+           priority={typeof heroCoverImage === 'string' && !heroCoverImage.startsWith('data:')}
          />
          <div className="absolute inset-0 bg-black/30" />
          
