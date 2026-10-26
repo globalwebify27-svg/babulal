@@ -23,7 +23,12 @@ import {
   PanelRight,
   Maximize2,
   Type,
-  Eraser
+  Eraser,
+  ExternalLink,
+  Unlink,
+  AlertCircle,
+  X,
+  Check
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -41,6 +46,17 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
   const [imageAlt, setImageAlt] = useState<string>('');
   const [imageFloat, setImageFloat] = useState<'right' | 'left' | 'none'>('right');
   const [imageWidth, setImageWidth] = useState<'40%' | '50%' | '100%'>('40%');
+
+  // Hyperlink Modal State
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [linkUrl, setLinkUrl] = useState<string>('');
+  const [linkText, setLinkText] = useState<string>('');
+  const [linkOpenInNewTab, setLinkOpenInNewTab] = useState<boolean>(false);
+  const [linkError, setLinkError] = useState<string>('');
+  const [savedRange, setSavedRange] = useState<Range | null>(null);
+  const [selectedAnchor, setSelectedAnchor] = useState<HTMLAnchorElement | null>(null);
+  const [isCursorInLink, setIsCursorInLink] = useState(false);
+  const urlInputRef = useRef<HTMLInputElement>(null);
 
   // Sync value from parent into contentEditable innerHTML when value changes externally
   useEffect(() => {
@@ -169,10 +185,227 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
     }
   };
 
+  const checkSelectionState = () => {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0 && editorRef.current) {
+      const range = sel.getRangeAt(0);
+      if (editorRef.current.contains(range.commonAncestorContainer)) {
+        let node: Node | null = range.commonAncestorContainer;
+        if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+        const inLink = !!(node && (node as HTMLElement).closest && (node as HTMLElement).closest('a'));
+        setIsCursorInLink(inLink);
+        return;
+      }
+    }
+    setIsCursorInLink(false);
+  };
+
+  useEffect(() => {
+    if (isLinkModalOpen) {
+      setTimeout(() => {
+        urlInputRef.current?.focus();
+        urlInputRef.current?.select();
+      }, 50);
+    }
+  }, [isLinkModalOpen]);
+
+  const validateAndNormalizeUrl = (raw: string): { valid: boolean; normalized: string; error?: string } => {
+    const trimmed = raw.trim();
+    if (!trimmed) {
+      return { valid: false, normalized: '', error: 'Please enter a destination URL or relative path' };
+    }
+
+    const lower = trimmed.toLowerCase();
+
+    // 1. Strictly reject unsafe protocols
+    if (
+      lower.startsWith('javascript:') ||
+      lower.startsWith('data:') ||
+      lower.startsWith('vbscript:') ||
+      lower.startsWith('file:')
+    ) {
+      return {
+        valid: false,
+        normalized: '',
+        error: 'Unsafe protocol detected. JavaScript and data URIs are not allowed.'
+      };
+    }
+
+    // 2. Approved full protocols
+    if (
+      lower.startsWith('https://') ||
+      lower.startsWith('http://') ||
+      lower.startsWith('mailto:') ||
+      lower.startsWith('tel:')
+    ) {
+      return { valid: true, normalized: trimmed };
+    }
+
+    // 3. Approved root-relative or hash paths (/saree, /about-us, #section)
+    if (trimmed.startsWith('/') || trimmed.startsWith('#')) {
+      return { valid: true, normalized: trimmed };
+    }
+
+    // 4. Domain-like (e.g. "babulalpremkumar.com", "example.com/page", "www.google.com")
+    if (/^[a-zA-Z0-9][-a-zA-Z0-9.]*\.[a-zA-Z]{2,}/.test(trimmed)) {
+      return { valid: true, normalized: `https://${trimmed}` };
+    }
+
+    // 5. Default internal relative slug (e.g. "saree" -> "/saree")
+    return { valid: true, normalized: `/${trimmed}` };
+  };
+
   const handleAddLink = () => {
-    const url = prompt('Enter website link URL:');
-    if (url) {
-      execCmd('createLink', url);
+    setLinkError('');
+    const sel = window.getSelection();
+    let currentRange: Range | null = null;
+    let anchorEl: HTMLAnchorElement | null = null;
+
+    if (sel && sel.rangeCount > 0 && editorRef.current) {
+      const r = sel.getRangeAt(0);
+      if (editorRef.current.contains(r.commonAncestorContainer)) {
+        currentRange = r;
+        let node: Node | null = r.commonAncestorContainer;
+        if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+        if (node && (node as HTMLElement).closest) {
+          anchorEl = (node as HTMLElement).closest('a');
+        }
+      }
+    }
+
+    if (anchorEl) {
+      setSelectedAnchor(anchorEl);
+      setLinkUrl(anchorEl.getAttribute('href') || '');
+      setLinkText(anchorEl.textContent || '');
+      setLinkOpenInNewTab(anchorEl.getAttribute('target') === '_blank');
+      setSavedRange(currentRange ? currentRange.cloneRange() : null);
+    } else {
+      setSelectedAnchor(null);
+      const text = currentRange ? currentRange.toString() : '';
+      setLinkText(text);
+      setLinkUrl('');
+      setLinkOpenInNewTab(false);
+      setSavedRange(currentRange ? currentRange.cloneRange() : null);
+    }
+
+    setIsLinkModalOpen(true);
+  };
+
+  const handleApplyLink = () => {
+    const check = validateAndNormalizeUrl(linkUrl);
+    if (!check.valid) {
+      setLinkError(check.error || 'Invalid URL');
+      return;
+    }
+
+    const finalUrl = check.normalized;
+    const displayText = linkText.trim() || finalUrl;
+
+    // A. Editing existing anchor
+    if (selectedAnchor && editorRef.current?.contains(selectedAnchor)) {
+      selectedAnchor.setAttribute('href', finalUrl);
+      selectedAnchor.textContent = displayText;
+
+      if (linkOpenInNewTab) {
+        selectedAnchor.setAttribute('target', '_blank');
+        selectedAnchor.setAttribute('rel', 'noopener noreferrer');
+      } else {
+        selectedAnchor.removeAttribute('target');
+        selectedAnchor.removeAttribute('rel');
+      }
+
+      if (editorRef.current) {
+        onChange(editorRef.current.innerHTML);
+      }
+      closeLinkModal();
+      return;
+    }
+
+    // B. Inserting a new anchor
+    if (editorRef.current) {
+      editorRef.current.focus();
+
+      const sel = window.getSelection();
+      let range = savedRange;
+
+      if (range && sel) {
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } else if (sel && sel.rangeCount > 0 && editorRef.current.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+        range = sel.getRangeAt(0);
+      }
+
+      const a = document.createElement('a');
+      a.href = finalUrl;
+      a.textContent = displayText;
+      if (linkOpenInNewTab) {
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+      }
+
+      if (range && editorRef.current.contains(range.commonAncestorContainer)) {
+        range.deleteContents();
+        range.insertNode(a);
+
+        // Insert non-breaking space after link so typing can continue smoothly outside
+        const space = document.createTextNode('\u00A0');
+        if (a.parentNode) {
+          a.parentNode.insertBefore(space, a.nextSibling);
+        }
+
+        const newRange = document.createRange();
+        newRange.setStartAfter(space);
+        newRange.collapse(true);
+        if (sel) {
+          sel.removeAllRanges();
+          sel.addRange(newRange);
+        }
+      } else {
+        editorRef.current.appendChild(a);
+      }
+
+      onChange(editorRef.current.innerHTML);
+    }
+
+    closeLinkModal();
+  };
+
+  const handleRemoveLink = () => {
+    if (selectedAnchor && selectedAnchor.parentNode) {
+      const parent = selectedAnchor.parentNode;
+      while (selectedAnchor.firstChild) {
+        parent.insertBefore(selectedAnchor.firstChild, selectedAnchor);
+      }
+      parent.removeChild(selectedAnchor);
+
+      if (editorRef.current) {
+        onChange(editorRef.current.innerHTML);
+      }
+    }
+    closeLinkModal();
+  };
+
+  const closeLinkModal = () => {
+    setIsLinkModalOpen(false);
+    setLinkUrl('');
+    setLinkText('');
+    setLinkOpenInNewTab(false);
+    setLinkError('');
+    setSelectedAnchor(null);
+    setSavedRange(null);
+  };
+
+  const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    const anchor = target.closest('a');
+    if (anchor && editorRef.current?.contains(anchor)) {
+      e.preventDefault();
+      setSelectedAnchor(anchor as HTMLAnchorElement);
+      setLinkUrl(anchor.getAttribute('href') || '');
+      setLinkText(anchor.textContent || '');
+      setLinkOpenInNewTab(anchor.getAttribute('target') === '_blank');
+      setLinkError('');
+      setIsLinkModalOpen(true);
     }
   };
 
@@ -244,6 +477,7 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
         {/* TEXT STYLES */}
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCmd('bold')}
           title="Bold (Ctrl+B)"
           className="p-2 rounded-xl bg-white border border-[#d1d9e6] hover:bg-[#095181] hover:text-white transition-all text-[#1a2b4b]"
@@ -253,6 +487,7 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCmd('italic')}
           title="Italic (Ctrl+I)"
           className="p-2 rounded-xl bg-white border border-[#d1d9e6] hover:bg-[#095181] hover:text-white transition-all text-[#1a2b4b]"
@@ -262,6 +497,7 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCmd('underline')}
           title="Underline (Ctrl+U)"
           className="p-2 rounded-xl bg-white border border-[#d1d9e6] hover:bg-[#095181] hover:text-white transition-all text-[#1a2b4b]"
@@ -271,6 +507,7 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCmd('strikeThrough')}
           title="Strikethrough"
           className="p-2 rounded-xl bg-white border border-[#d1d9e6] hover:bg-[#095181] hover:text-white transition-all text-[#1a2b4b]"
@@ -283,6 +520,7 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
         {/* LISTS */}
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCmd('insertUnorderedList')}
           title="Bullet Points List"
           className="p-2 rounded-xl bg-white border border-[#d1d9e6] hover:bg-[#095181] hover:text-white transition-all text-[#1a2b4b]"
@@ -292,6 +530,7 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCmd('insertOrderedList')}
           title="Numbered List"
           className="p-2 rounded-xl bg-white border border-[#d1d9e6] hover:bg-[#095181] hover:text-white transition-all text-[#1a2b4b]"
@@ -304,6 +543,7 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
         {/* ALIGNMENT */}
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCmd('justifyLeft')}
           title="Align Left"
           className="p-2 rounded-xl bg-white border border-[#d1d9e6] hover:bg-[#095181] hover:text-white transition-all text-[#1a2b4b]"
@@ -313,6 +553,7 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCmd('justifyCenter')}
           title="Align Center"
           className="p-2 rounded-xl bg-white border border-[#d1d9e6] hover:bg-[#095181] hover:text-white transition-all text-[#1a2b4b]"
@@ -322,6 +563,7 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCmd('justifyRight')}
           title="Align Right"
           className="p-2 rounded-xl bg-white border border-[#d1d9e6] hover:bg-[#095181] hover:text-white transition-all text-[#1a2b4b]"
@@ -334,9 +576,15 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
         {/* LINK & INLINE IMAGE UPLOAD */}
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={handleAddLink}
-          title="Insert Hyperlink"
-          className="p-2 rounded-xl bg-white border border-[#d1d9e6] hover:bg-[#095181] hover:text-white transition-all text-[#1a2b4b]"
+          title={isCursorInLink ? "Edit / Remove Hyperlink" : "Insert Hyperlink"}
+          className={cn(
+            "p-2 rounded-xl border transition-all flex items-center gap-1",
+            isCursorInLink 
+              ? "bg-[#095181] text-white border-[#095181] shadow-sm" 
+              : "bg-white border-[#d1d9e6] hover:bg-[#095181] hover:text-white text-[#1a2b4b]"
+          )}
         >
           <LinkIcon className="w-4 h-4" />
         </button>
@@ -353,6 +601,7 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
         {/* UNDO / REDO */}
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCmd('undo')}
           title="Undo"
           className="p-2 rounded-xl bg-white border border-[#d1d9e6] hover:bg-[#095181] hover:text-white transition-all text-[#1a2b4b]"
@@ -362,6 +611,7 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => execCmd('redo')}
           title="Redo"
           className="p-2 rounded-xl bg-white border border-[#d1d9e6] hover:bg-[#095181] hover:text-white transition-all text-[#1a2b4b]"
@@ -377,7 +627,10 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
           contentEditable
           onInput={handleInput}
           onPaste={handlePaste}
-          className="outline-none min-h-[320px] max-w-none text-[#1a2b4b] text-sm md:text-base leading-relaxed space-y-4 font-normal [&_h2]:text-xl [&_h2]:md:text-2xl [&_h2]:font-bold [&_h2]:text-[#0A5181] [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:md:text-xl [&_h3]:font-bold [&_h3]:text-[#0A5181] [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-base [&_h4]:font-bold [&_h4]:text-[#0A5181] [&_h4]:mt-3 [&_h4]:mb-1 [&_p]:text-sm [&_p]:md:text-base [&_p]:leading-relaxed [&_p]:text-gray-700 [&_p]:my-3 [&_ul]:space-y-2 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:text-sm [&_li]:md:text-base [&_li]:text-gray-700 [&_img]:rounded-2xl [&_img]:shadow-lg [&_img]:my-4 focus:outline-none"
+          onClick={handleCanvasClick}
+          onKeyUp={checkSelectionState}
+          onMouseUp={checkSelectionState}
+          className="outline-none min-h-[320px] max-w-none text-[#1a2b4b] text-sm md:text-base leading-relaxed space-y-4 font-normal [&_h2]:text-xl [&_h2]:md:text-2xl [&_h2]:font-bold [&_h2]:text-[#0A5181] [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:md:text-xl [&_h3]:font-bold [&_h3]:text-[#0A5181] [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-base [&_h4]:font-bold [&_h4]:text-[#0A5181] [&_h4]:mt-3 [&_h4]:mb-1 [&_p]:text-sm [&_p]:md:text-base [&_p]:leading-relaxed [&_p]:text-gray-700 [&_p]:my-3 [&_ul]:space-y-2 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:text-sm [&_li]:md:text-base [&_li]:text-gray-700 [&_img]:rounded-2xl [&_img]:shadow-lg [&_img]:my-4 [&_a]:text-[#0A5181] [&_a]:underline [&_a]:font-semibold [&_a]:cursor-pointer hover:[&_a]:text-[#DA222A] [&_a]:transition-colors focus:outline-none"
           style={{ wordBreak: 'break-word' }}
         />
         {!value && (
@@ -386,6 +639,147 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
           </div>
         )}
       </div>
+
+      {/* HYPERLINK MODAL */}
+      {isLinkModalOpen && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              closeLinkModal();
+            }
+          }}
+        >
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full border border-[#d1d9e6] shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#f0f3f8] pb-3">
+              <div className="flex items-center gap-2">
+                <LinkIcon className="w-5 h-5 text-[#095181]" />
+                <h3 className="text-base font-black uppercase text-[#1a2b4b] italic italic-accent">
+                  {selectedAnchor ? 'Edit Hyperlink' : 'Insert Hyperlink'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={closeLinkModal}
+                className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {linkError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2 text-xs font-bold text-red-600">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{linkError}</span>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-[#1a2b4b]/60 uppercase tracking-widest flex items-center justify-between">
+                  <span>Destination URL or Path *</span>
+                  <span className="text-gray-400 font-normal">e.g. /saree or https://...</span>
+                </label>
+                <input
+                  ref={urlInputRef}
+                  type="text"
+                  placeholder="https://example.com or /saree"
+                  value={linkUrl}
+                  onChange={(e) => {
+                    setLinkUrl(e.target.value);
+                    if (linkError) setLinkError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleApplyLink();
+                    }
+                  }}
+                  className="w-full px-4 py-2.5 bg-[#f8fafc] border border-[#d1d9e6] rounded-xl text-xs font-bold text-[#1a2b4b] outline-none focus:ring-2 focus:ring-[#095181]/20 focus:border-[#095181]"
+                />
+                <p className="text-[10px] text-gray-400 font-medium">
+                  Supports internal paths (<code>/saree</code>), external URLs (<code>https://...</code>), <code>mailto:</code>, and <code>tel:</code>.
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-[#1a2b4b]/60 uppercase tracking-widest">
+                  Display Link Text (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Link text to display in the article..."
+                  value={linkText}
+                  onChange={(e) => setLinkText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleApplyLink();
+                    }
+                  }}
+                  className="w-full px-4 py-2.5 bg-[#f8fafc] border border-[#d1d9e6] rounded-xl text-xs font-bold text-[#1a2b4b] outline-none focus:ring-2 focus:ring-[#095181]/20 focus:border-[#095181]"
+                />
+              </div>
+
+              <div className="pt-1">
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={linkOpenInNewTab}
+                    onChange={(e) => setLinkOpenInNewTab(e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-300 text-[#095181] focus:ring-[#095181] cursor-pointer"
+                  />
+                  <div>
+                    <span className="text-xs font-bold text-[#1a2b4b]">Open link in new tab (<code>target="_blank"</code>)</span>
+                    <p className="text-[10px] text-gray-400 font-medium">Adds <code>rel="noopener noreferrer"</code> for security.</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-[#f0f3f8]">
+              {selectedAnchor ? (
+                <button
+                  type="button"
+                  onClick={handleRemoveLink}
+                  className="px-4 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer"
+                  title="Remove hyperlink and keep text"
+                >
+                  <Unlink className="w-3.5 h-3.5" /> Remove Link
+                </button>
+              ) : (
+                <div />
+              )}
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={closeLinkModal}
+                  className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-xs font-bold uppercase transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleApplyLink}
+                  className="px-5 py-2.5 bg-[#095181] hover:bg-blue-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  {selectedAnchor ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" /> Update Link
+                    </>
+                  ) : (
+                    <>
+                      <LinkIcon className="w-3.5 h-3.5" /> Insert Link
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* INLINE IMAGE LAYOUT MODAL */}
       {isImageModalOpen && (

@@ -24,8 +24,9 @@ function sanitizeHtml(html: string): string {
   // 2. Strip inline event handlers (onload, onerror, onclick, etc.)
   out = out.replace(/\s+on[a-z]+=(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
 
-  // 3. Strip javascript: URIs
-  out = out.replace(/(href|src)=["']javascript:[^"']*["']/gi, '$1=""');
+  // 3. Neutralize unsafe protocols in href and src (javascript:, data:, vbscript:)
+  out = out.replace(/\bhref\s*=\s*["']\s*(?:javascript|data|vbscript):[^"']*["']/gi, 'href="#"');
+  out = out.replace(/\bsrc\s*=\s*["']\s*(?:javascript|vbscript):[^"']*["']/gi, 'src=""');
 
   return out;
 }
@@ -125,6 +126,30 @@ function normalizeContentHtml(html: string): string {
     return transformMediaElement('', match);
   });
 
+  // 6. Normalize hyperlinks: ensure external links have target="_blank" and rel="noopener noreferrer"
+  clean = clean.replace(/<a\b([^>]*)>/gi, (match, attrs) => {
+    const hrefMatch = attrs.match(/\bhref\s*=\s*["']([^"']+)["']/i);
+    if (!hrefMatch) return match;
+
+    const href = hrefMatch[1].trim();
+    const isExternal = /^https?:\/\//i.test(href) && !href.includes('babulalpremkumar.com') && !href.includes('localhost');
+    const hasTarget = /\btarget\s*=/i.test(attrs);
+    const hasRel = /\brel\s*=/i.test(attrs);
+
+    let newAttrs = attrs;
+
+    // If target="_blank" is already set, ensure rel="noopener noreferrer"
+    if (/\btarget\s*=\s*["']_blank["']/i.test(attrs)) {
+      if (!hasRel) {
+        newAttrs += ' rel="noopener noreferrer"';
+      }
+    } else if (isExternal && !hasTarget) {
+      newAttrs += ' target="_blank" rel="noopener noreferrer"';
+    }
+
+    return `<a${newAttrs}>`;
+  });
+
   return clean;
 }
 
@@ -135,11 +160,24 @@ export default function RichContentRenderer({ html, className, onQuoteClick }: R
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
+
+    // 1. Quote button action
     const btn = target.closest('[data-action="quote-btn"]');
     if (btn && onQuoteClick) {
       e.preventDefault();
       e.stopPropagation();
       onQuoteClick();
+      return;
+    }
+
+    // 2. Anchor tag safety
+    const anchor = target.closest('a');
+    if (anchor) {
+      const href = anchor.getAttribute('href');
+      if (!href || href === '#' || href.toLowerCase().startsWith('javascript:')) {
+        e.preventDefault();
+        return;
+      }
     }
   };
 
@@ -157,7 +195,7 @@ export default function RichContentRenderer({ html, className, onQuoteClick }: R
         "[&_ul]:space-y-2 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-5",
         "[&_ol]:list-decimal [&_ol]:pl-5",
         "[&_li]:text-sm [&_li]:md:text-base [&_li]:text-gray-700",
-        "[&_a]:text-[#0A5181] [&_a]:underline [&_strong]:font-bold",
+        "[&_a]:text-[#0A5181] [&_a]:underline [&_a]:font-semibold [&_a]:cursor-pointer hover:[&_a]:text-[#DA222A] [&_a]:transition-colors [&_strong]:font-bold",
         className
       )}
       dangerouslySetInnerHTML={{ __html: normalizedHtml }}
