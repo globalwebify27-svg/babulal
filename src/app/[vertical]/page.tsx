@@ -55,10 +55,22 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
     let isFollow = cat.robotsFollow !== undefined && cat.robotsFollow !== null ? !!cat.robotsFollow : true;
 
     try {
-      const [seoRows]: any = await pool.query(
+      let [seoRows]: any = await pool.query(
         'SELECT robotsIndex, robotsFollow, metaTitle, metaDescription, canonicalUrl FROM category_seo_content WHERE categoryId = ? AND subCategoryId IS NULL AND status = "Published" LIMIT 1',
         [cat.id]
       );
+      if (seoRows.length === 0) {
+        const [fallback]: any = await pool.query(
+          `SELECT csc.robotsIndex, csc.robotsFollow, csc.metaTitle, csc.metaDescription, csc.canonicalUrl 
+           FROM category_seo_content csc 
+           JOIN sub_categories sc ON csc.subCategoryId = sc.id 
+           WHERE LOWER(sc.slug) = ? AND csc.status = "Published" LIMIT 1`,
+          [lowerSlug]
+        );
+        if (fallback.length > 0) {
+          seoRows = fallback;
+        }
+      }
       if (seoRows.length > 0) {
         if (seoRows[0].robotsIndex === 'index' || seoRows[0].robotsIndex === true || seoRows[0].robotsIndex === 1) isIndex = true;
         else if (seoRows[0].robotsIndex === 'noindex' || seoRows[0].robotsIndex === false || seoRows[0].robotsIndex === 0) isIndex = false;
@@ -121,10 +133,22 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
     let isFollow = sub.robotsFollow !== undefined && sub.robotsFollow !== null ? !!sub.robotsFollow : true;
 
     try {
-      const [seoRows]: any = await pool.query(
+      let [seoRows]: any = await pool.query(
         'SELECT robotsIndex, robotsFollow, metaTitle, metaDescription, canonicalUrl FROM category_seo_content WHERE subCategoryId = ? AND status = "Published" LIMIT 1',
         [sub.id]
       );
+      if (seoRows.length === 0) {
+        const [fallback]: any = await pool.query(
+          `SELECT csc.robotsIndex, csc.robotsFollow, csc.metaTitle, csc.metaDescription, csc.canonicalUrl 
+           FROM category_seo_content csc 
+           JOIN categories c ON csc.categoryId = c.id 
+           WHERE LOWER(c.slug) = ? AND csc.status = "Published" LIMIT 1`,
+          [lowerSlug]
+        );
+        if (fallback.length > 0) {
+          seoRows = fallback;
+        }
+      }
       if (seoRows.length > 0) {
         if (seoRows[0].robotsIndex === 'index' || seoRows[0].robotsIndex === true || seoRows[0].robotsIndex === 1) isIndex = true;
         else if (seoRows[0].robotsIndex === 'noindex' || seoRows[0].robotsIndex === false || seoRows[0].robotsIndex === 0) isIndex = false;

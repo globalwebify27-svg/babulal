@@ -13,14 +13,23 @@ export default async function CategoryContentIndexPage() {
     "SELECT id, name, slug, parentVertical, status FROM categories WHERE status = 'Active' ORDER BY parentVertical ASC, orderIndex ASC"
   );
 
-  // Fetch all published/draft category seo contents
+  // Fetch all published/draft category seo contents (including peer subcategories with matching slug)
   const [seoRows]: any = await pool.query(
-    "SELECT categoryId, heroTitle, h1, metaTitle, status FROM category_seo_content WHERE categoryId IS NOT NULL"
+    `SELECT csc.id, csc.categoryId, csc.subCategoryId, csc.heroTitle, csc.h1, csc.metaTitle, csc.status,
+            csc.categoryId as directCatId, c.id as peerCatId
+     FROM category_seo_content csc
+     LEFT JOIN sub_categories sc ON csc.subCategoryId = sc.id
+     LEFT JOIN categories c ON LOWER(sc.slug) = LOWER(c.slug) AND c.status = 'Active'`
   );
 
   const seoMap = new Map<number, any>();
   seoRows.forEach((row: any) => {
-    seoMap.set(row.categoryId, row);
+    if (row.directCatId && !seoMap.has(row.directCatId)) {
+      seoMap.set(row.directCatId, row);
+    }
+    if (row.peerCatId && !seoMap.has(row.peerCatId)) {
+      seoMap.set(row.peerCatId, row);
+    }
   });
 
   return (

@@ -52,10 +52,22 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       isIndex = catRows[0].robotsIndex !== undefined && catRows[0].robotsIndex !== null ? !!catRows[0].robotsIndex : false;
       isFollow = catRows[0].robotsFollow !== undefined && catRows[0].robotsFollow !== null ? !!catRows[0].robotsFollow : true;
 
-      const [seoRows]: any = await pool.query(
+      let [seoRows]: any = await pool.query(
         'SELECT robotsIndex, robotsFollow, metaTitle, metaDescription, canonicalUrl FROM category_seo_content WHERE categoryId = ? AND subCategoryId IS NULL AND status = "Published" LIMIT 1',
         [catRows[0].id]
       );
+      if (seoRows.length === 0) {
+        const [fallback]: any = await pool.query(
+          `SELECT csc.robotsIndex, csc.robotsFollow, csc.metaTitle, csc.metaDescription, csc.canonicalUrl 
+           FROM category_seo_content csc 
+           JOIN sub_categories sc ON csc.subCategoryId = sc.id 
+           WHERE LOWER(sc.slug) = ? AND csc.status = "Published" LIMIT 1`,
+          [categorySlug.toLowerCase()]
+        );
+        if (fallback.length > 0) {
+          seoRows = fallback;
+        }
+      }
       if (seoRows.length > 0) {
         if (seoRows[0].robotsIndex === 'index' || seoRows[0].robotsIndex === true || seoRows[0].robotsIndex === 1) isIndex = true;
         else if (seoRows[0].robotsIndex === 'noindex' || seoRows[0].robotsIndex === false || seoRows[0].robotsIndex === 0) isIndex = false;
@@ -75,10 +87,22 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
         isIndex = subRows[0].robotsIndex !== undefined && subRows[0].robotsIndex !== null ? !!subRows[0].robotsIndex : false;
         isFollow = subRows[0].robotsFollow !== undefined && subRows[0].robotsFollow !== null ? !!subRows[0].robotsFollow : true;
 
-        const [seoRows]: any = await pool.query(
+        let [seoRows]: any = await pool.query(
           'SELECT robotsIndex, robotsFollow, metaTitle, metaDescription, canonicalUrl FROM category_seo_content WHERE subCategoryId = ? AND status = "Published" LIMIT 1',
           [subRows[0].id]
         );
+        if (seoRows.length === 0) {
+          const [fallback]: any = await pool.query(
+            `SELECT csc.robotsIndex, csc.robotsFollow, csc.metaTitle, csc.metaDescription, csc.canonicalUrl 
+             FROM category_seo_content csc 
+             JOIN categories c ON csc.categoryId = c.id 
+             WHERE LOWER(c.slug) = ? AND csc.status = "Published" LIMIT 1`,
+            [categorySlug.toLowerCase()]
+          );
+          if (fallback.length > 0) {
+            seoRows = fallback;
+          }
+        }
         if (seoRows.length > 0) {
           if (seoRows[0].robotsIndex === 'index' || seoRows[0].robotsIndex === true || seoRows[0].robotsIndex === 1) isIndex = true;
           else if (seoRows[0].robotsIndex === 'noindex' || seoRows[0].robotsIndex === false || seoRows[0].robotsIndex === 0) isIndex = false;

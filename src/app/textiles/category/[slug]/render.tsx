@@ -189,7 +189,47 @@ export async function fetchSeoContentData(catId: string, subSlug?: string, subSu
 
     if (!seoQuery) return { seoContent: null, seoSections: [], relatedCategories: [] };
 
-    const [seoRows]: any = await pool.query(seoQuery, seoParams);
+    let [seoRows]: any = await pool.query(seoQuery, seoParams);
+
+    // Fallback resolution for dual entities (e.g. Bridal Lehenga configured as both Category and Subcategory)
+    if (seoRows.length === 0) {
+      if (catId && catId !== "0" && !subCatId && !subSubCatId) {
+        // If main category has no direct published SEO content, check if a subcategory with matching slug has published SEO content
+        const [matchingSub]: any = await pool.query(
+          `SELECT sc.id FROM sub_categories sc 
+           JOIN categories c ON LOWER(c.slug) = LOWER(sc.slug) 
+           WHERE c.id = ? AND sc.status = 'Active' LIMIT 1`,
+          [Number(catId)]
+        );
+        if (matchingSub.length > 0) {
+          const [subFallback]: any = await pool.query(
+            'SELECT * FROM category_seo_content WHERE subCategoryId = ? AND subSubCategoryId IS NULL AND status = "Published" LIMIT 1',
+            [matchingSub[0].id]
+          );
+          if (subFallback.length > 0) {
+            seoRows = subFallback;
+          }
+        }
+      } else if (subCatId && !subSubCatId) {
+        // If subcategory has no direct published SEO content, check if a main category with matching slug has published SEO content
+        const [matchingCat]: any = await pool.query(
+          `SELECT c.id FROM categories c 
+           JOIN sub_categories sc ON LOWER(c.slug) = LOWER(sc.slug) 
+           WHERE sc.id = ? AND c.status = 'Active' LIMIT 1`,
+          [subCatId]
+        );
+        if (matchingCat.length > 0) {
+          const [catFallback]: any = await pool.query(
+            'SELECT * FROM category_seo_content WHERE categoryId = ? AND subCategoryId IS NULL AND subSubCategoryId IS NULL AND status = "Published" LIMIT 1',
+            [matchingCat[0].id]
+          );
+          if (catFallback.length > 0) {
+            seoRows = catFallback;
+          }
+        }
+      }
+    }
+
     if (seoRows.length === 0) {
       return { seoContent: null, seoSections: [], relatedCategories: [] };
     }

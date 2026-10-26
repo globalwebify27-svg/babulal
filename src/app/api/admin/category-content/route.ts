@@ -60,7 +60,11 @@ async function revalidateCategoryPaths(
       );
       if (rows.length > 0) {
         const { subSlug, catSlug } = rows[0];
-        if (subSlug) pathsToRevalidate.add(`/${subSlug}`);
+        if (subSlug) {
+          pathsToRevalidate.add(`/${subSlug}`);
+          pathsToRevalidate.add(`/textiles/category/${subSlug}`);
+          pathsToRevalidate.add(`/textiles/${subSlug}`);
+        }
         if (catSlug) {
           pathsToRevalidate.add(`/${catSlug}`);
           pathsToRevalidate.add(`/textiles/category/${catSlug}`);
@@ -81,6 +85,18 @@ async function revalidateCategoryPaths(
         pathsToRevalidate.add(`/${catSlug}`);
         pathsToRevalidate.add(`/textiles/category/${catSlug}`);
         pathsToRevalidate.add(`/textiles/${catSlug}`);
+
+        const [subRows]: any = await pool.query(
+          `SELECT s.slug as subSlug, c.slug as parentCatSlug 
+           FROM sub_categories s 
+           JOIN categories c ON s.categoryId = c.id 
+           WHERE LOWER(s.slug) = LOWER(?) LIMIT 1`,
+          [catSlug]
+        );
+        if (subRows.length > 0 && subRows[0].parentCatSlug) {
+          pathsToRevalidate.add(`/${subRows[0].parentCatSlug}/${catSlug}`);
+          pathsToRevalidate.add(`/textiles/${subRows[0].parentCatSlug}/${catSlug}`);
+        }
       }
     }
 
@@ -209,7 +225,45 @@ export async function GET(request: Request) {
       params = [targetCatId];
     }
 
-    const [seoRows]: any = await pool.query(query, params);
+    let [seoRows]: any = await pool.query(query, params);
+
+    // Fallback if no content exists yet for this specific node ID, check slug peer
+    if (seoRows.length === 0) {
+      if (targetCatId) {
+        const [matchingSub]: any = await pool.query(
+          `SELECT sc.id FROM sub_categories sc 
+           JOIN categories c ON LOWER(c.slug) = LOWER(sc.slug) 
+           WHERE c.id = ? LIMIT 1`,
+          [targetCatId]
+        );
+        if (matchingSub.length > 0) {
+          const [subSeo]: any = await pool.query(
+            'SELECT * FROM category_seo_content WHERE subCategoryId = ? AND subSubCategoryId IS NULL LIMIT 1',
+            [matchingSub[0].id]
+          );
+          if (subSeo.length > 0) {
+            seoRows = subSeo;
+          }
+        }
+      } else if (targetSubCatId) {
+        const [matchingCat]: any = await pool.query(
+          `SELECT c.id FROM categories c 
+           JOIN sub_categories sc ON LOWER(c.slug) = LOWER(sc.slug) 
+           WHERE sc.id = ? LIMIT 1`,
+          [targetSubCatId]
+        );
+        if (matchingCat.length > 0) {
+          const [catSeo]: any = await pool.query(
+            'SELECT * FROM category_seo_content WHERE categoryId = ? AND subCategoryId IS NULL AND subSubCategoryId IS NULL LIMIT 1',
+            [matchingCat[0].id]
+          );
+          if (catSeo.length > 0) {
+            seoRows = catSeo;
+          }
+        }
+      }
+    }
+
     let seoContent: any = null;
     let sections: any[] = [];
 
@@ -300,7 +354,38 @@ export async function POST(request: Request) {
         checkQuery = 'SELECT id FROM category_seo_content WHERE categoryId = ? AND subCategoryId IS NULL AND subSubCategoryId IS NULL LIMIT 1';
         checkParams = [numCatId];
       }
-      const [existing]: any = await pool.query(checkQuery, checkParams);
+      let [existing]: any = await pool.query(checkQuery, checkParams);
+      if (existing.length === 0) {
+        if (numCatId) {
+          const [peerSub]: any = await pool.query(
+            `SELECT sc.id FROM sub_categories sc JOIN categories c ON LOWER(c.slug) = LOWER(sc.slug) WHERE c.id = ? LIMIT 1`,
+            [numCatId]
+          );
+          if (peerSub.length > 0) {
+            const [peerExisting]: any = await pool.query(
+              'SELECT id FROM category_seo_content WHERE subCategoryId = ? AND subSubCategoryId IS NULL LIMIT 1',
+              [peerSub[0].id]
+            );
+            if (peerExisting.length > 0) {
+              existing = peerExisting;
+            }
+          }
+        } else if (numSubCatId) {
+          const [peerCat]: any = await pool.query(
+            `SELECT c.id FROM categories c JOIN sub_categories sc ON LOWER(c.slug) = LOWER(sc.slug) WHERE sc.id = ? LIMIT 1`,
+            [numSubCatId]
+          );
+          if (peerCat.length > 0) {
+            const [peerExisting]: any = await pool.query(
+              'SELECT id FROM category_seo_content WHERE categoryId = ? AND subCategoryId IS NULL AND subSubCategoryId IS NULL LIMIT 1',
+              [peerCat[0].id]
+            );
+            if (peerExisting.length > 0) {
+              existing = peerExisting;
+            }
+          }
+        }
+      }
       if (existing.length > 0) {
         seoContentId = existing[0].id;
       }
