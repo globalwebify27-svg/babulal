@@ -209,7 +209,11 @@ function AsyncProductSection({
   // 2. Otherwise fall back to the existing dynamic collection title: "[CATEGORY] COLLECTION"
   const currentHeroTitle = React.useMemo(() => {
     if (seoContent?.heroTitle && typeof seoContent.heroTitle === 'string' && seoContent.heroTitle.trim().length > 0) {
-      return seoContent.heroTitle.trim();
+      const trimmed = seoContent.heroTitle.trim();
+      if (trimmed.toUpperCase() === 'BRIDAL LEHENGA COLLECTION IN UPPER BAZAR, RANCHI') {
+        return 'Bridal Lehenga Collection in Upper Bazar, Ranchi';
+      }
+      return trimmed;
     }
     if (selectedSubs.length === 1) {
       const subName = selectedSubs[0];
@@ -221,8 +225,12 @@ function AsyncProductSection({
     } else if (selectedSubs.length > 1) {
       return `${selectedSubs.map(s => s.toUpperCase()).join(' & ')} COLLECTION`;
     }
-    return `${initialCategory?.name?.toUpperCase() || 'CATEGORY'} COLLECTION`;
-  }, [seoContent?.heroTitle, selectedSubs, initialCategory]);
+    const catName = initialCategory?.name || 'Category';
+    if (catName.toLowerCase().includes('bridal lehenga') || slug === 'bridal-lehenga') {
+      return 'Bridal Lehenga Collection in Upper Bazar, Ranchi';
+    }
+    return `${catName.toUpperCase()} COLLECTION`;
+  }, [seoContent?.heroTitle, selectedSubs, initialCategory, slug]);
 
   const currentHeroDescription = React.useMemo(() => {
     if (seoContent?.introContent) {
@@ -474,13 +482,13 @@ function AsyncProductSection({
          <div className="absolute inset-0 bg-black/30" />
          
          <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-12 flex flex-col justify-center">
-            <CoverBreadcrumbs items={breadcrumbItems} className="mb-4" />
+            <CoverBreadcrumbs items={breadcrumbItems} className="-translate-y-[1cm] mb-2" />
             
-            <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white italic uppercase tracking-tighter leading-[1] mb-6">
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-normal text-white not-italic tracking-tight leading-[1.1] mb-6">
                {currentHeroTitle}
             </h2>
             
-            <p className="max-w-3xl text-sm lg:text-base text-white/90 font-medium italic leading-relaxed">
+            <p className="max-w-3xl text-sm lg:text-base text-white/90 font-normal not-italic leading-relaxed">
                {currentHeroDescription}
             </p>
          </div>
@@ -496,7 +504,7 @@ function AsyncProductSection({
                <div>
                   <div className="w-16 h-1 bg-[#DA222A] mb-4" />
                   <div className="text-[10px] font-black uppercase text-[#DA222A] tracking-[0.2em] mb-2">Inventory Catalog</div>
-                  <h2 className="text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-tighter italic">
+                  <h2 className="text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-tighter not-italic">
                      {selectedSubs.length > 0 ? `${selectedSubs.join(', ')} Pieces` : 'Featured Pieces'}
                   </h2>
                </div>
@@ -726,7 +734,7 @@ function AsyncProductSection({
 
           {/* ══ DYNAMIC TOP CATEGORY HEADING & SEO CONTENT (REFERENCE IMAGE MATCH) ══ */}
           <div className={cn("text-center", showInventoryCatalog ? "mt-16 lg:mt-20 pt-10 lg:pt-12 border-t border-gray-100" : "mt-0 pt-0 border-t-0")}>
-             <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-wider inline-block relative mb-0">
+             <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-wider inline-block relative mb-0 not-italic">
                {dynamicTopHeading}
                <div className="w-16 h-1 bg-[#DA222A] mx-auto mt-2.5 rounded-full" />
              </h1>
@@ -744,7 +752,7 @@ function AsyncProductSection({
                   seoSections.map((sec: any) => (
                     <div key={sec.id} className="space-y-4">
                       {sec.headingLevel === 'H2' && (
-                        <h2 className="text-2xl lg:text-3xl font-black text-[#0A5181] uppercase tracking-tighter italic">
+                        <h2 className="text-2xl lg:text-3xl font-black text-[#0A5181] uppercase tracking-tighter not-italic">
                           {sec.heading}
                         </h2>
                       )}
@@ -816,10 +824,10 @@ function AsyncProductSection({
                   ))
                 ) : (
                   <div className="space-y-6">
-                    <h2 className="text-2xl lg:text-3xl font-black text-[#0A5181] uppercase tracking-tighter italic">
+                    <h2 className="text-2xl lg:text-3xl font-black text-[#0A5181] uppercase tracking-tighter not-italic">
                       Premier Retail Destination for {initialCategory?.name} in Ranchi
                     </h2>
-                    <div className="text-sm lg:text-base text-gray-500 font-medium leading-[1.8] space-y-6 italic">
+                    <div className="text-sm lg:text-base text-gray-500 font-normal leading-[1.8] space-y-6 not-italic">
                        <p>
                           Babulal Premkumar stands as a pillar of excellence in the Indian textile landscape. For over four decades, our group has anchored the textile supply chain across Jharkhand, connecting century-old weaving traditions with modern retail infrastructures. 
                        </p>
@@ -925,8 +933,8 @@ function ProductSectionSkeleton({ initialCategory }: { initialCategory?: any }) 
     <>
       <section className="relative w-full h-[300px] lg:h-[400px] overflow-hidden bg-[#0A5181] animate-pulse">
         <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-12 flex flex-col justify-center">
-          <div className="h-4 w-32 bg-white/20 rounded mb-4" />
-          <div className="text-3xl md:text-5xl lg:text-6xl font-black text-white/40 italic uppercase tracking-tighter leading-[1] mb-6">
+          <div className="h-4 w-32 bg-white/20 rounded -translate-y-[1cm] mb-2" />
+          <div className="text-3xl md:text-5xl lg:text-6xl font-normal text-white/40 not-italic uppercase tracking-tight leading-[1.1] mb-6">
             {initialCategory?.name ? `${initialCategory.name} COLLECTION` : 'LOADING COLLECTION...'}
           </div>
           <div className="h-4 w-2/3 bg-white/20 rounded" />
@@ -939,7 +947,7 @@ function ProductSectionSkeleton({ initialCategory }: { initialCategory?: any }) 
             <div>
               <div className="w-16 h-1 bg-[#DA222A] mb-4" />
               <div className="text-[10px] font-black uppercase text-[#DA222A] tracking-[0.2em] mb-2">Inventory Catalog</div>
-              <h2 className="text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-tighter italic">Featured Pieces</h2>
+              <h2 className="text-3xl lg:text-4xl font-black text-[#0A5181] uppercase tracking-tighter not-italic">Featured Pieces</h2>
             </div>
           </div>
         </div>

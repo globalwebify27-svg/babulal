@@ -308,11 +308,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           />
 
           {/* SEO Requirement: H1 = Category + Nature of Business */}
-          <h1 className="text-white text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-none capitalize italic">
+          <h1 className="text-white text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-none capitalize not-italic">
             {categoryName} <span className="text-white/20 not-italic font-medium">{vertical.seoPattern}</span>
           </h1>
 
-          <p className="max-w-2xl text-white/70 text-lg font-medium leading-relaxed italic">
+          <p className="max-w-2xl text-white/70 text-lg font-medium leading-relaxed not-italic">
             {descriptionText}
           </p>
         </div>
