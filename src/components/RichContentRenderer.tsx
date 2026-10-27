@@ -99,7 +99,59 @@ function normalizeContentHtml(html: string): string {
   // 1. Remove empty figure tags like <figure ...><br></figure> or <figure ...></figure>
   clean = clean.replace(/<figure\b[^>]*>\s*(?:<br\s*\/?>)?\s*<\/figure>/gi, '');
 
-  // 2. Unwrap any <figure ...> that does NOT contain an <img> (e.g. text blocks accidentally wrapped in figure)
+  // 2. Strip external clipboard fragment markers
+  clean = clean.replace(/<!--\s*StartFragment\s*-->/gi, '');
+  clean = clean.replace(/<!--\s*EndFragment\s*-->/gi, '');
+
+  // 3. Strip external editor attributes (e.g. copied from ProseMirror / Notion / Claude)
+  clean = clean.replace(/\scontenteditable=(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+  clean = clean.replace(/\srole=(?:"textbox"|'textbox')/gi, '');
+  clean = clean.replace(/\saria-(?:label|multiline|describedby)=(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+  clean = clean.replace(/\sdata-(?:markdown-copy-content|newline-selection-appearance|table-selection-appearance|lpop-[a-z-]+|path-to-node)=(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+  clean = clean.replace(/\stranslate=(?:"no"|'no')/gi, '');
+
+  // 4. Strip hardcoded inline width styles from non-figure/non-img elements (e.g. width: 727.995px)
+  clean = clean.replace(/(<(?:div|p|h[1-6]|ul|ol|li|span|section|article)\b[^>]*)\sstyle=(["'])([\s\S]*?)\2/gi, (match, prefix, quote, styleStr) => {
+    let cleaned = styleStr
+      .replace(/\bwidth\s*:\s*[^;]+;?/gi, '')
+      .replace(/\bmin-width\s*:\s*[^;]+;?/gi, '')
+      .replace(/\bmax-width\s*:\s*(?:100vw|none|[^;]+!important);?/gi, '')
+      .replace(/\bclear\s*:\s*none\s*;?/gi, '')
+      .replace(/--tw-[a-z0-9-]+(?:\s*:\s*[^;]*)?;?/gi, '')
+      .replace(/\bcaret-color\s*:\s*[^;]+;?/gi, '')
+      .replace(/\bscrollbar-[a-z-]+\s*:\s*[^;]+;?/gi, '')
+      .replace(/\boutline\s*:\s*[^;]+;?/gi, '')
+      .replace(/\bwhite-space\s*:\s*(?:break-spaces|pre-line)\s*;?/gi, '')
+      .trim();
+
+    cleaned = cleaned.replace(/;+/g, ';').replace(/^;|;$/g, '').trim();
+    if (!cleaned) return prefix;
+    return `${prefix} style=${quote}${cleaned}${quote}`;
+  });
+
+  // 5. Unwrap redundant editor wrapper divs (ProseMirror, writing-block-editor, content-mUPWP6, relative z-[1], etc.)
+  for (let i = 0; i < 5; i++) {
+    const prev = clean;
+    clean = clean.replace(/<div\b[^>]*class=(["'])[^"']*(?:ProseMirror|writing-block-editor|magic-edit-minimal|content-mUPWP6|content-xaiQhS|relative z-\[1\])[^"']*\1[^>]*>([\s\S]*?)<\/div>/gi, '$2');
+    if (clean === prev) break;
+  }
+
+  // 6. Unwrap pseudo-H2 wrappers that actually wrap paragraphs, lists, or block elements
+  clean = clean.replace(/<h2\b[^>]*>([\s\S]*?)<\/h2>/gi, (match, inner) => {
+    if (/<(?:p|ul|ol|div|figure)\b/i.test(inner)) {
+      return inner;
+    }
+    return match;
+  });
+
+  // 7. Unwrap redundant double container divs
+  for (let i = 0; i < 3; i++) {
+    const prev = clean;
+    clean = clean.replace(/<div>\s*<div>([\s\S]*?)<\/div>\s*<\/div>/gi, '<div>$1</div>');
+    if (clean === prev) break;
+  }
+
+  // 8. Unwrap any <figure ...> that does NOT contain an <img> (e.g. text blocks accidentally wrapped in figure)
   clean = clean.replace(/<figure\b[^>]*>((?:(?!<figure\b|<img\b)[\s\S])*?)<\/figure>/gi, (match, figInner) => {
     if (!/<img\b/i.test(figInner)) {
       return `<div>${figInner}</div>`;
@@ -107,18 +159,18 @@ function normalizeContentHtml(html: string): string {
     return match;
   });
 
-  // 3. Transform figures containing an <img>
+  // 9. Transform figures containing an <img>
   clean = clean.replace(/<figure\b([^>]*)>([\s\S]*?<img\b[^>]+>[\s\S]*?)<\/figure>/gi, (match, figAttrs, figInner) => {
     return transformMediaElement(figAttrs, figInner);
   });
 
-  // 4. Transform <p> tags containing ONLY an <img>
+  // 10. Transform <p> tags containing ONLY an <img>
   clean = clean.replace(/<p\b[^>]*>\s*(<img\b[^>]+>)\s*<\/p>/gi, (match, imgTag) => {
     if (/data-action="quote-btn"/i.test(match)) return match;
     return transformMediaElement('', imgTag);
   });
 
-  // 5. Transform standalone <img> tags that are NOT inside a content-flow-image figure
+  // 11. Transform standalone <img> tags that are NOT inside a content-flow-image figure
   clean = clean.replace(/<img\b([^>]+)>/gi, (match, imgAttrs) => {
     if (/object-cover/i.test(imgAttrs) && /rounded-2xl/i.test(imgAttrs)) {
       return match;
@@ -126,7 +178,7 @@ function normalizeContentHtml(html: string): string {
     return transformMediaElement('', match);
   });
 
-  // 6. Normalize hyperlinks: ensure external links have target="_blank" and rel="noopener noreferrer"
+  // 12. Normalize hyperlinks: ensure external links have target="_blank" and rel="noopener noreferrer"
   clean = clean.replace(/<a\b([^>]*)>/gi, (match, attrs) => {
     const hrefMatch = attrs.match(/\bhref\s*=\s*["']([^"']+)["']/i);
     if (!hrefMatch) return match;
@@ -188,12 +240,12 @@ export default function RichContentRenderer({ html, className, onQuoteClick }: R
       className={cn(
         "rich-content-flow w-full max-w-none text-[#1a2b4b] text-sm md:text-base leading-relaxed space-y-4 font-normal",
         "after:content-[''] after:table after:clear-both",
-        "[&_h2]:text-xl [&_h2]:md:text-2xl [&_h2]:font-bold [&_h2]:text-[#0A5181] [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:clear-none",
-        "[&_h3]:text-lg [&_h3]:md:text-xl [&_h3]:font-bold [&_h3]:text-[#0A5181] [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:clear-none",
-        "[&_h4]:text-base [&_h4]:font-bold [&_h4]:text-[#0A5181] [&_h4]:mt-3 [&_h4]:mb-1",
-        "[&_p]:text-sm [&_p]:md:text-base [&_p]:leading-relaxed [&_p]:text-gray-700 [&_p]:my-3",
-        "[&_ul]:space-y-2 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-5",
-        "[&_ol]:list-decimal [&_ol]:pl-5",
+        "[&_h2]:text-xl [&_h2]:md:text-2xl [&_h2]:font-bold [&_h2]:text-[#0A5181] [&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:w-full [&_h2]:block",
+        "[&_h3]:text-lg [&_h3]:md:text-xl [&_h3]:font-bold [&_h3]:text-[#0A5181] [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:w-full [&_h3]:block",
+        "[&_h4]:text-base [&_h4]:font-bold [&_h4]:text-[#0A5181] [&_h4]:mt-4 [&_h4]:mb-1 [&_h4]:w-full",
+        "[&_p]:text-sm [&_p]:md:text-base [&_p]:leading-relaxed [&_p]:text-gray-700 [&_p]:my-3.5 [&_p]:w-full",
+        "[&_ul]:space-y-2 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:w-full",
+        "[&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:w-full",
         "[&_li]:text-sm [&_li]:md:text-base [&_li]:text-gray-700",
         "[&_a]:text-[#0A5181] [&_a]:underline [&_a]:font-semibold [&_a]:cursor-pointer hover:[&_a]:text-[#DA222A] [&_a]:transition-colors [&_strong]:font-bold",
         className

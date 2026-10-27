@@ -142,7 +142,7 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
 
-      // Clean inline font-size, font-family, and huge margins from pasted content
+      // Clean inline font-size, font-family, fixed widths, and external editor artifacts
       const allElements = doc.body.querySelectorAll('*');
       allElements.forEach((el) => {
         if (el instanceof HTMLElement) {
@@ -150,8 +150,25 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
           el.style.fontFamily = '';
           el.style.lineHeight = '';
           el.style.backgroundColor = '';
+          el.style.width = '';
+          el.style.minWidth = '';
+          el.style.maxWidth = '';
+          el.style.clear = '';
+          el.style.whiteSpace = '';
           el.removeAttribute('size');
           el.removeAttribute('face');
+          el.removeAttribute('contenteditable');
+          el.removeAttribute('role');
+          el.removeAttribute('translate');
+          el.removeAttribute('aria-label');
+          el.removeAttribute('aria-multiline');
+
+          // Strip data attributes from external editors
+          Array.from(el.attributes).forEach(attr => {
+            if (attr.name.startsWith('data-') && !attr.name.startsWith('data-align') && !attr.name.startsWith('data-action')) {
+              el.removeAttribute(attr.name);
+            }
+          });
 
           // Convert H1 to H2 for SEO category hierarchy
           if (el.tagName === 'H1') {
@@ -162,7 +179,36 @@ export default function WordRichTextEditor({ value, onChange, placeholder = "Sta
         }
       });
 
-      const cleanedHtml = doc.body.innerHTML;
+      // Unwrap redundant editor wrapper divs (ProseMirror, writing-block-editor, etc.)
+      const editorDivs = doc.body.querySelectorAll('div.ProseMirror, div.writing-block-editor, div.content-mUPWP6, div.magic-edit-minimal');
+      editorDivs.forEach(div => {
+        const parent = div.parentNode;
+        if (parent) {
+          while (div.firstChild) {
+            parent.insertBefore(div.firstChild, div);
+          }
+          parent.removeChild(div);
+        }
+      });
+
+      // Unwrap any H2 that contains paragraphs or lists
+      const h2Elements = doc.body.querySelectorAll('h2');
+      h2Elements.forEach(h2 => {
+        if (h2.querySelector('p, ul, ol, div')) {
+          const parent = h2.parentNode;
+          if (parent) {
+            while (h2.firstChild) {
+              parent.insertBefore(h2.firstChild, h2);
+            }
+            parent.removeChild(h2);
+          }
+        }
+      });
+
+      let cleanedHtml = doc.body.innerHTML
+        .replace(/<!--\s*StartFragment\s*-->/gi, '')
+        .replace(/<!--\s*EndFragment\s*-->/gi, '');
+
       document.execCommand('insertHTML', false, cleanedHtml);
     } else if (text) {
       const formatted = text
