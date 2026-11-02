@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import pool, { initDb } from '@/lib/db';
+import { generateUniqueSlug } from '@/lib/slug';
 
 function mapSubSubCategory(sub: any) {
   if (!sub) return null;
@@ -42,9 +43,8 @@ export async function POST(req: Request) {
     const data = await req.json();
     await initDb();
     
-    if (!data.slug) {
-      data.slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    }
+    data.slug = await generateUniqueSlug('sub_sub_categories', data.name, undefined, data.slug);
+
 
     const parentSubCategoryId = data.subCategoryId || data.subCategory;
     if (!parentSubCategoryId) {
@@ -88,6 +88,11 @@ export async function PATCH(req: Request) {
     }
     
     await initDb();
+
+    if (updates.slug !== undefined || updates.name !== undefined) {
+      const candidate = updates.slug || updates.name;
+      updates.slug = await generateUniqueSlug('sub_sub_categories', candidate, id, updates.slug);
+    }
     
     const keys = Object.keys(updates);
     if (keys.length > 0) {

@@ -197,6 +197,76 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
     };
   }
 
+  // 3. Check if it's a sub-subcategory
+  const [subSubRows]: any = await pool.query(
+    `SELECT ss.*, s.slug as subSlug, s.name as subName, c.slug as parentSlug, c.name as parentName 
+     FROM sub_sub_categories ss 
+     JOIN sub_categories s ON ss.subCategoryId = s.id 
+     JOIN categories c ON s.categoryId = c.id 
+     WHERE LOWER(ss.slug) = ? AND ss.status = 'Active' AND s.status = 'Active' AND c.status = 'Active' 
+     LIMIT 1`,
+    [lowerSlug]
+  );
+
+  if (subSubRows.length > 0) {
+    const subSub = subSubRows[0];
+    const canonicalUrl = `https://www.babulalpremsons.com/${subSub.slug}`;
+
+    let isIndex = subSub.robotsIndex !== undefined && subSub.robotsIndex !== null ? !!subSub.robotsIndex : false;
+    let isFollow = subSub.robotsFollow !== undefined && subSub.robotsFollow !== null ? !!subSub.robotsFollow : true;
+
+    try {
+      const [seoRows]: any = await pool.query(
+        'SELECT robotsIndex, robotsFollow, metaTitle, metaDescription, canonicalUrl FROM category_seo_content WHERE subSubCategoryId = ? AND status = "Published" LIMIT 1',
+        [subSub.id]
+      );
+
+      if (seoRows.length > 0) {
+        if (seoRows[0].robotsIndex === 'index' || seoRows[0].robotsIndex === true || seoRows[0].robotsIndex === 1) isIndex = true;
+        else if (seoRows[0].robotsIndex === 'noindex' || seoRows[0].robotsIndex === false || seoRows[0].robotsIndex === 0) isIndex = false;
+        if (seoRows[0].robotsFollow === 'nofollow' || seoRows[0].robotsFollow === false || seoRows[0].robotsFollow === 0) isFollow = false;
+
+        const finalCanonical = seoRows[0].canonicalUrl || canonicalUrl;
+
+        return {
+          title: seoRows[0].metaTitle || `${subSub.name} Collection | Babulal Premkumar`,
+          description: seoRows[0].metaDescription || `Explore wholesale ${subSub.name} (${subSub.subName}, ${subSub.parentName}) at Babulal Premkumar. Regional distribution in Ranchi, Jharkhand.`,
+          robots: {
+            index: isIndex,
+            follow: isFollow,
+          },
+          alternates: {
+            canonical: finalCanonical,
+          },
+          openGraph: {
+            title: seoRows[0].metaTitle || `${subSub.name} Collection | Babulal Premkumar`,
+            description: seoRows[0].metaDescription || `Explore wholesale ${subSub.name} at Babulal Premkumar.`,
+            url: finalCanonical,
+          },
+        };
+      }
+    } catch (err) {
+      console.error('Fetch sub-subcategory robots error:', err);
+    }
+
+    return {
+      title: `${subSub.name} Collection | Babulal Premkumar`,
+      description: `Explore wholesale ${subSub.name} (${subSub.subName}, ${subSub.parentName}) at Babulal Premkumar. Regional distribution in Ranchi, Jharkhand.`,
+      robots: {
+        index: isIndex,
+        follow: isFollow,
+      },
+      alternates: {
+        canonical: canonicalUrl,
+      },
+      openGraph: {
+        title: `${subSub.name} Collection | Babulal Premkumar`,
+        description: `Explore wholesale ${subSub.name} at Babulal Premkumar.`,
+        url: canonicalUrl,
+      },
+    };
+  }
+
   return { title: 'Babulal Premsons Group' };
 }
 
@@ -249,5 +319,22 @@ export default async function SingleSegmentRoute({ params }: VerticalPageProps) 
     return renderTextileCategoryPage(subCategory.parentSlug, subCategory.slug);
   }
 
+  // 3. Look up Sub-Subcategory by slug
+  const [subSubRows]: any = await pool.query(
+    `SELECT ss.*, s.slug as subSlug, c.slug as parentSlug 
+     FROM sub_sub_categories ss 
+     JOIN sub_categories s ON ss.subCategoryId = s.id 
+     JOIN categories c ON s.categoryId = c.id 
+     WHERE LOWER(ss.slug) = ? AND ss.status = 'Active' AND s.status = 'Active' AND c.status = 'Active' 
+     LIMIT 1`,
+    [lowerSlug]
+  );
+
+  if (subSubRows.length > 0) {
+    const subSub = subSubRows[0];
+    return renderTextileCategoryPage(subSub.parentSlug, subSub.subSlug, subSub.slug);
+  }
+
   notFound();
 }
+

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, redirect, permanentRedirect } from 'next/navigation';
 import pool, { initDb } from '@/lib/db';
+
 import { BUSINESS_VERTICALS, VerticalID, isInventoryCatalogEnabled } from '@/lib/constants';
 import InquiryForm from '@/components/InquiryForm';
 import { PlayCircle, FileText, ArrowRight } from 'lucide-react';
@@ -160,12 +161,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const { vertical: verticalSlug, category: categorySlug } = await params;
   await initDb();
 
-  // 1. If vertical is "textiles", render Textile Category Page for categorySlug
+  // 1. If vertical is "textiles", redirect to root-level category / subcategory
   if (verticalSlug.toLowerCase() === 'textiles') {
-    return renderTextileCategoryPage(categorySlug);
+    permanentRedirect(`/${categorySlug.toLowerCase()}`);
   }
 
-  // 2. Check if verticalSlug is a parent Category slug (e.g. /saree/fancy-sarees)
+  // 2. Check if verticalSlug is a parent Category slug (e.g. /saree/fancy-sarees or /kids-collection/jeans)
   const [parentCatRows]: any = await pool.query(
     'SELECT * FROM categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
     [verticalSlug.toLowerCase()]
@@ -174,17 +175,34 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   if (parentCatRows.length > 0) {
     // Check if the subcategory actually exists
     const [subCatRows]: any = await pool.query(
-      'SELECT id FROM sub_categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
+      'SELECT id, slug FROM sub_categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
       [categorySlug.toLowerCase()]
     );
     
     if (subCatRows.length > 0) {
       // 301 Permanent Redirect to the new root URL
-      redirect(`/${categorySlug.toLowerCase()}`);
+      permanentRedirect(`/${subCatRows[0].slug}`);
+    }
+
+    // Check if categorySlug is a sub-subcategory under this parent category
+    const [subSubRows]: any = await pool.query(
+      `SELECT ss.slug 
+       FROM sub_sub_categories ss 
+       JOIN sub_categories s ON ss.subCategoryId = s.id 
+       WHERE (LOWER(ss.slug) = ? OR LOWER(ss.name) = ?) 
+         AND s.categoryId = ? 
+         AND ss.status = 'Active' 
+       LIMIT 1`,
+      [categorySlug.toLowerCase(), categorySlug.toLowerCase().replace(/-/g, ' '), parentCatRows[0].id]
+    );
+
+    if (subSubRows.length > 0) {
+      permanentRedirect(`/${subSubRows[0].slug}`);
     }
     
     notFound();
   }
+
 
   const vertical = Object.values(BUSINESS_VERTICALS).find(v => v.slug === verticalSlug);
   if (!vertical) {

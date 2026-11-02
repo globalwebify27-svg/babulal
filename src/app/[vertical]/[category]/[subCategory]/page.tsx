@@ -1,8 +1,6 @@
-import React from 'react';
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import pool, { initDb } from '@/lib/db';
-import { renderTextileCategoryPage } from '@/app/textiles/category/[slug]/render';
 
 interface SubCategoryPageProps {
   params: Promise<{
@@ -18,11 +16,10 @@ export const revalidate = 60;
 export async function generateMetadata({ params }: SubCategoryPageProps): Promise<Metadata> {
   const { vertical: verticalSlug, category: categorySlug, subCategory: subCategorySlug } = await params;
   const subCategoryName = subCategorySlug.replace(/-/g, ' ');
-  const canonicalUrl = `https://babulalpremkumar.com/${verticalSlug}/${categorySlug}/${subCategorySlug}`;
+  const canonicalUrl = `https://www.babulalpremsons.com/${subCategorySlug.toLowerCase()}`;
 
   let isIndex = false;
   let isFollow = true;
-
   let metaTitle = `${subCategoryName} Collection | Babulal Premkumar`;
   let metaDescription = `Explore wholesale ${subCategoryName} at Babulal Premkumar. Regional distribution in Ranchi, Jharkhand.`;
   let finalCanonicalUrl = canonicalUrl;
@@ -30,10 +27,15 @@ export async function generateMetadata({ params }: SubCategoryPageProps): Promis
   try {
     await initDb();
     const [subSubRows]: any = await pool.query(
-      'SELECT id FROM sub_sub_categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
-      [subCategorySlug.toLowerCase()]
+      `SELECT ss.id, ss.slug, ss.name, ss.robotsIndex, ss.robotsFollow 
+       FROM sub_sub_categories ss 
+       WHERE (LOWER(ss.slug) = ? OR LOWER(ss.name) = ?) AND ss.status = "Active" 
+       LIMIT 1`,
+      [subCategorySlug.toLowerCase(), subCategorySlug.toLowerCase().replace(/-/g, ' ')]
     );
+
     if (subSubRows.length > 0) {
+      finalCanonicalUrl = `https://www.babulalpremsons.com/${subSubRows[0].slug}`;
       const [seoRows]: any = await pool.query(
         'SELECT robotsIndex, robotsFollow, metaTitle, metaDescription, canonicalUrl FROM category_seo_content WHERE subSubCategoryId = ? AND status = "Published" LIMIT 1',
         [subSubRows[0].id]
@@ -45,7 +47,7 @@ export async function generateMetadata({ params }: SubCategoryPageProps): Promis
         if (seoRows[0].metaTitle) metaTitle = seoRows[0].metaTitle;
         if (seoRows[0].metaDescription) metaDescription = seoRows[0].metaDescription;
         if (seoRows[0].canonicalUrl) {
-          finalCanonicalUrl = seoRows[0].canonicalUrl.replace('babulalpremsons.com', 'babulalpremkumar.com');
+          finalCanonicalUrl = seoRows[0].canonicalUrl;
         }
       }
     }
@@ -70,19 +72,73 @@ export default async function SubCategoryPage({ params }: SubCategoryPageProps) 
   const { vertical: verticalSlug, category: categorySlug, subCategory: subCategorySlug } = await params;
   await initDb();
 
-  // 1. If vertical is "textiles", e.g. /textiles/kids-collection/boys-wear
-  if (verticalSlug.toLowerCase() === 'textiles') {
-    return renderTextileCategoryPage(categorySlug, subCategorySlug);
-  }
+  const lowerVertical = verticalSlug.toLowerCase();
+  const lowerCategory = categorySlug.toLowerCase();
+  const lowerSubCategory = subCategorySlug.toLowerCase();
+  const nameSubCategory = lowerSubCategory.replace(/-/g, ' ');
 
-  // 2. Check if verticalSlug is a parent Category slug (e.g. /kids-collection/boys-wear/shorts)
-  const [parentCatRows]: any = await pool.query(
-    'SELECT * FROM categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
-    [verticalSlug.toLowerCase()]
+  // 1. Look up exact sub_sub_category under this parent category and subcategory
+  const [ssRows]: any = await pool.query(
+    `SELECT ss.slug 
+     FROM sub_sub_categories ss 
+     JOIN sub_categories s ON ss.subCategoryId = s.id 
+     JOIN categories c ON s.categoryId = c.id 
+     WHERE (LOWER(ss.slug) = ? OR LOWER(ss.name) = ?) 
+       AND (LOWER(s.slug) = ? OR LOWER(s.name) = ?) 
+       AND (LOWER(c.slug) = ? OR LOWER(c.name) = ?) 
+       AND ss.status = 'Active' 
+     LIMIT 1`,
+    [
+      lowerSubCategory,
+      nameSubCategory,
+      lowerCategory,
+      lowerCategory.replace(/-/g, ' '),
+      lowerVertical,
+      lowerVertical.replace(/-/g, ' ')
+    ]
   );
 
-  if (parentCatRows.length > 0) {
-    return renderTextileCategoryPage(parentCatRows[0].slug, categorySlug, subCategorySlug);
+  if (ssRows.length > 0) {
+    permanentRedirect(`/${ssRows[0].slug}`);
+  }
+
+  // 2. If vertical is "textiles" e.g. /textiles/kids-collection/boys-wear or /textiles/boys-wear/jeans
+  if (lowerVertical === 'textiles') {
+    // Check if subCategorySlug is an active subcategory
+    const [subCheck]: any = await pool.query(
+      'SELECT slug FROM sub_categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
+      [lowerSubCategory]
+    );
+    if (subCheck.length > 0) {
+      permanentRedirect(`/${subCheck[0].slug}`);
+    }
+
+    // Check if subCategorySlug is an active sub_sub_category
+    const [ssCheck]: any = await pool.query(
+      'SELECT slug FROM sub_sub_categories WHERE (LOWER(slug) = ? OR LOWER(name) = ?) AND status = "Active" LIMIT 1',
+      [lowerSubCategory, nameSubCategory]
+    );
+    if (ssCheck.length > 0) {
+      permanentRedirect(`/${ssCheck[0].slug}`);
+    }
+  }
+
+  // 3. Fallback: check any active sub_sub_category matching subCategorySlug
+  const [anySubSub]: any = await pool.query(
+    'SELECT slug FROM sub_sub_categories WHERE (LOWER(slug) = ? OR LOWER(name) = ?) AND status = "Active" LIMIT 1',
+    [lowerSubCategory, nameSubCategory]
+  );
+  if (anySubSub.length > 0) {
+    permanentRedirect(`/${anySubSub[0].slug}`);
+  }
+
+  // 4. Fallback: check any active subcategory matching subCategorySlug
+  const [anySub]: any = await pool.query(
+    'SELECT slug FROM sub_categories WHERE LOWER(slug) = ? AND status = "Active" LIMIT 1',
+    [lowerSubCategory]
+  );
+  if (anySub.length > 0) {
+    permanentRedirect(`/${anySub[0].slug}`);
   }
 
   notFound();

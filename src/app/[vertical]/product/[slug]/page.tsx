@@ -278,6 +278,7 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
           {(() => {
             const categorySlug = product.category ? product.category.toLowerCase().replace(/\s+/g, '-') : 'textiles';
             const subCategorySlug = product.subCategory ? product.subCategory.toLowerCase().replace(/\s+/g, '-') : null;
+            const subSubCategorySlug = product.subSubCategory ? product.subSubCategory.toLowerCase().replace(/\s+/g, '-') : null;
             return (
               <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs md:text-sm font-medium text-gray-500 mb-12 flex-wrap">
                 <Link href="/" className="hover:text-[#0A5181] transition-colors">Home</Link>
@@ -286,7 +287,13 @@ export default async function SingleProductPage({ params }: ProductPageProps) {
                 {product.subCategory && (
                   <>
                     <span className="text-gray-300">/</span>
-                    <Link href={`/${categorySlug}/${subCategorySlug}`} className="hover:text-[#0A5181] transition-colors capitalize">{product.subCategory}</Link>
+                    <Link href={`/${subCategorySlug}`} className="hover:text-[#0A5181] transition-colors capitalize">{product.subCategory}</Link>
+                  </>
+                )}
+                {product.subSubCategory && (
+                  <>
+                    <span className="text-gray-300">/</span>
+                    <Link href={`/${subSubCategorySlug}`} className="hover:text-[#0A5181] transition-colors capitalize">{product.subSubCategory}</Link>
                   </>
                 )}
                 <span className="text-gray-300">/</span>

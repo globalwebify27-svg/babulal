@@ -139,9 +139,32 @@ function AsyncProductSection({
 
   const searchParams = useSearchParams();
   const subParam = searchParams ? searchParams.get('sub') : null;
-  const [selectedSubs, setSelectedSubs] = React.useState<string[]>([]);
-  const [selectedSubSubs, setSelectedSubSubs] = React.useState<string[]>([]);
+  const [selectedSubs, setSelectedSubs] = React.useState<string[]>(() => {
+    const activeParam = initialSubSlug;
+    if (activeParam) {
+      const norm = (s: string) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+      const slugs = activeParam.split(',').map((s: string) => norm(s));
+      const subs = dbSubCategories && dbSubCategories.length > 0 ? dbSubCategories : [];
+      const matched = subs.filter((s: any) => slugs.includes(norm(s.slug)) || slugs.includes(norm(s.name)));
+      if (matched.length > 0) {
+        return matched.map((m: any) => m.name);
+      }
+      return [activeParam.replace(/-/g, ' ')];
+    }
+    return [];
+  });
+
+  const [selectedSubSubs, setSelectedSubSubs] = React.useState<string[]>(() => {
+    if (initialSubSubSlug) {
+      const subSubs = dbSubSubCategories && dbSubSubCategories.length > 0 ? dbSubSubCategories : [];
+      const match = subSubs.find((ss: any) => ss.slug.toLowerCase() === initialSubSubSlug.toLowerCase());
+      if (match) return [match.name];
+      return [initialSubSubSlug.replace(/-/g, ' ')];
+    }
+    return [];
+  });
   const [isInquiryModalOpen, setIsInquiryModalOpen] = React.useState(false);
+
 
   // Dynamic Sub-category Extraction (Fallback if subcategories collection is empty)
   const productsInCategory = React.useMemo(() => {
@@ -384,7 +407,10 @@ function AsyncProductSection({
 
       items.push({ label: subName, url: subUrl });
       if (selectedSubSubs.length === 1) {
-        items.push({ label: selectedSubSubs[0] });
+        const subSubName = selectedSubSubs[0];
+        const match = dbSubSubCategories.find((ss: any) => ss.name.toLowerCase() === subSubName.toLowerCase());
+        const subSubUrl = match?.slug ? `/${match.slug}` : undefined;
+        items.push({ label: subSubName, url: subSubUrl });
       } else if (selectedSubSubs.length > 1) {
         items.push({ label: selectedSubSubs.join(', ') });
       }
@@ -393,7 +419,26 @@ function AsyncProductSection({
     }
 
     return items;
-  }, [initialCategory, slug, displaySubCategories, selectedSubs, selectedSubSubs]);
+  }, [initialCategory, slug, displaySubCategories, dbSubSubCategories, selectedSubs, selectedSubSubs]);
+
+  const breadcrumbJsonLd = React.useMemo(() => {
+    const siteUrl = 'https://www.babulalpremsons.com';
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: breadcrumbItems.map((item, index) => {
+        const fullUrl = item.url
+          ? (item.url.startsWith('http') ? item.url : `${siteUrl}${item.url.startsWith('/') ? item.url : `/${item.url}`}`)
+          : undefined;
+        return {
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.label,
+          ...(fullUrl ? { item: fullUrl } : {})
+        };
+      })
+    };
+  }, [breadcrumbItems]);
 
   const showInventoryCatalog = isInventoryCatalogEnabled(slug);
 
@@ -470,6 +515,10 @@ function AsyncProductSection({
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       {/* ═══ REFINED CATEGORY HEADER (SS-Matched & Dynamic SEO Banner) ═══ */}
       <section className="relative w-full h-[320px] lg:h-[420px] overflow-hidden bg-[#0A5181]">
          <Image 
