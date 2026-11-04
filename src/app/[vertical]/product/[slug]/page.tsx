@@ -22,6 +22,7 @@ import {
 
 import SocialShare from '@/components/SocialShare';
 import { toSafeImageUrl, sanitizeProductImages } from '@/lib/media-helper';
+import { generateSlug } from '@/lib/slug';
 
 interface ProductPageProps {
   params: Promise<{
@@ -79,7 +80,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const vertical = Object.values(BUSINESS_VERTICALS).find(v => v.slug === verticalSlug);
 
   const metaDesc = product.seo?.metaDescription || product.shortDescription || product.description?.substring(0, 160) || `Explore ${product.name} from Babulal Premsons Group (100+ Years Legacy).`;
-  const catSlug = product.category ? product.category.toLowerCase().replace(/\s+/g, '-') : 'textiles';
+  const catSlug = product.category ? generateSlug(product.category) : 'textiles';
   const canonicalUrl = `https://babulalpremkumar.com/${catSlug}/product/${product.slug}`;
 
   let isIndex = false;

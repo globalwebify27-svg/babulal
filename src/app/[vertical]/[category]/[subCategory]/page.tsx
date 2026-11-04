@@ -16,7 +16,7 @@ export const revalidate = 60;
 export async function generateMetadata({ params }: SubCategoryPageProps): Promise<Metadata> {
   const { vertical: verticalSlug, category: categorySlug, subCategory: subCategorySlug } = await params;
   const subCategoryName = subCategorySlug.replace(/-/g, ' ');
-  const canonicalUrl = `https://www.babulalpremsons.com/${subCategorySlug.toLowerCase()}`;
+  const canonicalUrl = `https://babulalpremkumar.com/${subCategorySlug.toLowerCase()}`;
 
   let isIndex = false;
   let isFollow = true;
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: SubCategoryPageProps): Promis
     );
 
     if (subSubRows.length > 0) {
-      finalCanonicalUrl = `https://www.babulalpremsons.com/${subSubRows[0].slug}`;
+      finalCanonicalUrl = `https://babulalpremkumar.com/${subSubRows[0].slug}`;
       const [seoRows]: any = await pool.query(
         'SELECT robotsIndex, robotsFollow, metaTitle, metaDescription, canonicalUrl FROM category_seo_content WHERE subSubCategoryId = ? AND status = "Published" LIMIT 1',
         [subSubRows[0].id]
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: SubCategoryPageProps): Promis
         if (seoRows[0].metaTitle) metaTitle = seoRows[0].metaTitle;
         if (seoRows[0].metaDescription) metaDescription = seoRows[0].metaDescription;
         if (seoRows[0].canonicalUrl) {
-          finalCanonicalUrl = seoRows[0].canonicalUrl;
+          finalCanonicalUrl = seoRows[0].canonicalUrl.replace('babulalpremsons.com', 'babulalpremkumar.com');
         }
       }
     }

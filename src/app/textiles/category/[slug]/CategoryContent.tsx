@@ -422,7 +422,7 @@ function AsyncProductSection({
   }, [initialCategory, slug, displaySubCategories, dbSubSubCategories, selectedSubs, selectedSubSubs]);
 
   const breadcrumbJsonLd = React.useMemo(() => {
-    const siteUrl = 'https://www.babulalpremsons.com';
+    const siteUrl = 'https://babulalpremkumar.com';
     return {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',

@@ -210,7 +210,7 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
 
   if (subSubRows.length > 0) {
     const subSub = subSubRows[0];
-    const canonicalUrl = `https://www.babulalpremsons.com/${subSub.slug}`;
+    const canonicalUrl = `https://babulalpremkumar.com/${subSub.slug}`;
 
     let isIndex = subSub.robotsIndex !== undefined && subSub.robotsIndex !== null ? !!subSub.robotsIndex : false;
     let isFollow = subSub.robotsFollow !== undefined && subSub.robotsFollow !== null ? !!subSub.robotsFollow : true;
@@ -226,7 +226,9 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
         else if (seoRows[0].robotsIndex === 'noindex' || seoRows[0].robotsIndex === false || seoRows[0].robotsIndex === 0) isIndex = false;
         if (seoRows[0].robotsFollow === 'nofollow' || seoRows[0].robotsFollow === false || seoRows[0].robotsFollow === 0) isFollow = false;
 
-        const finalCanonical = seoRows[0].canonicalUrl || canonicalUrl;
+        const finalCanonical = seoRows[0].canonicalUrl 
+          ? seoRows[0].canonicalUrl.replace('babulalpremsons.com', 'babulalpremkumar.com')
+          : canonicalUrl;
 
         return {
           title: seoRows[0].metaTitle || `${subSub.name} Collection | Babulal Premkumar`,

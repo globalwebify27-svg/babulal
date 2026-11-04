@@ -6,9 +6,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/api/'],
+        disallow: ['/admin/', '/api/', '/auth/'],
       },
     ],
-    sitemap: 'https://babulalpremsons.com/sitemap.xml',
+    sitemap: 'https://babulalpremkumar.com/sitemap.xml',
   };
 }

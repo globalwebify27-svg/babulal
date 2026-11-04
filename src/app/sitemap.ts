@@ -1,8 +1,12 @@
 import { MetadataRoute } from 'next';
 import pool, { initDb } from '@/lib/db';
+import { generateSlug } from '@/lib/slug';
+
+// Revalidate sitemap at most once every hour (3600 seconds)
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://babulalpremsons.com';
+  const baseUrl = 'https://babulalpremkumar.com';
 
   const staticEntries: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
@@ -18,33 +22,52 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     await initDb();
 
-    // 1. Fetch Categories
-    const [categories]: any = await pool.query('SELECT slug, updatedAt FROM categories WHERE status = "Active"');
+    // 1. Fetch Active Level-1 Categories
+    const [categories]: any = await pool.query(
+      'SELECT slug, updatedAt, createdAt FROM categories WHERE status = "Active"'
+    );
     const categoryEntries: MetadataRoute.Sitemap = categories.map((cat: any) => ({
       url: `${baseUrl}/${cat.slug}`,
-      lastModified: cat.updatedAt ? new Date(cat.updatedAt) : new Date(),
+      lastModified: cat.updatedAt ? new Date(cat.updatedAt) : (cat.createdAt ? new Date(cat.createdAt) : new Date()),
       changeFrequency: 'weekly',
       priority: 0.8,
     }));
 
-    // 2. Fetch Sub-categories
+    // 2. Fetch Active Level-2 Sub-categories (respecting parent category status)
     const [subCategories]: any = await pool.query(`
-      SELECT sc.slug as subSlug, c.slug as catSlug, sc.updatedAt 
+      SELECT sc.slug as subSlug, sc.updatedAt, sc.createdAt 
       FROM sub_categories sc 
       JOIN categories c ON sc.categoryId = c.id 
       WHERE sc.status = 'Active' AND c.status = 'Active'
     `);
     const subCategoryEntries: MetadataRoute.Sitemap = subCategories.map((sub: any) => ({
       url: `${baseUrl}/${sub.subSlug}`,
-      lastModified: sub.updatedAt ? new Date(sub.updatedAt) : new Date(),
+      lastModified: sub.updatedAt ? new Date(sub.updatedAt) : (sub.createdAt ? new Date(sub.createdAt) : new Date()),
       changeFrequency: 'weekly',
       priority: 0.7,
     }));
 
-    // 3. Fetch Products
-    const [products]: any = await pool.query('SELECT slug, category, createdAt FROM products WHERE isActive = TRUE');
+    // 3. Fetch Active Level-3 Sub-sub-categories (respecting full parent hierarchy)
+    const [subSubCategories]: any = await pool.query(`
+      SELECT ssc.slug as subSubSlug, ssc.updatedAt, ssc.createdAt 
+      FROM sub_sub_categories ssc 
+      JOIN sub_categories sc ON ssc.subCategoryId = sc.id 
+      JOIN categories c ON sc.categoryId = c.id 
+      WHERE ssc.status = 'Active' AND sc.status = 'Active' AND c.status = 'Active'
+    `);
+    const subSubCategoryEntries: MetadataRoute.Sitemap = subSubCategories.map((subSub: any) => ({
+      url: `${baseUrl}/${subSub.subSubSlug}`,
+      lastModified: subSub.updatedAt ? new Date(subSub.updatedAt) : (subSub.createdAt ? new Date(subSub.createdAt) : new Date()),
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    }));
+
+    // 4. Fetch Active Products
+    const [products]: any = await pool.query(
+      'SELECT slug, category, createdAt FROM products WHERE isActive = 1'
+    );
     const productEntries: MetadataRoute.Sitemap = products.map((prod: any) => {
-      const catSlug = prod.category ? prod.category.toLowerCase().replace(/\s+/g, '-') : 'textiles';
+      const catSlug = prod.category ? generateSlug(prod.category) : 'textiles';
       return {
         url: `${baseUrl}/${catSlug}/product/${prod.slug}`,
         lastModified: prod.createdAt ? new Date(prod.createdAt) : new Date(),
@@ -53,21 +76,43 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       };
     });
 
-    // 4. Fetch Published Blogs
+    // 5. Fetch Published Blogs
     let blogEntries: MetadataRoute.Sitemap = [];
     try {
-      const [blogs]: any = await pool.query('SELECT slug, updatedAt, createdAt FROM blogs WHERE status = "Published"');
+      const [blogs]: any = await pool.query(
+        'SELECT slug, updatedAt, createdAt, publishedAt FROM blogs WHERE status = "Published"'
+      );
       blogEntries = blogs.map((b: any) => ({
         url: `${baseUrl}/blog/${b.slug}`,
-        lastModified: b.updatedAt ? new Date(b.updatedAt) : (b.createdAt ? new Date(b.createdAt) : new Date()),
+        lastModified: b.updatedAt 
+          ? new Date(b.updatedAt) 
+          : (b.publishedAt ? new Date(b.publishedAt) : (b.createdAt ? new Date(b.createdAt) : new Date())),
         changeFrequency: 'weekly',
         priority: 0.7,
       }));
     } catch (e) {
-      // If blogs table is still initializing
+      // Blogs table initialized fallback
     }
 
-    return [...staticEntries, ...categoryEntries, ...subCategoryEntries, ...productEntries, ...blogEntries];
+    // Combine all entries and guarantee strict URL deduplication
+    const allEntries = [
+      ...staticEntries,
+      ...categoryEntries,
+      ...subCategoryEntries,
+      ...subSubCategoryEntries,
+      ...productEntries,
+      ...blogEntries,
+    ];
+
+    const urlMap = new Map<string, MetadataRoute.Sitemap[number]>();
+    for (const entry of allEntries) {
+      const safeUrl = entry.url.replace(/&(?!(amp|lt|gt|quot|apos);)/g, '&amp;');
+      if (!urlMap.has(safeUrl)) {
+        urlMap.set(safeUrl, { ...entry, url: safeUrl });
+      }
+    }
+
+    return Array.from(urlMap.values());
   } catch (error) {
     console.error('Error generating sitemap:', error);
     return staticEntries;
