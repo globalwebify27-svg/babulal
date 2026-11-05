@@ -2,11 +2,17 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ['mysql2', 'bcryptjs', 'sharp'],
   turbopack: {
     root: path.resolve(process.cwd()),
   },
-  webpack: (config) => {
+  webpack: (config, { dev }) => {
     config.resolve.alias['@'] = path.join(process.cwd(), 'src');
+    if (dev) {
+      config.cache = Object.freeze({
+        type: 'memory',
+      });
+    }
     return config;
   },
   images: {
@@ -32,6 +38,17 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ['192.168.1.11'],
   async redirects() {
     return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.babulalpremkumar.com',
+          },
+        ],
+        destination: 'https://babulalpremkumar.com/:path*',
+        statusCode: 301,
+      },
       {
         source: '/textiles',
         destination: '/',
