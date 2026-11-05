@@ -38,6 +38,44 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Babulal Premkumar",
+  "url": "https://babulalpremkumar.com/",
+  "logo": "https://babulalpremkumar.com/_next/image?url=%2FBabulalPremkumar.png&w=828&q=75",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+91 7667985545",
+    "contactType": "customer service",
+    "areaServed": "IN",
+    "availableLanguage": ["en", "Hindi"],
+  },
+};
+
+const localBusinessJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Babulal Premkumar",
+  "image": "https://babulalpremkumar.com/_next/image?url=%2FBabulalPremkumar.png&w=828&q=75",
+  "@id": "https://babulalpremkumar.com/",
+  "url": "https://babulalpremkumar.com/",
+  "telephone": "+91 7667985545",
+  "priceRange": "₹",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Near, Gandhi Chowk, Upper Bazar, Ranchi, Jharkhand 834001",
+    "addressLocality": "Ranchi",
+    "postalCode": "834001",
+    "addressCountry": "IN",
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 23.3716429,
+    "longitude": 85.3221622,
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -56,6 +94,18 @@ export default function RootLayout({
 
               gtag('config', 'G-7P9BQ523MY');
             `,
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(localBusinessJsonLd),
           }}
         />
       </head>
