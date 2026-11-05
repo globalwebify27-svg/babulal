@@ -1,26 +1,7 @@
 import pool, { initDb } from './db';
+import { generateSlug } from './utils';
 
-/**
- * Standardized slug generator function.
- * Rules:
- * - Convert to lowercase
- * - Remove apostrophes (e.g. Men's -> Mens)
- * - Replace spaces, brackets, parentheses, punctuation, and special characters with hyphens
- * - Remove any non-alphanumeric characters (except hyphens)
- * - Collapse multiple consecutive hyphens into a single hyphen
- * - Trim leading and trailing hyphens
- */
-export function generateSlug(name: string): string {
-  if (!name) return '';
-  return name
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/['’]/g, '')        // Remove apostrophes: Men's -> mens
-    .replace(/[^a-z0-9]+/g, '-') // Replace spaces & special chars (including brackets) with hyphen
-    .replace(/^-+|-+$/g, '')     // Trim leading/trailing hyphens
-    .replace(/-{2,}/g, '-');     // Collapse multiple hyphens
-}
+export { generateSlug };
 
 const RESERVED_SLUGS = new Set([
   'about',
@@ -118,6 +99,65 @@ export async function generateUniqueSlug(
     }
   }
 
+  // If this newly assigned taxonomy slug was previously in url_redirects, delete the redirect so it routes directly
+  if (isTaxonomy) {
+    try {
+      await pool.query('DELETE FROM url_redirects WHERE LOWER(sourceSlug) = ?', [candidateSlug.toLowerCase()]);
+    } catch (e) {
+      // Ignore if table not yet initialized
+    }
+  }
+
   return candidateSlug;
 }
 
+/**
+ * Records a 301 permanent redirect from sourceSlug to targetSlug.
+ * Flattens redirect chains and prevents redirect loops.
+ */
+export async function recordSlugRedirect(sourceSlug: string, targetSlug: string): Promise<void> {
+  if (!sourceSlug || !targetSlug) return;
+  const source = sourceSlug.toLowerCase().trim();
+  const target = targetSlug.toLowerCase().trim();
+  if (source === target) return;
+
+  await initDb();
+
+  try {
+    // 1. Remove reverse redirect to prevent 2-hop loops (e.g., if target -> source existed)
+    await pool.query('DELETE FROM url_redirects WHERE LOWER(sourceSlug) = ?', [target]);
+
+    // 2. Flatten any existing chains: entries pointing to source now point directly to target
+    await pool.query('UPDATE url_redirects SET targetSlug = ? WHERE LOWER(targetSlug) = ?', [target, source]);
+
+    // 3. Upsert: source -> target
+    await pool.query(
+      `INSERT INTO url_redirects (sourceSlug, targetSlug)
+       VALUES (?, ?)
+       ON DUPLICATE KEY UPDATE targetSlug = VALUES(targetSlug), updatedAt = CURRENT_TIMESTAMP`,
+      [source, target]
+    );
+  } catch (err) {
+    console.error('Failed to record URL redirect:', err);
+  }
+}
+
+/**
+ * Retrieves the permanent redirect target for a former slug, if one exists.
+ */
+export async function getSlugRedirect(sourceSlug: string): Promise<string | null> {
+  if (!sourceSlug) return null;
+  await initDb();
+  try {
+    const [rows]: any = await pool.query(
+      'SELECT targetSlug FROM url_redirects WHERE LOWER(sourceSlug) = ? LIMIT 1',
+      [sourceSlug.toLowerCase().trim()]
+    );
+    if (rows && rows.length > 0) {
+      return rows[0].targetSlug;
+    }
+  } catch (err) {
+    console.error('Failed to get URL redirect:', err);
+  }
+  return null;
+}

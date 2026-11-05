@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import pool, { initDb } from '@/lib/db';
-import { generateUniqueSlug } from '@/lib/slug';
+import { generateUniqueSlug, recordSlugRedirect } from '@/lib/slug';
 import { optimizeBase64Image } from '@/lib/image-utils';
 
 function mapSubCategory(sub: any) {
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       `INSERT INTO sub_categories (name, slug, categoryId, image, cardImage, status, orderIndex, brochureUrl, robotsIndex, robotsFollow)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        data.name,
+        data.name.trim(),
         data.slug,
         data.categoryId || data.category,
         data.image || null,
@@ -83,6 +83,8 @@ export async function POST(req: Request) {
     );
 
     const [rows]: any = await pool.query('SELECT * FROM sub_categories WHERE id = ?', [result.insertId]);
+    revalidatePath('/', 'layout');
+    revalidatePath(`/${data.slug}`);
     return NextResponse.json(mapSubCategory(rows[0]), { status: 201 });
   } catch (error: any) {
     console.error('Subcategory Creation Error:', error);
@@ -102,6 +104,26 @@ export async function PATCH(req: Request) {
     }
     
     await initDb();
+
+    const [existingRows]: any = await pool.query('SELECT * FROM sub_categories WHERE id = ?', [id]);
+    if (existingRows.length === 0) {
+      return NextResponse.json({ error: 'Sub-category not found' }, { status: 404 });
+    }
+    const currentSub = existingRows[0];
+    const oldSlug = currentSub.slug;
+    const oldName = currentSub.name;
+
+    let newSlug = oldSlug;
+
+    if (updates.name !== undefined && updates.name !== null) {
+      const trimmedName = updates.name.trim();
+      updates.name = trimmedName;
+      newSlug = await generateUniqueSlug('sub_categories', trimmedName, id);
+      updates.slug = newSlug;
+    } else if (updates.slug) {
+      newSlug = await generateUniqueSlug('sub_categories', currentSub.name, id, updates.slug);
+      updates.slug = newSlug;
+    }
     
     if (updates.image) {
       updates.image = await optimizeBase64Image(updates.image);
@@ -123,13 +145,34 @@ export async function PATCH(req: Request) {
       
       await pool.query(`UPDATE sub_categories SET ${setClause} WHERE id = ?`, values);
     }
-    
-    const [rows]: any = await pool.query('SELECT * FROM sub_categories WHERE id = ?', [id]);
-    
-    if (rows.length === 0) {
-      return NextResponse.json({ error: 'Sub-category not found' }, { status: 404 });
+
+    // Handle slug synchronization & 301 redirection
+    if (newSlug && oldSlug && newSlug.toLowerCase() !== oldSlug.toLowerCase()) {
+      await recordSlugRedirect(oldSlug, newSlug);
+
+      await pool.query(
+        'UPDATE category_seo_content SET canonicalUrl = REPLACE(canonicalUrl, ?, ?) WHERE subCategoryId = ?',
+        [`/${oldSlug}`, `/${newSlug}`, id]
+      );
+
+      if (updates.name && updates.name !== oldName) {
+        await pool.query(
+          'UPDATE products SET subCategory = ? WHERE subCategory = ? OR subCategory = ?',
+          [updates.name, oldName, oldSlug]
+        );
+      }
+
+      revalidatePath(`/${oldSlug}`);
+      revalidatePath(`/${newSlug}`);
+    } else if (updates.name && updates.name !== oldName) {
+      await pool.query(
+        'UPDATE products SET subCategory = ? WHERE subCategory = ?',
+        [updates.name, oldName]
+      );
     }
     
+    const [rows]: any = await pool.query('SELECT * FROM sub_categories WHERE id = ?', [id]);
+    revalidatePath('/', 'layout');
     return NextResponse.json(mapSubCategory(rows[0]));
   } catch (error: any) {
     console.error('Subcategory Patch Error:', error);
@@ -158,6 +201,7 @@ export async function DELETE(req: Request) {
       await pool.query('DELETE FROM sub_categories WHERE id = ?', [id]);
     }
     
+    revalidatePath('/', 'layout');
     return NextResponse.json({ message: 'Sub-category deleted successfully' });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete sub-category' }, { status: 500 });

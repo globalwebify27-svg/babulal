@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import pool, { initDb } from '@/lib/db';
 import { optimizeBase64Image } from '@/lib/image-utils';
-import { generateUniqueSlug } from '@/lib/slug';
+import { generateUniqueSlug, recordSlugRedirect } from '@/lib/slug';
 
 function mapCategory(cat: any) {
   if (!cat) return null;
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     console.log('POST CATEGORY DATA:', data);
     await initDb();
     
-    // Generate unique slug safely
+    // Generate unique slug authoritatively from name
     data.slug = await generateUniqueSlug('categories', data.name, undefined, data.slug);
 
     // Automatically optimize images if present
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       `INSERT INTO categories (name, slug, image, cardImage, showInHeader, topBusiness, isCurated, orderIndex, status, parentVertical, robotsIndex, robotsFollow)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        data.name,
+        data.name.trim(),
         data.slug,
         data.image || null,
         data.cardImage || null,
@@ -76,6 +76,7 @@ export async function POST(req: Request) {
     const [rows]: any = await pool.query('SELECT * FROM categories WHERE id = ?', [result.insertId]);
     console.log('CREATED CATEGORY:', rows[0]);
     revalidatePath('/', 'layout');
+    revalidatePath(`/${data.slug}`);
     return NextResponse.json(mapCategory(rows[0]), { status: 201 });
   } catch (error: any) {
     console.error('Category Create Error:', error);
@@ -96,13 +97,30 @@ export async function PATCH(req: Request) {
     }
     
     await initDb();
+
+    const [existingRows]: any = await pool.query('SELECT * FROM categories WHERE id = ?', [id]);
+    if (existingRows.length === 0) {
+      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    }
+    const currentCategory = existingRows[0];
+    const oldSlug = currentCategory.slug;
+    const oldName = currentCategory.name;
     
     // Normalize properties for database durability
     const cleanUpdates: any = {};
-    if (updates.name) cleanUpdates.name = updates.name;
-    if (updates.slug) {
-      cleanUpdates.slug = await generateUniqueSlug('categories', updates.name || '', id, updates.slug);
+    let newSlug = oldSlug;
+
+    if (updates.name !== undefined && updates.name !== null) {
+      const trimmedName = updates.name.trim();
+      cleanUpdates.name = trimmedName;
+      // Authoritatively generate new unique slug from the updated category name
+      newSlug = await generateUniqueSlug('categories', trimmedName, id);
+      cleanUpdates.slug = newSlug;
+    } else if (updates.slug) {
+      newSlug = await generateUniqueSlug('categories', currentCategory.name, id, updates.slug);
+      cleanUpdates.slug = newSlug;
     }
+
     if (updates.image !== undefined) {
       cleanUpdates.image = await optimizeBase64Image(updates.image);
     }
@@ -126,12 +144,38 @@ export async function PATCH(req: Request) {
       await pool.query(`UPDATE categories SET ${setClause} WHERE id = ?`, values);
     }
 
+    // Handle slug synchronization & 301 redirection
+    if (newSlug && oldSlug && newSlug.toLowerCase() !== oldSlug.toLowerCase()) {
+      await recordSlugRedirect(oldSlug, newSlug);
+
+      // Update canonical URLs in SEO content for this category
+      await pool.query(
+        'UPDATE category_seo_content SET canonicalUrl = REPLACE(canonicalUrl, ?, ?) WHERE categoryId = ?',
+        [`/${oldSlug}`, `/${newSlug}`, id]
+      );
+
+      // Maintain product associations if category name changed
+      if (cleanUpdates.name && cleanUpdates.name !== oldName) {
+        await pool.query(
+          'UPDATE products SET category = ? WHERE category = ? OR category = ?',
+          [cleanUpdates.name, oldName, oldSlug]
+        );
+      }
+
+      revalidatePath(`/${oldSlug}`);
+      revalidatePath(`/${newSlug}`);
+      revalidatePath(`/textiles/category/${oldSlug}`);
+      revalidatePath(`/textiles/category/${newSlug}`);
+    } else if (cleanUpdates.name && cleanUpdates.name !== oldName) {
+      // Category name changed, update product category strings
+      await pool.query(
+        'UPDATE products SET category = ? WHERE category = ?',
+        [cleanUpdates.name, oldName]
+      );
+    }
+
     const [rows]: any = await pool.query('SELECT * FROM categories WHERE id = ?', [id]);
     console.log('ATOMIC UPDATE RESULT:', rows[0]);
-    
-    if (rows.length === 0) {
-      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
-    }
     
     revalidatePath('/', 'layout');
     return NextResponse.json(mapCategory(rows[0]));

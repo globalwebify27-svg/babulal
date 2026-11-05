@@ -1,6 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
+import { getSlugRedirect } from '@/lib/slug';
 import pool, { initDb } from '@/lib/db';
 import { renderTextileCategoryPage } from '@/app/textiles/category/[slug]/render';
 import TextilesPage from '../textiles/page';
@@ -28,14 +29,20 @@ const STATIC_BYPASS_ROUTES = new Set([
   'welcome-chas',
   'api',
   'sitemap.xml',
-  'robots.txt'
+  'robots.txt',
+  'favicon.ico',
+  'icon.png',
+  'icon.ico',
+  'apple-icon.png',
+  'manifest.json',
+  'site.webmanifest'
 ]);
 
 export async function generateMetadata({ params }: VerticalPageProps): Promise<Metadata> {
   const { vertical: slug } = await params;
   const lowerSlug = slug.toLowerCase();
 
-  if (STATIC_BYPASS_ROUTES.has(lowerSlug)) {
+  if (STATIC_BYPASS_ROUTES.has(lowerSlug) || lowerSlug.includes('.')) {
     return { title: 'Babulal Premsons Group' };
   }
 
@@ -269,6 +276,22 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
     };
   }
 
+  // 4. Check for SEO 301 redirect in metadata
+  const redirectTarget = await getSlugRedirect(lowerSlug);
+  if (redirectTarget) {
+    const canonicalUrl = `https://babulalpremkumar.com/${redirectTarget}`;
+    return {
+      title: 'Redirecting | Babulal Premkumar',
+      alternates: {
+        canonical: canonicalUrl,
+      },
+      robots: {
+        index: false,
+        follow: true,
+      },
+    };
+  }
+
   return { title: 'Babulal Premsons Group' };
 }
 
@@ -276,7 +299,7 @@ export default async function SingleSegmentRoute({ params }: VerticalPageProps) 
   const { vertical: slug } = await params;
   const lowerSlug = slug.toLowerCase();
 
-  if (STATIC_BYPASS_ROUTES.has(lowerSlug)) {
+  if (STATIC_BYPASS_ROUTES.has(lowerSlug) || lowerSlug.includes('.')) {
     notFound();
   }
 
@@ -335,6 +358,12 @@ export default async function SingleSegmentRoute({ params }: VerticalPageProps) 
   if (subSubRows.length > 0) {
     const subSub = subSubRows[0];
     return renderTextileCategoryPage(subSub.parentSlug, subSub.subSlug, subSub.slug);
+  }
+
+  // 4. Look up SEO 301 Permanent Redirects for former category/subcategory slugs
+  const redirectTarget = await getSlugRedirect(lowerSlug);
+  if (redirectTarget) {
+    permanentRedirect(`/${redirectTarget}`);
   }
 
   notFound();

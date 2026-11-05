@@ -2,6 +2,7 @@ import React from 'react';
 import { Metadata } from 'next';
 import { notFound, redirect, permanentRedirect } from 'next/navigation';
 import pool, { initDb } from '@/lib/db';
+import { getSlugRedirect } from '@/lib/slug';
 
 import { BUSINESS_VERTICALS, VerticalID, isInventoryCatalogEnabled } from '@/lib/constants';
 import InquiryForm from '@/components/InquiryForm';
@@ -29,6 +30,9 @@ export const revalidate = 60;
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { vertical: verticalSlug, category: categorySlug } = await params;
+  if (verticalSlug.includes('.') || categorySlug.includes('.')) {
+    return { title: 'Babulal Premsons Group' };
+  }
   const categoryName = categorySlug.toLowerCase() === 'all' ? 'All Products' : categorySlug.replace(/-/g, ' ');
   const isSubCategory = verticalSlug.toLowerCase() !== 'textiles' && verticalSlug.toLowerCase() !== 'honda' && verticalSlug.toLowerCase() !== 'bajaj' && verticalSlug.toLowerCase() !== 'trucking';
   
@@ -159,11 +163,15 @@ function mapProduct(prod: any) {
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { vertical: verticalSlug, category: categorySlug } = await params;
+  if (verticalSlug.includes('.') || categorySlug.includes('.')) {
+    notFound();
+  }
   await initDb();
 
   // 1. If vertical is "textiles", redirect to root-level category / subcategory
   if (verticalSlug.toLowerCase() === 'textiles') {
-    permanentRedirect(`/${categorySlug.toLowerCase()}`);
+    const redir = await getSlugRedirect(categorySlug.toLowerCase());
+    permanentRedirect(`/${redir || categorySlug.toLowerCase()}`);
   }
 
   // 2. Check if verticalSlug is a parent Category slug (e.g. /saree/fancy-sarees or /kids-collection/jeans)
@@ -199,8 +207,19 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     if (subSubRows.length > 0) {
       permanentRedirect(`/${subSubRows[0].slug}`);
     }
+
+    const subRedir = await getSlugRedirect(categorySlug.toLowerCase());
+    if (subRedir) {
+      permanentRedirect(`/${subRedir}`);
+    }
     
     notFound();
+  }
+
+  // Check if verticalSlug was a former category slug that was redirected
+  const parentRedir = await getSlugRedirect(verticalSlug.toLowerCase());
+  if (parentRedir) {
+    permanentRedirect(`/${parentRedir}`);
   }
 
 

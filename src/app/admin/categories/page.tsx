@@ -19,7 +19,7 @@ import {
   UploadCloud,
   Globe
 } from 'lucide-react';
-import { cn } from '../../../lib/utils';
+import { cn, generateSlug } from '../../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ManageCategoriesPage() {
@@ -51,6 +51,8 @@ export default function ManageCategoriesPage() {
   const [newSubName, setNewSubName] = useState('');
   const [newSubBrochureUrl, setNewSubBrochureUrl] = useState('');
   const [isSubmittingSub, setIsSubmittingSub] = useState(false);
+  const [editingSubId, setEditingSubId] = useState<string | null>(null);
+  const [editingSubName, setEditingSubName] = useState('');
 
   // Sub-Sub-Category States
   const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
@@ -58,6 +60,8 @@ export default function ManageCategoriesPage() {
   const [subSubCategoriesLoading, setSubSubCategoriesLoading] = useState(false);
   const [newSubSubName, setNewSubSubName] = useState('');
   const [isSubmittingSubSub, setIsSubmittingSubSub] = useState(false);
+  const [editingSubSubId, setEditingSubSubId] = useState<string | null>(null);
+  const [editingSubSubName, setEditingSubSubName] = useState('');
 
   const toggleSubSubExpanded = async (subId: string) => {
     if (expandedSubId === subId) {
@@ -217,6 +221,7 @@ export default function ManageCategoriesPage() {
       });
       if (res.ok && activeParentNode) {
         fetchSubCategories(activeParentNode._id);
+        fetchCategories();
       }
     } catch (err) {
       console.error('Update sub error:', err);
@@ -232,6 +237,7 @@ export default function ManageCategoriesPage() {
       });
       if (res.ok && expandedSubId) {
         fetchSubSubCategories(expandedSubId);
+        fetchCategories();
       }
     } catch (err) {
       console.error('Update sub-sub error:', err);
@@ -270,7 +276,7 @@ export default function ManageCategoriesPage() {
       if (res.ok) {
         const updatedDoc = await res.json();
         console.log('SERVER UPDATED CATEGORY:', updatedDoc);
-        setCategories(prev => prev.map(cat => cat._id === id ? { ...cat, ...updates } : cat));
+        setCategories(prev => prev.map(cat => cat._id === id ? { ...cat, ...updatedDoc } : cat));
       } else {
         const errorData = await res.json();
         console.error('SERVER UPDATE ERROR:', errorData);
@@ -589,8 +595,11 @@ export default function ManageCategoriesPage() {
                       required
                       className="w-full px-5 py-3 bg-[#f8fafc] border border-[#d1d9e6] rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-primary/10"
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value, slug: generateSlug(e.target.value) })}
                     />
+                    <p className="text-[10px] text-gray-400 font-medium">
+                      URL Slug: <span className="font-mono text-[#095181] font-bold">/{formData.slug || generateSlug(formData.name) || '...'}</span>
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-[#1a2b4b]/40 uppercase tracking-widest">Business Vertical</label>
@@ -808,7 +817,63 @@ export default function ManageCategoriesPage() {
                            <div className="flex items-center justify-between p-4 hover:bg-gray-50/50 transition-colors">
                               <div className="flex items-center gap-4">
                                  <span className="text-[10px] font-bold text-[#1a2b4b]/20">{idx + 1}.</span>
-                                 <h4 className="text-xs font-black text-[#1a2b4b] uppercase tracking-tight">{sub.name}</h4>
+                                 {editingSubId === sub._id ? (
+                                   <div className="flex items-center gap-2">
+                                     <input
+                                       type="text"
+                                       value={editingSubName}
+                                       onChange={(e) => setEditingSubName(e.target.value)}
+                                       className="px-3 py-1 bg-white border border-[#095181] rounded-lg text-xs font-black text-[#1a2b4b] outline-none"
+                                       autoFocus
+                                       onKeyDown={(e) => {
+                                         if (e.key === 'Enter') {
+                                           e.preventDefault();
+                                           if (editingSubName.trim()) {
+                                             updateSubCategory(sub._id, { name: editingSubName.trim() });
+                                             setEditingSubId(null);
+                                           }
+                                         } else if (e.key === 'Escape') {
+                                           setEditingSubId(null);
+                                         }
+                                       }}
+                                     />
+                                     <button
+                                       type="button"
+                                       onClick={() => {
+                                         if (editingSubName.trim()) {
+                                           updateSubCategory(sub._id, { name: editingSubName.trim() });
+                                           setEditingSubId(null);
+                                         }
+                                       }}
+                                       className="px-2.5 py-1 bg-[#095181] text-white rounded text-[10px] font-black uppercase hover:bg-green-600 transition-colors"
+                                     >
+                                       Save
+                                     </button>
+                                     <button
+                                       type="button"
+                                       onClick={() => setEditingSubId(null)}
+                                       className="px-2 py-1 bg-gray-100 text-gray-500 rounded text-[10px] font-bold uppercase hover:bg-gray-200 transition-colors"
+                                     >
+                                       Cancel
+                                     </button>
+                                   </div>
+                                 ) : (
+                                   <div className="flex items-center gap-2">
+                                     <h4 className="text-xs font-black text-[#1a2b4b] uppercase tracking-tight">{sub.name}</h4>
+                                     <span className="text-[9px] font-mono text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded">/{sub.slug}</span>
+                                     <button
+                                       type="button"
+                                       onClick={() => {
+                                         setEditingSubId(sub._id);
+                                         setEditingSubName(sub.name);
+                                       }}
+                                       className="text-[#1a2b4b]/20 hover:text-[#095181] transition-all hover:scale-110 ml-1"
+                                       title="Rename Sub-Category"
+                                     >
+                                       <Edit3 className="w-3.5 h-3.5" />
+                                     </button>
+                                   </div>
+                                 )}
                               </div>
                               <div className="flex items-center gap-3">
                                  <button
@@ -884,7 +949,63 @@ export default function ManageCategoriesPage() {
                                    <div className="flex flex-wrap gap-2">
                                      {subSubCategories.map((subSub) => (
                                        <div key={subSub._id} className="flex items-center gap-1.5 bg-white border border-gray-100 rounded-lg pl-3 pr-2 py-1.5 shadow-sm text-xs font-semibold text-[#1a2b4b] uppercase tracking-wide">
-                                         <span>{subSub.name}</span>
+                                         {editingSubSubId === subSub._id ? (
+                                            <div className="flex items-center gap-1">
+                                              <input
+                                                type="text"
+                                                value={editingSubSubName}
+                                                onChange={(e) => setEditingSubSubName(e.target.value)}
+                                                className="px-2 py-0.5 bg-white border border-[#095181] rounded text-xs font-bold text-[#1a2b4b] outline-none w-28"
+                                                autoFocus
+                                                onKeyDown={(e) => {
+                                                  if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    if (editingSubSubName.trim()) {
+                                                      updateSubSubCategory(subSub._id, { name: editingSubSubName.trim() });
+                                                      setEditingSubSubId(null);
+                                                    }
+                                                  } else if (e.key === 'Escape') {
+                                                    setEditingSubSubId(null);
+                                                  }
+                                                }}
+                                              />
+                                              <button
+                                                type="button"
+                                                onClick={() => {
+                                                  if (editingSubSubName.trim()) {
+                                                    updateSubSubCategory(subSub._id, { name: editingSubSubName.trim() });
+                                                    setEditingSubSubId(null);
+                                                  }
+                                                }}
+                                                className="px-1.5 py-0.5 bg-[#095181] text-white rounded text-[8px] font-black uppercase hover:bg-green-600 transition-colors"
+                                              >
+                                                Save
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={() => setEditingSubSubId(null)}
+                                                className="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-[8px] font-bold uppercase hover:bg-gray-200 transition-colors"
+                                              >
+                                                ×
+                                              </button>
+                                            </div>
+                                          ) : (
+                                            <>
+                                              <span>{subSub.name}</span>
+                                              <span className="text-[8px] font-mono text-gray-400 lowercase">/{subSub.slug}</span>
+                                              <button
+                                                type="button"
+                                                onClick={() => {
+                                                  setEditingSubSubId(subSub._id);
+                                                  setEditingSubSubName(subSub.name);
+                                                }}
+                                                className="text-gray-300 hover:text-[#095181] transition-all hover:scale-110 ml-0.5"
+                                                title="Rename Sub-Sub-Category"
+                                              >
+                                                <Edit3 className="w-3 h-3" />
+                                              </button>
+                                            </>
+                                          )}
                                          <Link
                                            href={`/admin/category-content/subsub-${subSub._id}`}
                                            className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-600 hover:text-white transition-all ml-1 flex items-center gap-0.5"

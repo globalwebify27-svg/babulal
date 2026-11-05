@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import pool, { initDb } from '@/lib/db';
-import { generateUniqueSlug } from '@/lib/slug';
+import { generateUniqueSlug, recordSlugRedirect } from '@/lib/slug';
 
 function mapSubSubCategory(sub: any) {
   if (!sub) return null;
@@ -45,7 +46,6 @@ export async function POST(req: Request) {
     
     data.slug = await generateUniqueSlug('sub_sub_categories', data.name, undefined, data.slug);
 
-
     const parentSubCategoryId = data.subCategoryId || data.subCategory;
     if (!parentSubCategoryId) {
       return NextResponse.json({ error: 'subCategoryId is required' }, { status: 400 });
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       `INSERT INTO sub_sub_categories (name, slug, subCategoryId, status, orderIndex, robotsIndex, robotsFollow)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
-        data.name,
+        data.name.trim(),
         data.slug,
         parentSubCategoryId,
         data.status || 'Active',
@@ -69,6 +69,8 @@ export async function POST(req: Request) {
     );
     
     const [rows]: any = await pool.query('SELECT * FROM sub_sub_categories WHERE id = ?', [result.insertId]);
+    revalidatePath('/', 'layout');
+    revalidatePath(`/${data.slug}`);
     return NextResponse.json(mapSubSubCategory(rows[0]), { status: 201 });
   } catch (error: any) {
     console.error('Sub-Subcategory Creation Error:', error);
@@ -89,9 +91,24 @@ export async function PATCH(req: Request) {
     
     await initDb();
 
-    if (updates.slug !== undefined || updates.name !== undefined) {
-      const candidate = updates.slug || updates.name;
-      updates.slug = await generateUniqueSlug('sub_sub_categories', candidate, id, updates.slug);
+    const [existingRows]: any = await pool.query('SELECT * FROM sub_sub_categories WHERE id = ?', [id]);
+    if (existingRows.length === 0) {
+      return NextResponse.json({ error: 'Sub-subcategory not found' }, { status: 404 });
+    }
+    const currentSubSub = existingRows[0];
+    const oldSlug = currentSubSub.slug;
+    const oldName = currentSubSub.name;
+
+    let newSlug = oldSlug;
+
+    if (updates.name !== undefined && updates.name !== null) {
+      const trimmedName = updates.name.trim();
+      updates.name = trimmedName;
+      newSlug = await generateUniqueSlug('sub_sub_categories', trimmedName, id);
+      updates.slug = newSlug;
+    } else if (updates.slug) {
+      newSlug = await generateUniqueSlug('sub_sub_categories', currentSubSub.name, id, updates.slug);
+      updates.slug = newSlug;
     }
     
     const keys = Object.keys(updates);
@@ -107,13 +124,34 @@ export async function PATCH(req: Request) {
       
       await pool.query(`UPDATE sub_sub_categories SET ${setClause} WHERE id = ?`, values);
     }
-    
-    const [rows]: any = await pool.query('SELECT * FROM sub_sub_categories WHERE id = ?', [id]);
-    
-    if (rows.length === 0) {
-      return NextResponse.json({ error: 'Sub-subcategory not found' }, { status: 404 });
+
+    // Handle slug synchronization & 301 redirection
+    if (newSlug && oldSlug && newSlug.toLowerCase() !== oldSlug.toLowerCase()) {
+      await recordSlugRedirect(oldSlug, newSlug);
+
+      await pool.query(
+        'UPDATE category_seo_content SET canonicalUrl = REPLACE(canonicalUrl, ?, ?) WHERE subSubCategoryId = ?',
+        [`/${oldSlug}`, `/${newSlug}`, id]
+      );
+
+      if (updates.name && updates.name !== oldName) {
+        await pool.query(
+          'UPDATE products SET subSubCategory = ? WHERE subSubCategory = ? OR subSubCategory = ?',
+          [updates.name, oldName, oldSlug]
+        );
+      }
+
+      revalidatePath(`/${oldSlug}`);
+      revalidatePath(`/${newSlug}`);
+    } else if (updates.name && updates.name !== oldName) {
+      await pool.query(
+        'UPDATE products SET subSubCategory = ? WHERE subSubCategory = ?',
+        [updates.name, oldName]
+      );
     }
     
+    const [rows]: any = await pool.query('SELECT * FROM sub_sub_categories WHERE id = ?', [id]);
+    revalidatePath('/', 'layout');
     return NextResponse.json(mapSubSubCategory(rows[0]));
   } catch (error: any) {
     console.error('Sub-Subcategory Patch Error:', error);
@@ -133,6 +171,7 @@ export async function DELETE(req: Request) {
     await initDb();
     await pool.query('DELETE FROM sub_sub_categories WHERE id = ?', [id]);
     
+    revalidatePath('/', 'layout');
     return NextResponse.json({ message: 'Sub-subcategory deleted successfully' });
   } catch (error) {
     console.error('Failed to delete sub-subcategory:', error);

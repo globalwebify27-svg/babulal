@@ -183,6 +183,18 @@ export async function initDb() {
         await connection.query(`ALTER TABLE sub_sub_categories ADD COLUMN robotsFollow BOOLEAN DEFAULT TRUE`);
       } catch (err) {}
 
+      // 3.8. Create URL Redirects table for automatic SEO 301 redirects on slug change
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS url_redirects (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          sourceSlug VARCHAR(255) NOT NULL UNIQUE,
+          targetSlug VARCHAR(255) NOT NULL,
+          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          INDEX idx_source (sourceSlug)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
       // 4. Create Products table
       await connection.query(`
         CREATE TABLE IF NOT EXISTS products (
