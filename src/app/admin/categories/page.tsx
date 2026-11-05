@@ -457,6 +457,28 @@ export default function ManageCategoriesPage() {
                                   {cat.status === 'Active' && <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />}
                                   {cat.isCurated && <Star className="w-3.5 h-3.5 text-accent" />}
                                </div>
+                               <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="text-[11px] font-mono text-[#095181] font-bold">
+                                    /{cat.slug}
+                                  </span>
+                                  {generateSlug(cat.name) !== cat.slug && (
+                                    <button
+                                      type="button"
+                                      onClick={async (e) => {
+                                        e.stopPropagation();
+                                        if (confirm(`Update slug for "${cat.name}" from /${cat.slug} to /${generateSlug(cat.name)}?\nA permanent 301 redirect will automatically be created.`)) {
+                                          await updateCategory(cat._id, { syncSlug: true });
+                                          fetchCategories();
+                                        }
+                                      }}
+                                      className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 transition-all border border-amber-500/30 cursor-pointer"
+                                      title="Slug does not match category name. Click to sync."
+                                    >
+                                      <RefreshCcw className="w-2.5 h-2.5" />
+                                      Sync Slug
+                                    </button>
+                                  )}
+                               </div>
                                <div className="flex items-center gap-3">
                                   <span className="text-[9px] font-bold text-[#1a2b4b]/30 uppercase tracking-widest bg-surface-dim px-2 py-0.5 rounded">Nodes: {cat.subCategoryCount || 0}</span>
                                   <span className="text-[9px] font-bold text-[#1a2b4b]/30 uppercase tracking-widest">{cat.parentVertical?.toUpperCase()}</span>
@@ -592,13 +614,38 @@ export default function ManageCategoriesPage() {
                     <label className="text-[10px] font-black text-[#1a2b4b]/40 uppercase tracking-widest">Category Name</label>
                     <input 
                       type="text" 
+                      placeholder="e.g. Designer Sarees"
                       required
                       className="w-full px-5 py-3 bg-[#f8fafc] border border-[#d1d9e6] rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-primary/10"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value, slug: generateSlug(e.target.value) })}
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-black text-[#1a2b4b]/40 uppercase tracking-widest">URL Slug</label>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, slug: generateSlug(formData.name) })}
+                        className="text-[10px] font-bold text-[#095181] hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <RefreshCcw className="w-2.5 h-2.5" />
+                        Sync with Name
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-mono text-gray-400">/</span>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. designer-sarees"
+                        required
+                        className="w-full pl-8 pr-5 py-3 bg-[#f8fafc] border border-[#d1d9e6] rounded-xl text-xs font-mono font-bold outline-none focus:ring-2 focus:ring-primary/10"
+                        value={formData.slug}
+                        onChange={(e) => setFormData({ ...formData, slug: generateSlug(e.target.value) })}
+                      />
+                    </div>
                     <p className="text-[10px] text-gray-400 font-medium">
-                      URL Slug: <span className="font-mono text-[#095181] font-bold">/{formData.slug || generateSlug(formData.name) || '...'}</span>
+                      Live URL: <span className="font-mono text-[#095181] font-bold">https://babulalpremkumar.com/{formData.slug || generateSlug(formData.name) || '...'}</span>
                     </p>
                   </div>
                   <div className="space-y-2">

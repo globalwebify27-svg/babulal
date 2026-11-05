@@ -113,11 +113,15 @@ export async function PATCH(req: Request) {
     if (updates.name !== undefined && updates.name !== null) {
       const trimmedName = updates.name.trim();
       cleanUpdates.name = trimmedName;
-      // Authoritatively generate new unique slug from the updated category name
-      newSlug = await generateUniqueSlug('categories', trimmedName, id);
+      // Authoritatively generate new unique slug from updated name or requested slug
+      const targetSlug = updates.slug ? updates.slug.trim() : trimmedName;
+      newSlug = await generateUniqueSlug('categories', trimmedName, id, targetSlug);
       cleanUpdates.slug = newSlug;
     } else if (updates.slug) {
-      newSlug = await generateUniqueSlug('categories', currentCategory.name, id, updates.slug);
+      newSlug = await generateUniqueSlug('categories', currentCategory.name, id, updates.slug.trim());
+      cleanUpdates.slug = newSlug;
+    } else if (updates.syncSlug) {
+      newSlug = await generateUniqueSlug('categories', currentCategory.name, id);
       cleanUpdates.slug = newSlug;
     }
 
