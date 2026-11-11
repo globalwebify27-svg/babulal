@@ -1,4 +1,17 @@
 import React from 'react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Premium Wholesale Textiles Collection | Babulal Premkumar',
+  description: 'Explore the premier wholesale textile destination in Ranchi with a century-old legacy. Exclusive Sarees, Lehengas, Suits, and bridal collections.',
+  alternates: {
+    canonical: 'https://babulalpremkumar.com',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 import pool, { initDb } from "@/lib/db";
 import TextileClient from "./TextileClient";
 

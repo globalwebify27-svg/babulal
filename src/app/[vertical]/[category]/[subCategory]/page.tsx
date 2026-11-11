@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: SubCategoryPageProps): Promis
   const subCategoryName = subCategorySlug.replace(/-/g, ' ');
   const canonicalUrl = `https://babulalpremkumar.com/${subCategorySlug.toLowerCase()}`;
 
-  let isIndex = false;
+  let isIndex = true;
   let isFollow = true;
   let metaTitle = `${subCategoryName} Collection | Babulal Premkumar`;
   let metaDescription = `Explore wholesale ${subCategoryName} at Babulal Premkumar. Regional distribution in Ranchi, Jharkhand.`;
@@ -36,6 +36,8 @@ export async function generateMetadata({ params }: SubCategoryPageProps): Promis
 
     if (subSubRows.length > 0) {
       finalCanonicalUrl = `https://babulalpremkumar.com/${subSubRows[0].slug}`;
+      isIndex = subSubRows[0].robotsIndex !== undefined && subSubRows[0].robotsIndex !== null ? !!subSubRows[0].robotsIndex : true;
+      isFollow = subSubRows[0].robotsFollow !== undefined && subSubRows[0].robotsFollow !== null ? !!subSubRows[0].robotsFollow : true;
       const [seoRows]: any = await pool.query(
         'SELECT robotsIndex, robotsFollow, metaTitle, metaDescription, canonicalUrl FROM category_seo_content WHERE subSubCategoryId = ? AND status = "Published" LIMIT 1',
         [subSubRows[0].id]

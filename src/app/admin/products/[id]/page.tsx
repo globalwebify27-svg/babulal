@@ -46,10 +46,14 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     description: '',
     images: [''],
     isActive: true,
+    robotsIndex: true,
+    robotsFollow: true,
     attributes: {} as any,
     seo: {
       metaTitle: '',
       metaDescription: '',
+      robotsIndex: true,
+      robotsFollow: true,
     },
     brochureUrl: '',
     videoUrl: ''
@@ -85,9 +89,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             shortDescription: data.shortDescription || '',
             description: data.description || '',
             images: data.images?.length > 0 ? data.images : [''],
+            robotsIndex: data.robotsIndex !== undefined && data.robotsIndex !== null ? !!data.robotsIndex : true,
+            robotsFollow: data.robotsFollow !== undefined && data.robotsFollow !== null ? !!data.robotsFollow : true,
             seo: {
               metaTitle: data.seo?.metaTitle || '',
-              metaDescription: data.seo?.metaDescription || ''
+              metaDescription: data.seo?.metaDescription || '',
+              robotsIndex: data.robotsIndex !== undefined && data.robotsIndex !== null ? !!data.robotsIndex : true,
+              robotsFollow: data.robotsFollow !== undefined && data.robotsFollow !== null ? !!data.robotsFollow : true,
             },
             subCategory: data.subCategory || '',
             subSubCategory: data.subSubCategory || '',
@@ -656,6 +664,44 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                      value={formData.seo.metaDescription}
                      onChange={(e) => setFormData({...formData, seo: {...formData.seo, metaDescription: e.target.value}})}
                    />
+                </div>
+                <div className="grid grid-cols-2 gap-4 p-4 bg-surface-dim rounded-2xl border border-primary/5">
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black uppercase tracking-[.2em] text-primary/60">Robots Index</label>
+                    <select
+                      value={formData.robotsIndex ? 'true' : 'false'}
+                      onChange={(e) => {
+                        const val = e.target.value === 'true';
+                        setFormData({
+                          ...formData,
+                          robotsIndex: val,
+                          seo: { ...formData.seo, robotsIndex: val }
+                        });
+                      }}
+                      className="w-full px-4 py-3 bg-white border border-primary/10 rounded-xl text-xs font-bold text-primary outline-none"
+                    >
+                      <option value="true">Index (Allowed)</option>
+                      <option value="false">Noindex (Blocked)</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black uppercase tracking-[.2em] text-primary/60">Robots Follow</label>
+                    <select
+                      value={formData.robotsFollow ? 'true' : 'false'}
+                      onChange={(e) => {
+                        const val = e.target.value === 'true';
+                        setFormData({
+                          ...formData,
+                          robotsFollow: val,
+                          seo: { ...formData.seo, robotsFollow: val }
+                        });
+                      }}
+                      className="w-full px-4 py-3 bg-white border border-primary/10 rounded-xl text-xs font-bold text-primary outline-none"
+                    >
+                      <option value="true">Follow Links</option>
+                      <option value="false">Nofollow Links</option>
+                    </select>
+                  </div>
                 </div>
               </div>
            </section>

@@ -1,4 +1,13 @@
 import React from 'react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Customer Feedback | Babulal Premkumar',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 import pool, { initDb } from '@/lib/db';
 import FeedbackClient from './FeedbackClient';
 

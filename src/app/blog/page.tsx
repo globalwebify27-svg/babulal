@@ -18,6 +18,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: `${SITE_URL}/blog`,
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
   openGraph: {
     title: 'Blog & Editorial Journal | Babulal Premsons',
     description: 'Explore the Babulal Premsons Journal: expert insights on Banarasi silk, bridal lehenga trends, handloom textile care, and heritage fashion in Ranchi, Jharkhand.',

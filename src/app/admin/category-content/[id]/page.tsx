@@ -58,7 +58,7 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
   const [canonicalUrl, setCanonicalUrl] = useState('');
-  const [robotsIndex, setRobotsIndex] = useState('noindex');
+  const [robotsIndex, setRobotsIndex] = useState('index');
   const [robotsFollow, setRobotsFollow] = useState('follow');
   const [status, setStatus] = useState('Published');
 
@@ -108,7 +108,7 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
           setMetaTitle(data.seoContent.metaTitle || '');
           setMetaDescription(data.seoContent.metaDescription || '');
           setCanonicalUrl(data.seoContent.canonicalUrl || '');
-          setRobotsIndex(data.seoContent.robotsIndex || 'noindex');
+          setRobotsIndex(data.seoContent.robotsIndex || 'index');
           setRobotsFollow(data.seoContent.robotsFollow || 'follow');
           setStatus(data.seoContent.status || 'Published');
           setHtmlContent(data.seoContent.htmlContent || '');
@@ -132,6 +132,12 @@ export default function CategorySEOEditorPage({ params }: { params: Promise<{ id
             setH1(`TOP ${data.targetInfo.name.toUpperCase()} IN RANCHI`);
             setMetaTitle(`${data.targetInfo.name} Wholesalers & Distributors in Ranchi | Babulal Premkumar`);
             setMetaDescription(`Direct wholesale supply of high-quality ${data.targetInfo.name}. Best prices, century-old legacy, fast regional distribution across Ranchi and Jharkhand.`);
+            if (data.targetInfo.robotsIndex !== undefined && data.targetInfo.robotsIndex !== null) {
+              setRobotsIndex(data.targetInfo.robotsIndex ? 'index' : 'noindex');
+            }
+            if (data.targetInfo.robotsFollow !== undefined && data.targetInfo.robotsFollow !== null) {
+              setRobotsFollow(data.targetInfo.robotsFollow ? 'follow' : 'nofollow');
+            }
           }
         }
 

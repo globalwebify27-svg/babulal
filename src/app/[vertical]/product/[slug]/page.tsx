@@ -83,8 +83,15 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const catSlug = product.category ? generateSlug(product.category) : 'textiles';
   const canonicalUrl = `https://babulalpremkumar.com/${catSlug}/product/${product.slug}`;
 
-  let isIndex = false;
+  let isIndex = product.isActive !== false;
   let isFollow = true;
+
+  if (rows[0].robotsIndex !== undefined && rows[0].robotsIndex !== null) {
+    isIndex = !!rows[0].robotsIndex;
+  }
+  if (rows[0].robotsFollow !== undefined && rows[0].robotsFollow !== null) {
+    isFollow = !!rows[0].robotsFollow;
+  }
 
   try {
     if (product.category) {
@@ -93,8 +100,16 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
         [product.category.toLowerCase(), product.category.toLowerCase().replace(/\s+/g, '-')]
       );
       if (catRows.length > 0) {
-        isIndex = catRows[0].robotsIndex !== undefined && catRows[0].robotsIndex !== null ? !!catRows[0].robotsIndex : false;
-        isFollow = catRows[0].robotsFollow !== undefined && catRows[0].robotsFollow !== null ? !!catRows[0].robotsFollow : true;
+        if (catRows[0].robotsIndex === false || catRows[0].robotsIndex === 0) {
+          if (rows[0].robotsIndex === null || rows[0].robotsIndex === undefined) {
+            isIndex = false;
+          }
+        }
+        if (catRows[0].robotsFollow === false || catRows[0].robotsFollow === 0) {
+          if (rows[0].robotsFollow === null || rows[0].robotsFollow === undefined) {
+            isFollow = false;
+          }
+        }
       }
     }
   } catch (err) {

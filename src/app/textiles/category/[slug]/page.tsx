@@ -22,7 +22,7 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   if (canonical.includes('babulalpremsons.com')) {
     canonical = canonical.replace('babulalpremsons.com', 'babulalpremkumar.com');
   }
-  let isIndex = false;
+  let isIndex = true;
   let isFollow = true;
 
   if (seoContent) {
@@ -37,7 +37,7 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
       isFollow = true;
     }
   } else if (category) {
-    isIndex = category.robotsIndex !== undefined && category.robotsIndex !== null ? !!category.robotsIndex : false;
+    isIndex = category.robotsIndex !== undefined && category.robotsIndex !== null ? !!category.robotsIndex : true;
     isFollow = category.robotsFollow !== undefined && category.robotsFollow !== null ? !!category.robotsFollow : true;
   }
 

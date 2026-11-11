@@ -40,7 +40,7 @@ export default function ManageCategoriesPage() {
     isCurated: false,
     status: 'Active',
     order: 0,
-    robotsIndex: false,
+    robotsIndex: true,
     robotsFollow: true
   });
 
@@ -313,7 +313,7 @@ export default function ManageCategoriesPage() {
         isCurated: category.isCurated || false,
         status: category.status,
         order: category.order,
-        robotsIndex: category.robotsIndex !== undefined && category.robotsIndex !== null ? !!category.robotsIndex : false,
+        robotsIndex: category.robotsIndex !== undefined && category.robotsIndex !== null ? !!category.robotsIndex : true,
         robotsFollow: category.robotsFollow !== undefined && category.robotsFollow !== null ? !!category.robotsFollow : true
       });
     } else {
@@ -328,7 +328,7 @@ export default function ManageCategoriesPage() {
         isCurated: false,
         status: 'Active',
         order: categories.length,
-        robotsIndex: false,
+        robotsIndex: true,
         robotsFollow: true
       });
     }

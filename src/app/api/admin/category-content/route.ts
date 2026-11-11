@@ -159,7 +159,9 @@ export async function GET(request: Request) {
           slug: subSubRows[0].slug,
           parentCategorySlug: subSubRows[0].parentCategorySlug,
           subCategorySlug: subSubRows[0].subCategorySlug,
-          targetUrl: `/${subSubRows[0].parentCategorySlug}/${subSubRows[0].subCategorySlug}?subsub=${subSubRows[0].slug}`
+          targetUrl: `/${subSubRows[0].parentCategorySlug}/${subSubRows[0].subCategorySlug}?subsub=${subSubRows[0].slug}`,
+          robotsIndex: subSubRows[0].robotsIndex !== undefined && subSubRows[0].robotsIndex !== null ? !!subSubRows[0].robotsIndex : true,
+          robotsFollow: subSubRows[0].robotsFollow !== undefined && subSubRows[0].robotsFollow !== null ? !!subSubRows[0].robotsFollow : true
         };
       }
     } else if (targetSubCatId) {
@@ -175,7 +177,9 @@ export async function GET(request: Request) {
           slug: subRows[0].slug,
           parentCategorySlug: subRows[0].parentCategorySlug,
           parentCategoryName: subRows[0].parentCategoryName,
-          targetUrl: `/${subRows[0].parentCategorySlug}/${subRows[0].slug}`
+          targetUrl: `/${subRows[0].parentCategorySlug}/${subRows[0].slug}`,
+          robotsIndex: subRows[0].robotsIndex !== undefined && subRows[0].robotsIndex !== null ? !!subRows[0].robotsIndex : true,
+          robotsFollow: subRows[0].robotsFollow !== undefined && subRows[0].robotsFollow !== null ? !!subRows[0].robotsFollow : true
         };
       }
     } else if (targetCatId) {
@@ -189,7 +193,9 @@ export async function GET(request: Request) {
           id: catRows[0].id,
           name: catRows[0].name,
           slug: catRows[0].slug,
-          targetUrl: `/${catRows[0].slug}`
+          targetUrl: `/${catRows[0].slug}`,
+          robotsIndex: catRows[0].robotsIndex !== undefined && catRows[0].robotsIndex !== null ? !!catRows[0].robotsIndex : true,
+          robotsFollow: catRows[0].robotsFollow !== undefined && catRows[0].robotsFollow !== null ? !!catRows[0].robotsFollow : true
         };
       }
     } else if (id) {
@@ -317,7 +323,7 @@ export async function POST(request: Request) {
       metaTitle,
       metaDescription,
       canonicalUrl,
-      robotsIndex = 'noindex',
+      robotsIndex = 'index',
       robotsFollow = 'follow',
       htmlContent,
       introContent,
@@ -423,6 +429,15 @@ export async function POST(request: Request) {
         ]
       );
       seoContentId = insertRes.insertId;
+    }
+    const isRobotsIndexBool = robotsIndex !== 'noindex';
+    const isRobotsFollowBool = robotsFollow !== 'nofollow';
+    if (numSubSubCatId) {
+      await pool.query('UPDATE sub_sub_categories SET robotsIndex = ?, robotsFollow = ? WHERE id = ?', [isRobotsIndexBool, isRobotsFollowBool, numSubSubCatId]);
+    } else if (numSubCatId) {
+      await pool.query('UPDATE sub_categories SET robotsIndex = ?, robotsFollow = ? WHERE id = ?', [isRobotsIndexBool, isRobotsFollowBool, numSubCatId]);
+    } else if (numCatId) {
+      await pool.query('UPDATE categories SET robotsIndex = ?, robotsFollow = ? WHERE id = ?', [isRobotsIndexBool, isRobotsFollowBool, numCatId]);
     }
 
     // Process sections if provided

@@ -20,6 +20,8 @@ export interface BlogPost {
   metaTitle?: string | null;
   metaDescription?: string | null;
   canonicalUrl?: string | null;
+  robotsIndex?: boolean;
+  robotsFollow?: boolean;
   publishedAt?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -57,6 +59,8 @@ function mapBlogRow(row: any): BlogPost {
     metaTitle: row.metaTitle || null,
     metaDescription: row.metaDescription || null,
     canonicalUrl: row.canonicalUrl || null,
+    robotsIndex: row.robotsIndex !== undefined && row.robotsIndex !== null ? !!row.robotsIndex : true,
+    robotsFollow: row.robotsFollow !== undefined && row.robotsFollow !== null ? !!row.robotsFollow : true,
     publishedAt: row.publishedAt ? new Date(row.publishedAt).toISOString() : null,
     createdAt: row.createdAt ? new Date(row.createdAt).toISOString() : new Date().toISOString(),
     updatedAt: row.updatedAt ? new Date(row.updatedAt).toISOString() : new Date().toISOString()

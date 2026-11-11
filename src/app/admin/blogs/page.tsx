@@ -47,6 +47,8 @@ interface AdminBlog {
   metaTitle?: string;
   metaDescription?: string;
   canonicalUrl?: string;
+  robotsIndex?: boolean;
+  robotsFollow?: boolean;
   publishedAt?: string | null;
   createdAt: string;
 }
@@ -93,6 +95,8 @@ export default function BlogsPage() {
     metaTitle: string;
     metaDescription: string;
     canonicalUrl: string;
+    robotsIndex: boolean;
+    robotsFollow: boolean;
   }>({
     title: '',
     slug: '',
@@ -111,6 +115,8 @@ export default function BlogsPage() {
     metaTitle: '',
     metaDescription: '',
     canonicalUrl: '',
+    robotsIndex: true,
+    robotsFollow: true,
   });
 
   // Fetch articles from API
@@ -160,6 +166,8 @@ export default function BlogsPage() {
       metaTitle: '',
       metaDescription: '',
       canonicalUrl: '',
+      robotsIndex: true,
+      robotsFollow: true,
     });
     setActiveTab('edit');
     setIsModalOpen(true);
@@ -187,6 +195,8 @@ export default function BlogsPage() {
       metaTitle: article.metaTitle || '',
       metaDescription: article.metaDescription || '',
       canonicalUrl: article.canonicalUrl || '',
+      robotsIndex: article.robotsIndex !== undefined && article.robotsIndex !== null ? !!article.robotsIndex : true,
+      robotsFollow: article.robotsFollow !== undefined && article.robotsFollow !== null ? !!article.robotsFollow : true,
     });
     setActiveTab('edit');
     setIsModalOpen(true);
@@ -969,6 +979,34 @@ export default function BlogsPage() {
                           placeholder="Search engine summary (recommended 150-160 characters)"
                           className="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs"
                         />
+                      </div>
+                      <div className="md:col-span-2 grid grid-cols-2 gap-4 p-3 bg-white rounded-xl border border-gray-200">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase text-gray-600 mb-1">
+                            Robots Index
+                          </label>
+                          <select
+                            value={formData.robotsIndex ? 'true' : 'false'}
+                            onChange={(e) => setFormData({ ...formData, robotsIndex: e.target.value === 'true' })}
+                            className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-gray-800"
+                          >
+                            <option value="true">Index (Allowed)</option>
+                            <option value="false">Noindex (Blocked)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase text-gray-600 mb-1">
+                            Robots Follow
+                          </label>
+                          <select
+                            value={formData.robotsFollow ? 'true' : 'false'}
+                            onChange={(e) => setFormData({ ...formData, robotsFollow: e.target.value === 'true' })}
+                            className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-gray-800"
+                          >
+                            <option value="true">Follow Links</option>
+                            <option value="false">Nofollow Links</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
                   </details>

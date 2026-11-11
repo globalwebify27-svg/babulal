@@ -217,6 +217,8 @@ export async function initDb() {
           altText VARCHAR(255),
           isFeatured BOOLEAN DEFAULT FALSE,
           isActive BOOLEAN DEFAULT TRUE,
+          robotsIndex BOOLEAN DEFAULT TRUE,
+          robotsFollow BOOLEAN DEFAULT TRUE,
           createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
@@ -232,6 +234,12 @@ export async function initDb() {
       } catch (err) {
         // Column may already exist
       }
+      try {
+        await connection.query(`ALTER TABLE products ADD COLUMN robotsIndex BOOLEAN DEFAULT TRUE`);
+      } catch (err) {}
+      try {
+        await connection.query(`ALTER TABLE products ADD COLUMN robotsFollow BOOLEAN DEFAULT TRUE`);
+      } catch (err) {}
 
       // 5. Create Leads table
       await connection.query(`
@@ -449,7 +457,7 @@ export async function initDb() {
           metaTitle VARCHAR(255),
           metaDescription TEXT,
           canonicalUrl VARCHAR(500),
-          robotsIndex VARCHAR(50) DEFAULT 'noindex',
+          robotsIndex VARCHAR(50) DEFAULT 'index',
           robotsFollow VARCHAR(50) DEFAULT 'follow',
           htmlContent LONGTEXT,
           introContent TEXT,
@@ -523,6 +531,8 @@ export async function initDb() {
           metaDescription TEXT DEFAULT NULL,
           canonicalUrl VARCHAR(500) DEFAULT NULL,
           publishedAt DATETIME DEFAULT NULL,
+          robotsIndex BOOLEAN DEFAULT TRUE,
+          robotsFollow BOOLEAN DEFAULT TRUE,
           createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           INDEX idx_blog_slug (slug),
@@ -530,6 +540,14 @@ export async function initDb() {
           INDEX idx_blog_featured (isFeatured)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
+
+      // Migration: Add robotsIndex and robotsFollow to blogs if missing
+      try {
+        await connection.query(`ALTER TABLE blogs ADD COLUMN robotsIndex BOOLEAN DEFAULT TRUE`);
+      } catch (err) {}
+      try {
+        await connection.query(`ALTER TABLE blogs ADD COLUMN robotsFollow BOOLEAN DEFAULT TRUE`);
+      } catch (err) {}
 
       // Seed initial high-quality blog posts if table is empty
       try {
@@ -659,13 +677,6 @@ export async function initDb() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
 
-      // Default existing records to noindex for pre-launch
-      try {
-        await connection.query(`UPDATE categories SET robotsIndex = FALSE WHERE robotsIndex = TRUE`);
-        await connection.query(`UPDATE sub_categories SET robotsIndex = FALSE WHERE robotsIndex = TRUE`);
-        await connection.query(`UPDATE sub_sub_categories SET robotsIndex = FALSE WHERE robotsIndex = TRUE`);
-        await connection.query(`UPDATE category_seo_content SET robotsIndex = 'noindex' WHERE robotsIndex = 'index' OR robotsIndex IS NULL`);
-      } catch (e) {}
 
       isDbInitialized = true;
       console.log('✅ MySQL Database and Tables initialized successfully.');

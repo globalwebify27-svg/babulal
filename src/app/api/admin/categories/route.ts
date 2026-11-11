@@ -10,7 +10,7 @@ function mapCategory(cat: any) {
     ...cat,
     _id: cat.id.toString(),
     cardImage: cat.cardImage || null,
-    robotsIndex: cat.robotsIndex !== undefined && cat.robotsIndex !== null ? !!cat.robotsIndex : false,
+    robotsIndex: cat.robotsIndex !== undefined && cat.robotsIndex !== null ? !!cat.robotsIndex : true,
     robotsFollow: cat.robotsFollow !== undefined && cat.robotsFollow !== null ? !!cat.robotsFollow : true,
     order: cat.orderIndex,
     showInHeader: !!cat.showInHeader,
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       data.cardImage = await optimizeBase64Image(data.cardImage);
     }
 
-    const robotsIdx = data.robotsIndex !== undefined ? !!data.robotsIndex : false;
+    const robotsIdx = data.robotsIndex !== undefined ? !!data.robotsIndex : true;
     const robotsFlw = data.robotsFollow !== undefined ? !!data.robotsFollow : true;
 
     const [result]: any = await pool.query(
@@ -146,6 +146,16 @@ export async function PATCH(req: Request) {
       values.push(id);
       
       await pool.query(`UPDATE categories SET ${setClause} WHERE id = ?`, values);
+    }
+    if (updates.robotsIndex !== undefined || updates.robotsFollow !== undefined) {
+      const targetIdx = updates.robotsIndex !== undefined ? !!updates.robotsIndex : !!currentCategory.robotsIndex;
+      const targetFlw = updates.robotsFollow !== undefined ? !!updates.robotsFollow : (currentCategory.robotsFollow !== false);
+      const robotsIndexStr = targetIdx ? 'index' : 'noindex';
+      const robotsFollowStr = targetFlw ? 'follow' : 'nofollow';
+      await pool.query(
+        `UPDATE category_seo_content SET robotsIndex = ?, robotsFollow = ?, updatedAt = NOW() WHERE categoryId = ? AND subCategoryId IS NULL AND subSubCategoryId IS NULL`,
+        [robotsIndexStr, robotsFollowStr, id]
+      );
     }
 
     // Handle slug synchronization & 301 redirection

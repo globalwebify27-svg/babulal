@@ -36,6 +36,8 @@ function mapAdminBlog(row: any) {
     metaTitle: row.metaTitle || '',
     metaDescription: row.metaDescription || '',
     canonicalUrl: row.canonicalUrl || '',
+    robotsIndex: row.robotsIndex !== undefined && row.robotsIndex !== null ? !!row.robotsIndex : true,
+    robotsFollow: row.robotsFollow !== undefined && row.robotsFollow !== null ? !!row.robotsFollow : true,
     publishedAt: row.publishedAt ? new Date(row.publishedAt).toISOString() : null,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt
@@ -159,8 +161,8 @@ export async function POST(req: Request) {
       `INSERT INTO blogs (
         title, slug, subtitle, excerpt, content, featuredImage, imageAlt,
         author, authorRole, category, tags, status, isFeatured, readTime,
-        metaTitle, metaDescription, canonicalUrl, publishedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        metaTitle, metaDescription, canonicalUrl, publishedAt, robotsIndex, robotsFollow
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.title.trim(),
         finalSlug,
@@ -178,8 +180,10 @@ export async function POST(req: Request) {
         data.readTime || '5 min read',
         data.metaTitle || data.title.trim(),
         data.metaDescription || data.excerpt || null,
-        data.canonicalUrl || `https://babulalpremsons.com/blog/${finalSlug}`,
-        publishedAt
+        data.canonicalUrl || `https://babulalpremkumar.com/blog/${finalSlug}`,
+        publishedAt,
+        data.robotsIndex !== undefined ? !!data.robotsIndex : true,
+        data.robotsFollow !== undefined ? !!data.robotsFollow : true
       ]
     );
 
@@ -266,7 +270,9 @@ export async function PUT(req: Request) {
         metaTitle = ?,
         metaDescription = ?,
         canonicalUrl = ?,
-        publishedAt = ?
+        publishedAt = ?,
+        robotsIndex = ?,
+        robotsFollow = ?
       WHERE id = ?`,
       [
         data.title !== undefined ? data.title.trim() : existing[0].title,
@@ -287,6 +293,8 @@ export async function PUT(req: Request) {
         data.metaDescription !== undefined ? data.metaDescription : existing[0].metaDescription,
         data.canonicalUrl !== undefined ? data.canonicalUrl : existing[0].canonicalUrl,
         publishedAt,
+        data.robotsIndex !== undefined ? !!data.robotsIndex : (existing[0].robotsIndex !== undefined && existing[0].robotsIndex !== null ? !!existing[0].robotsIndex : true),
+        data.robotsFollow !== undefined ? !!data.robotsFollow : (existing[0].robotsFollow !== undefined && existing[0].robotsFollow !== null ? !!existing[0].robotsFollow : true),
         Number(id)
       ]
     );

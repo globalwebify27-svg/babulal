@@ -20,6 +20,8 @@ function mapProduct(prod: any) {
     videoUrl: prod.videoUrl,
     brochureUrl: prod.brochureUrl,
     attributes: prod.attributes ? JSON.parse(prod.attributes) : {},
+    robotsIndex: prod.robotsIndex !== undefined && prod.robotsIndex !== null ? !!prod.robotsIndex : true,
+    robotsFollow: prod.robotsFollow !== undefined && prod.robotsFollow !== null ? !!prod.robotsFollow : true,
     seo: {
       h1: prod.h1,
       metaTitle: prod.metaTitle,
@@ -115,12 +117,18 @@ export async function POST(req: Request) {
     const metaTitleVal = data.seo?.metaTitle || data.metaTitle || null;
     const metaDescriptionVal = data.seo?.metaDescription || data.metaDescription || null;
     const altTextVal = data.seo?.altText || data.altText || null;
+    const robotsIdx = data.robotsIndex !== undefined 
+      ? !!data.robotsIndex 
+      : (data.seo?.robotsIndex !== undefined ? !!data.seo.robotsIndex : true);
+    const robotsFlw = data.robotsFollow !== undefined 
+      ? !!data.robotsFollow 
+      : (data.seo?.robotsFollow !== undefined ? !!data.seo.robotsFollow : true);
 
     const [result]: any = await pool.query(
       `INSERT INTO products (
         name, slug, businessVertical, category, subCategory, subSubCategory, shortDescription, description, images, videoUrl, brochureUrl, attributes,
-        h1, metaTitle, metaDescription, altText, isFeatured, isActive
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        h1, metaTitle, metaDescription, altText, isFeatured, isActive, robotsIndex, robotsFollow
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.name,
         data.slug.toLowerCase().replace(/\s+/g, '-'),
@@ -139,7 +147,9 @@ export async function POST(req: Request) {
         metaDescriptionVal,
         altTextVal,
         data.isFeatured !== undefined ? !!data.isFeatured : false,
-        data.isActive !== undefined ? !!data.isActive : true
+        data.isActive !== undefined ? !!data.isActive : true,
+        robotsIdx,
+        robotsFlw
       ]
     );
 
@@ -192,7 +202,7 @@ export async function PATCH(req: Request) {
     const cleanUpdates: any = {};
     const ALLOWED_COLUMNS = [
       'name', 'slug', 'businessVertical', 'category', 'subCategory', 'subSubCategory',
-      'shortDescription', 'description', 'videoUrl', 'brochureUrl', 'isFeatured', 'isActive'
+      'shortDescription', 'description', 'videoUrl', 'brochureUrl', 'isFeatured', 'isActive', 'robotsIndex', 'robotsFollow'
     ];
 
     for (const key of ALLOWED_COLUMNS) {
@@ -212,7 +222,11 @@ export async function PATCH(req: Request) {
       if (updates.seo.metaTitle !== undefined) cleanUpdates.metaTitle = updates.seo.metaTitle;
       if (updates.seo.metaDescription !== undefined) cleanUpdates.metaDescription = updates.seo.metaDescription;
       if (updates.seo.altText !== undefined) cleanUpdates.altText = updates.seo.altText;
+      if (updates.seo.robotsIndex !== undefined) cleanUpdates.robotsIndex = !!updates.seo.robotsIndex;
+      if (updates.seo.robotsFollow !== undefined) cleanUpdates.robotsFollow = !!updates.seo.robotsFollow;
     }
+    if (updates.robotsIndex !== undefined) cleanUpdates.robotsIndex = !!updates.robotsIndex;
+    if (updates.robotsFollow !== undefined) cleanUpdates.robotsFollow = !!updates.robotsFollow;
 
     const cleanKeys = Object.keys(cleanUpdates);
     if (cleanKeys.length > 0) {

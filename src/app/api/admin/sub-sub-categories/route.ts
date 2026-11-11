@@ -9,7 +9,7 @@ function mapSubSubCategory(sub: any) {
     ...sub,
     _id: sub.id.toString(),
     subCategory: sub.subCategoryId ? sub.subCategoryId.toString() : null,
-    robotsIndex: sub.robotsIndex !== undefined && sub.robotsIndex !== null ? !!sub.robotsIndex : false,
+    robotsIndex: sub.robotsIndex !== undefined && sub.robotsIndex !== null ? !!sub.robotsIndex : true,
     robotsFollow: sub.robotsFollow !== undefined && sub.robotsFollow !== null ? !!sub.robotsFollow : true,
     order: sub.orderIndex
   };
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'subCategoryId is required' }, { status: 400 });
     }
 
-    const robotsIdx = data.robotsIndex !== undefined ? !!data.robotsIndex : false;
+    const robotsIdx = data.robotsIndex !== undefined ? !!data.robotsIndex : true;
     const robotsFlw = data.robotsFollow !== undefined ? !!data.robotsFollow : true;
 
     const [result]: any = await pool.query(
@@ -127,6 +127,16 @@ export async function PATCH(req: Request) {
       values.push(id);
       
       await pool.query(`UPDATE sub_sub_categories SET ${setClause} WHERE id = ?`, values);
+    }
+    if (updates.robotsIndex !== undefined || updates.robotsFollow !== undefined) {
+      const targetIdx = updates.robotsIndex !== undefined ? !!updates.robotsIndex : !!currentSubSub.robotsIndex;
+      const targetFlw = updates.robotsFollow !== undefined ? !!updates.robotsFollow : (currentSubSub.robotsFollow !== false);
+      const robotsIndexStr = targetIdx ? 'index' : 'noindex';
+      const robotsFollowStr = targetFlw ? 'follow' : 'nofollow';
+      await pool.query(
+        `UPDATE category_seo_content SET robotsIndex = ?, robotsFollow = ?, updatedAt = NOW() WHERE subSubCategoryId = ?`,
+        [robotsIndexStr, robotsFollowStr, id]
+      );
     }
 
     // Handle slug synchronization & 301 redirection

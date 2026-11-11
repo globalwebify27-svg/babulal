@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
     const cat = rows[0];
     const canonicalUrl = `https://babulalpremkumar.com/${cat.slug}`;
 
-    let isIndex = cat.robotsIndex !== undefined && cat.robotsIndex !== null ? !!cat.robotsIndex : false;
+    let isIndex = cat.robotsIndex !== undefined && cat.robotsIndex !== null ? !!cat.robotsIndex : true;
     let isFollow = cat.robotsFollow !== undefined && cat.robotsFollow !== null ? !!cat.robotsFollow : true;
 
     try {
@@ -136,7 +136,7 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
     const sub = subRows[0];
     const canonicalUrl = `https://babulalpremkumar.com/${sub.slug}`;
 
-    let isIndex = sub.robotsIndex !== undefined && sub.robotsIndex !== null ? !!sub.robotsIndex : false;
+    let isIndex = sub.robotsIndex !== undefined && sub.robotsIndex !== null ? !!sub.robotsIndex : true;
     let isFollow = sub.robotsFollow !== undefined && sub.robotsFollow !== null ? !!sub.robotsFollow : true;
 
     try {
@@ -219,7 +219,7 @@ export async function generateMetadata({ params }: VerticalPageProps): Promise<M
     const subSub = subSubRows[0];
     const canonicalUrl = `https://babulalpremkumar.com/${subSub.slug}`;
 
-    let isIndex = subSub.robotsIndex !== undefined && subSub.robotsIndex !== null ? !!subSub.robotsIndex : false;
+    let isIndex = subSub.robotsIndex !== undefined && subSub.robotsIndex !== null ? !!subSub.robotsIndex : true;
     let isFollow = subSub.robotsFollow !== undefined && subSub.robotsFollow !== null ? !!subSub.robotsFollow : true;
 
     try {

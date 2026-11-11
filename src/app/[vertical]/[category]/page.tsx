@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     ? `https://babulalpremkumar.com/${categorySlug}`
     : `https://babulalpremkumar.com/${categorySlug}`;
 
-  let isIndex = false;
+  let isIndex = true;
   let isFollow = true;
 
   let metaTitle = `${categoryName} Collection | Babulal Premkumar`;
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       [categorySlug.toLowerCase()]
     );
     if (catRows.length > 0) {
-      isIndex = catRows[0].robotsIndex !== undefined && catRows[0].robotsIndex !== null ? !!catRows[0].robotsIndex : false;
+      isIndex = catRows[0].robotsIndex !== undefined && catRows[0].robotsIndex !== null ? !!catRows[0].robotsIndex : true;
       isFollow = catRows[0].robotsFollow !== undefined && catRows[0].robotsFollow !== null ? !!catRows[0].robotsFollow : true;
 
       let [seoRows]: any = await pool.query(
@@ -89,7 +89,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
         [categorySlug.toLowerCase()]
       );
       if (subRows.length > 0) {
-        isIndex = subRows[0].robotsIndex !== undefined && subRows[0].robotsIndex !== null ? !!subRows[0].robotsIndex : false;
+        isIndex = subRows[0].robotsIndex !== undefined && subRows[0].robotsIndex !== null ? !!subRows[0].robotsIndex : true;
         isFollow = subRows[0].robotsFollow !== undefined && subRows[0].robotsFollow !== null ? !!subRows[0].robotsFollow : true;
 
         let [seoRows]: any = await pool.query(

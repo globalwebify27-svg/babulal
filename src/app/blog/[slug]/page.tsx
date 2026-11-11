@@ -85,8 +85,8 @@ export async function generateMetadata(props: BlogPageProps): Promise<Metadata> 
       images: [imageUrl],
     },
     robots: {
-      index: true,
-      follow: true,
+      index: blog.robotsIndex !== undefined && blog.robotsIndex !== null ? !!blog.robotsIndex : true,
+      follow: blog.robotsFollow !== undefined && blog.robotsFollow !== null ? !!blog.robotsFollow : true,
     },
   };
 }
